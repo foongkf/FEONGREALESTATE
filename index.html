@@ -10,7 +10,26 @@
 
   <style>
     body { margin:0; font-family: Arial, sans-serif; background:#f4f6f8; }
-    header { background:#1e3a8a; color:#fff; padding:16px; text-align:center; }
+
+    header {
+      background:#1e3a8a;
+      color:#fff;
+      padding:16px;
+      text-align:center;
+      position:relative;
+    }
+
+    .adminBtn{
+      position:absolute;
+      right:12px;
+      top:12px;
+      background:#111827;
+      color:#fff;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+    }
 
     .tabs { display:flex; gap:10px; justify-content:center; padding:10px; background:#fff; }
     .tabs button { padding:10px 14px; border:none; cursor:pointer; border-radius:8px; }
@@ -39,12 +58,60 @@
     #map { height:600px; display:none; }
 
     footer { text-align:center; padding:16px; background:#1e3a8a; color:#fff; margin-top:20px; }
+
+    /* ADMIN */
+    #adminPanel{
+      display:none;
+      background:#fff;
+      padding:16px;
+      margin-top:16px;
+      border-radius:12px;
+    }
+
+    input, textarea, select{
+      width:100%;
+      padding:8px;
+      margin:6px 0;
+      border-radius:8px;
+      border:1px solid #ddd;
+    }
+
+    .rowBtns button{
+      margin-right:6px;
+      padding:6px 10px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+
+    .edit{background:#f59e0b;color:#fff;}
+    .del{background:#ef4444;color:#fff;}
+    .save{background:#16a34a;color:#fff;}
+
+    /* LOGIN MODAL */
+    #loginModal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.6);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+
+    .modalBox{
+      background:#fff;
+      padding:20px;
+      border-radius:12px;
+      width:300px;
+    }
   </style>
 </head>
 <body>
 
 <header>
   <h1>FEONG REAL ESTATE PENANG</h1>
+  <button class="adminBtn" onclick="openLogin()">Admin</button>
 </header>
 
 <div class="tabs">
@@ -60,15 +127,69 @@
 
   <div id="map"></div>
 
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel">
+    <h3>Admin Panel</h3>
+
+    <input id="title" placeholder="Title" />
+    <input id="area" placeholder="Area" />
+    <input id="size" placeholder="Size sqft" />
+    <input id="bed" placeholder="Bedroom" />
+    <input id="bath" placeholder="Bathroom" />
+    <input id="price" placeholder="Price" />
+    <input id="tenure" placeholder="Freehold / Leasehold" />
+
+    <select id="type">
+      <option value="sale">Sale</option>
+      <option value="rent">Rent</option>
+    </select>
+
+    <select id="exclusive">
+      <option value="no">Normal</option>
+      <option value="yes">Exclusive</option>
+    </select>
+
+    <textarea id="img" placeholder="Image URLs (separate by |)"></textarea>
+
+    <button class="save" onclick="save()">Save Property</button>
+
+    <hr/>
+    <div id="adminList"></div>
+  </div>
+
 </div>
 
 <footer>
   FEONG: 014-7405020 | REN 61687 | Today Properties
 </footer>
 
+<!-- LOGIN MODAL -->
+<div id="loginModal">
+  <div class="modalBox">
+    <h3>Admin Login</h3>
+    <input id="pass" type="password" placeholder="Password" />
+    <button onclick="login()" class="save">Login</button>
+  </div>
+</div>
+
 <script>
 
-// ================= UI =================
+const ADMIN_PASS = "feong123";
+
+function openLogin(){
+  document.getElementById('loginModal').style.display='flex';
+}
+
+function login(){
+  if(document.getElementById('pass').value === ADMIN_PASS){
+    document.getElementById('loginModal').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    renderAdmin();
+  } else {
+    alert('Wrong password');
+  }
+}
+
 function switchTab(t){
   document.getElementById("listView").style.display = t==='list'?'block':'none';
   document.getElementById("map").style.display = t==='map'?'block':'none';
@@ -76,21 +197,19 @@ function switchTab(t){
 
 function parse(img){
   if(!img) return ["https://via.placeholder.com/400"];
-  if(Array.isArray(img)) return img;
-  try{ return JSON.parse(img); }catch(e){ return img.split("|"); }
+  return img.split('|');
 }
 
-// ================= DATA =================
 let data = JSON.parse(localStorage.getItem("data")||"[]");
+let editIndex=null;
 
-// ================= RENDER =================
 function render(){
   const g=document.getElementById("grid");
   g.innerHTML="";
 
   data.sort((a,b)=>(b.exclusive==='yes')-(a.exclusive==='yes'));
 
-  data.forEach((p)=>{
+  data.forEach(p=>{
     g.innerHTML+=`
     <div class='card'>
       <div class='img-box'>
@@ -101,32 +220,72 @@ function render(){
       <div class='content'>
         <h3>${p.title}</h3>
         <div class='price'>RM ${p.price}</div>
-        <div class='info'>${p.area || ''} | ${p.size || ''} sqft</div>
-        <div class='info'>${p.bed || ''} Bed | ${p.bath || ''} Bath</div>
+        <div class='info'>${p.area} | ${p.size} sqft</div>
+        <div class='info'>${p.bed} Bed | ${p.bath} Bath</div>
         <a class='btn' href='https://wa.me/60147405020' target='_blank'>WhatsApp</a>
       </div>
     </div>`;
   });
 }
 
-// ================= MAP =================
-let map;
-let markers=[];
+function save(){
+  const p={
+    title:title.value,
+    area:area.value,
+    size:size.value,
+    bed:bed.value,
+    bath:bath.value,
+    price:price.value,
+    tenure:tenure.value,
+    type:type.value,
+    exclusive:exclusive.value,
+    img:img.value
+  };
 
-function renderMap(){
-  if(!map){
-    map=L.map('map').setView([5.4,100.3],11);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  }
+  if(editIndex===null) data.push(p);
+  else data[editIndex]=p;
 
-  markers.forEach(m=>map.removeLayer(m));
-  markers=[];
+  localStorage.setItem("data",JSON.stringify(data));
+  render();
+  renderAdmin();
+}
 
-  data.forEach(p=>{
-    const m=L.marker([5.4+Math.random()*0.1,100.3+Math.random()*0.1]).addTo(map);
-    m.bindPopup(p.title);
-    markers.push(m);
+function renderAdmin(){
+  const box=document.getElementById("adminList");
+  box.innerHTML="";
+
+  data.forEach((p,i)=>{
+    box.innerHTML+=`
+    <div style='border:1px solid #eee;padding:8px;margin:6px 0;border-radius:8px;'>
+      <b>${p.title}</b><br/>
+      RM ${p.price}
+      <div class='rowBtns'>
+        <button class='edit' onclick='edit(${i})'>Edit</button>
+        <button class='del' onclick='del(${i})'>Delete</button>
+      </div>
+    </div>`;
   });
+}
+
+function edit(i){
+  const p=data[i]; editIndex=i;
+  title.value=p.title;
+  area.value=p.area;
+  size.value=p.size;
+  bed.value=p.bed;
+  bath.value=p.bath;
+  price.value=p.price;
+  tenure.value=p.tenure;
+  type.value=p.type;
+  exclusive.value=p.exclusive;
+  img.value=p.img;
+}
+
+function del(i){
+  data.splice(i,1);
+  localStorage.setItem("data",JSON.stringify(data));
+  render();
+  renderAdmin();
 }
 
 render();
