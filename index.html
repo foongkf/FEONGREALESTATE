@@ -18,8 +18,6 @@
 
     .container { padding:16px; max-width:1200px; margin:auto; }
 
-    select, input, textarea { padding:8px; border-radius:8px; border:1px solid #ddd; width:100%; margin-bottom:10px; }
-
     .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; }
 
     .card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
@@ -40,39 +38,10 @@
 
     #map { height:600px; display:none; }
 
-    .admin { display:none; }
-    .admin-box { background:#fff; padding:16px; border-radius:12px; margin-bottom:20px; }
-
-    .admin-table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; }
-    .admin-table th, .admin-table td { padding:8px; border-bottom:1px solid #eee; font-size:13px; }
-
-    .small-btn { padding:5px 8px; font-size:12px; border:none; border-radius:6px; cursor:pointer; }
-    .edit { background:#f59e0b; color:#fff; }
-    .del { background:#ef4444; color:#fff; }
-
-    /* LOGIN */
-    #loginBox {
-      position:fixed; inset:0; background:rgba(0,0,0,0.6);
-      display:flex; align-items:center; justify-content:center;
-      z-index:9999;
-    }
-    .login-card {
-      background:#fff; padding:20px; border-radius:12px; width:300px;
-    }
-
     footer { text-align:center; padding:16px; background:#1e3a8a; color:#fff; margin-top:20px; }
   </style>
 </head>
 <body>
-
-<!-- LOGIN -->
-<div id="loginBox">
-  <div class="login-card">
-    <h3>Admin Login</h3>
-    <input id="pass" type="password" placeholder="Enter password" />
-    <button onclick="login()" class="small-btn edit" style="width:100%">Login</button>
-  </div>
-</div>
 
 <header>
   <h1>FEONG REAL ESTATE PENANG</h1>
@@ -81,62 +50,15 @@
 <div class="tabs">
   <button onclick="switchTab('list')" class="active">Listings</button>
   <button onclick="switchTab('map')">Map</button>
-  <button onclick="switchTab('admin')">Admin</button>
 </div>
 
 <div class="container">
 
-  <!-- LIST -->
   <div id="listView">
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- MAP -->
   <div id="map"></div>
-
-  <!-- ADMIN FULL -->
-  <div class="admin" id="admin">
-
-    <div class="admin-box">
-      <h3>Add / Edit Property</h3>
-
-      <input id="a_title" placeholder="Title" />
-      <input id="a_area" placeholder="Area" />
-      <input id="a_size" placeholder="Size (sqft)" />
-      <input id="a_bed" placeholder="Bedroom" />
-      <input id="a_bath" placeholder="Bathroom" />
-      <input id="a_price" placeholder="Price" />
-      <input id="a_tenure" placeholder="Freehold / Leasehold" />
-
-      <input type="file" id="imgUpload" multiple accept="image/*" />
-
-      <select id="a_type">
-        <option value="sale">Sale</option>
-        <option value="rent">Rent</option>
-      </select>
-
-      <select id="a_exclusive">
-        <option value="no">Normal</option>
-        <option value="yes">Exclusive Listing</option>
-      </select>
-
-      <button onclick="saveProperty()" class="small-btn edit" style="width:100%;">Save Property</button>
-    </div>
-
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Area</th>
-          <th>Price</th>
-          <th>Type</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="adminList"></tbody>
-    </table>
-
-  </div>
 
 </div>
 
@@ -145,53 +67,12 @@
 </footer>
 
 <script>
-const WA = "https://wa.me/60147405020";
-const ADMIN_HASH = "d09cee847ecb2099774bcac8cf44689db6fd86c2153817573beff9ce8d12be70";
 
-async function hashPassword(text){
-  const enc = new TextEncoder();
-  const buf = await crypto.subtle.digest('SHA-256', enc.encode(text));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
-async function login(){
-  const input = document.getElementById('pass').value;
-  const hashed = await hashPassword(input);
-
-  if(hashed === ADMIN_HASH){
-    sessionStorage.setItem("auth","1");
-    document.getElementById("loginBox").style.display="none";
-    document.querySelectorAll(".admin")[0].style.display="block";
-  } else {
-    alert("Wrong password");
-  }
-} else alert("Wrong password");
-}
-
-if(sessionStorage.getItem("auth")){
-  document.getElementById("loginBox").style.display="none";
-}
-
+// ================= UI =================
 function switchTab(t){
   document.getElementById("listView").style.display = t==='list'?'block':'none';
   document.getElementById("map").style.display = t==='map'?'block':'none';
-  document.getElementById("admin").style.display = t==='admin'?'block':'none';
 }
-
-function handleImages(){
-  const files = imgUpload.files;
-  uploadedImages = [];
-
-  for(let f of files){
-    const reader = new FileReader();
-    reader.onload = e => {
-      uploadedImages.push(e.target.result);
-    }
-    reader.readAsDataURL(f);
-  }
-}
-
-imgUpload?.addEventListener("change", handleImages);
 
 function parse(img){
   if(!img) return ["https://via.placeholder.com/400"];
@@ -199,12 +80,17 @@ function parse(img){
   try{ return JSON.parse(img); }catch(e){ return img.split("|"); }
 }
 
+// ================= DATA =================
+let data = JSON.parse(localStorage.getItem("data")||"[]");
+
+// ================= RENDER =================
 function render(){
-  const g=document.getElementById("grid"); g.innerHTML="";
+  const g=document.getElementById("grid");
+  g.innerHTML="";
 
   data.sort((a,b)=>(b.exclusive==='yes')-(a.exclusive==='yes'));
 
-  data.forEach((p,i)=>{
+  data.forEach((p)=>{
     g.innerHTML+=`
     <div class='card'>
       <div class='img-box'>
@@ -215,83 +101,17 @@ function render(){
       <div class='content'>
         <h3>${p.title}</h3>
         <div class='price'>RM ${p.price}</div>
-        <div class='info'>${p.area} | ${p.size} sqft</div>
-        <div class='info'>${p.bed} Bed | ${p.bath} Bath</div>
-        <a class='btn' href='${WA}' target='_blank'>WhatsApp</a>
+        <div class='info'>${p.area || ''} | ${p.size || ''} sqft</div>
+        <div class='info'>${p.bed || ''} Bed | ${p.bath || ''} Bath</div>
+        <a class='btn' href='https://wa.me/60147405020' target='_blank'>WhatsApp</a>
       </div>
     </div>`;
   });
-
-  renderAdmin();
 }
 
-function renderAdmin(){
-  const a=document.getElementById("adminList");
-  a.innerHTML="";
-
-  data.forEach((p,i)=>{
-    a.innerHTML+=`
-    <tr>
-      <td>${p.title}</td>
-      <td>${p.area}</td>
-      <td>${p.price}</td>
-      <td>${p.type}</td>
-      <td>
-        <button class='small-btn edit' onclick='edit(${i})'>Edit</button>
-        <button class='small-btn del' onclick='del(${i})'>X</button>
-      </td>
-    </tr>`;
-  });
-}
-
-function saveProperty(){
-  const p={
-    title:a_title.value,
-    area:a_area.value,
-    size:a_size.value,
-    bed:a_bed.value,
-    bath:a_bath.value,
-    price:a_price.value,
-    tenure:a_tenure.value,
-    type:a_type.value,
-    exclusive:a_exclusive.value,
-    img:JSON.stringify(uploadedImages)
-  };
-
-  if(editIndex!==null){
-    data[editIndex]=p;
-    editIndex=null;
-  }else data.push(p);
-
-  localStorage.setItem("data",JSON.stringify(data));
-  uploadedImages=[];
-  render();
-  clearForm();
-}
-
-function edit(i){
-  const p=data[i]; editIndex=i;
-  a_title.value=p.title;
-  a_area.value=p.area;
-  a_size.value=p.size;
-  a_bed.value=p.bed;
-  a_bath.value=p.bath;
-  a_price.value=p.price;
-  a_tenure.value=p.tenure;
-  a_type.value=p.type;
-  a_exclusive.value=p.exclusive;
-}
-
-function del(i){
-  data.splice(i,1);
-  localStorage.setItem("data",JSON.stringify(data));
-  render();
-}
-
-function clearForm(){
-  document.querySelectorAll(".admin-box input").forEach(i=>i.value="");
-  imgUpload.value="";
-}
+// ================= MAP =================
+let map;
+let markers=[];
 
 function renderMap(){
   if(!map){
@@ -310,6 +130,8 @@ function renderMap(){
 }
 
 render();
+
 </script>
+
 </body>
 </html>
