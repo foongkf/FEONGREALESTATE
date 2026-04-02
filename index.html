@@ -6,174 +6,55 @@
   <title>FEONG REAL ESTATE PENANG</title>
   <style>
     body { margin:0; font-family: Arial, sans-serif; background:#f4f6f8; }
-
-    header {
-      background:#1e3a8a;
-      color:#fff;
-      padding:16px;
-      text-align:center;
-    }
-
+    header { background:#1e3a8a; color:#fff; padding:16px; text-align:center; }
     .container { padding:16px; max-width:1200px; margin:auto; }
-
-    .filters {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-bottom:16px;
-    }
-
-    select, input {
-      padding:8px;
-      border-radius:8px;
-      border:1px solid #ddd;
-    }
-
-    .grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-      gap:16px;
-    }
-
-    .card {
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 4px 12px rgba(0,0,0,0.08);
-      display:flex;
-      flex-direction:column;
-    }
-
-    .img-box {
-      position:relative;
-      height:180px;
-      background:#eee;
-    }
-
-    .img-box img {
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .nav {
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      background:rgba(0,0,0,0.4);
-      color:#fff;
-      border:none;
-      padding:6px 10px;
-      cursor:pointer;
-    }
-
-    .prev { left:8px; }
-    .next { right:8px; }
-
-    .badge {
-      position:absolute;
-      top:10px;
-      left:10px;
-      background:#f59e0b;
-      color:#fff;
-      padding:4px 8px;
-      border-radius:6px;
-      font-size:12px;
-      z-index:2;
-    }
-
-    .tag {
-      position:absolute;
-      top:10px;
-      right:10px;
-      padding:4px 10px;
-      border-radius:20px;
-      font-size:12px;
-      color:#fff;
-      z-index:2;
-      font-weight:bold;
-    }
-
-    .tag.sale { background:#ef4444; }
-    .tag.rent { background:#3b82f6; }
-
+    .filters { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+    select, input { padding:8px; border-radius:8px; border:1px solid #ddd; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; }
+    .card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); display:flex; flex-direction:column; }
+    .img-box { position:relative; height:180px; background:#eee; }
+    .img-box img { width:100%; height:100%; object-fit:cover; }
+    .nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.4); color:#fff; border:none; padding:6px 10px; cursor:pointer; }
+    .prev { left:8px; } .next { right:8px; }
+    .badge { position:absolute; top:10px; left:10px; background:#f59e0b; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; z-index:2; }
+    .tag { position:absolute; top:10px; right:10px; padding:4px 10px; border-radius:20px; font-size:12px; color:#fff; z-index:2; font-weight:bold; }
+    .tag.sale { background:#ef4444; } .tag.rent { background:#3b82f6; }
     .content { padding:12px; }
-
-    .price {
-      color:#16a34a;
-      font-weight:bold;
-      font-size:18px;
-      margin:6px 0;
-    }
-
-    .info {
-      font-size:13px;
-      margin:4px 0;
-      color:#444;
-    }
-
-    .btn {
-      display:block;
-      text-align:center;
-      background:#25D366;
-      color:#fff;
-      padding:10px;
-      margin-top:10px;
-      border-radius:8px;
-      text-decoration:none;
-    }
-
-    footer {
-      text-align:center;
-      padding:16px;
-      background:#1e3a8a;
-      color:#fff;
-      margin-top:20px;
-    }
+    .price { color:#16a34a; font-weight:bold; font-size:18px; margin:6px 0; }
+    .info { font-size:13px; margin:4px 0; color:#444; }
+    .btn { display:block; text-align:center; background:#25D366; color:#fff; padding:10px; margin-top:10px; border-radius:8px; text-decoration:none; }
+    footer { text-align:center; padding:16px; background:#1e3a8a; color:#fff; margin-top:20px; }
   </style>
 </head>
 <body>
-
 <header>
   <h1>FEONG REAL ESTATE PENANG</h1>
   <p>Penang Property Listing</p>
 </header>
-
 <div class="container">
-
   <div class="filters">
     <select id="type">
       <option value="all">All</option>
       <option value="sale">For Sale</option>
       <option value="rent">For Rent</option>
     </select>
-
     <select id="tenure">
       <option value="all">Tenure</option>
       <option value="freehold">Freehold</option>
       <option value="leasehold">Leasehold</option>
     </select>
-
-    <select id="area">
-      <option value="all">Area</option>
-    </select>
-
+    <select id="area"><option value="all">Area</option></select>
     <select id="sort">
       <option value="default">Default</option>
       <option value="exclusive">Exclusive First</option>
       <option value="low">Price Low → High</option>
       <option value="high">Price High → Low</option>
     </select>
-
     <input id="search" placeholder="Search..." />
   </div>
-
   <div class="grid" id="grid"></div>
 </div>
-
-<footer>
-  FEONG: 014-7405020 | REN 61687 | Today Properties
-</footer>
+<footer>FEONG: 014-7405020 | REN 61687 | Today Properties</footer>
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
@@ -184,11 +65,6 @@ let imgIndex = {};
 
 function clean(v){ return (v||"").replace(/\r/g,"").replace(/^\"|\"$/g,"").trim(); }
 
-function parseImages(raw){
-  if(!raw) return ["https://via.placeholder.com/400x300?text=No+Image"];
-  return raw.split("|").map(x=>x.trim()).filter(Boolean).map(formatImg);
-}
-
 function formatImg(url){
   if(url.includes("drive.google.com")){
     let id = (url.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1];
@@ -198,10 +74,13 @@ function formatImg(url){
   return url;
 }
 
+function parseImages(raw){
+  if(!raw) return ["https://via.placeholder.com/400x300?text=No+Image"];
+  return raw.split("|").map(x=>x.trim()).filter(Boolean).map(formatImg);
+}
+
 function priceNum(p){ return parseFloat((p||"").replace(/[^0-9.]/g,""))||0; }
-
 function isExclusive(p){ return (p.exclusive||"").toLowerCase()==="yes"; }
-
 function typeLabel(type){ return type.includes("rent") ? "rent" : "sale"; }
 
 function getAreaList(){
@@ -214,80 +93,19 @@ async function load(){
   const res = await fetch(SHEET_URL);
   const text = await res.text();
 
-  // ✅ Robust CSV parser (handles commas inside quotes like "RM 450,000")
-  function parseCSV(text){
-    const rows = [];
-    let row = [];
-    let cur = "";
-    let inQuotes = false;
+  const rows = text.split("\n").slice(1)
+    .map(r => r.replace(/\r/g, ""))
+    .filter(r => r.trim());
 
-    for(let i=0;i<text.length;i++){
-      const c = text[i];
-      const next = text[i+1];
+  data = rows.map((r,i)=>{
+    let c = r.split(",");
 
-      if(c === '"'){
-        if(inQuotes && next === '"'){
-          cur += '"';
-          i++;
-        }else{
-          inQuotes = !inQuotes;
-        }
-        continue;
-      }
-
-      if(c === ',' && !inQuotes){
-        row.push(cur);
-        cur = "";
-        continue;
-      }
-
-      if((c === '
-' || c === '
-') && !inQuotes){
-        if(cur !== "" || row.length){
-          row.push(cur);
-          rows.push(row);
-          row = [];
-          cur = "";
-        }
-        continue;
-      }
-
-      cur += c;
+    // fix RM 450,000 breaking columns
+    if(c.length > 13){
+      const price = c.slice(10, c.length - 2).join(",");
+      c = [...c.slice(0,10), price, c[c.length-2], c[c.length-1]];
     }
 
-    if(cur !== "" || row.length){
-      row.push(cur);
-      rows.push(row);
-    }
-
-    return rows;
-  }
-
-  const rows = parseCSV(text).slice(1); // remove header
-
-  data = rows.map((c,i)=>({
-    id:i,
-    title:clean(c[0]),
-    area:clean(c[1]),
-    size:clean(c[2]),
-    bedroom:clean(c[3]),
-    bathroom:clean(c[4]),
-    renovate:clean(c[5]),
-    furnish:clean(c[6]),
-    parking:clean(c[7]),
-    tenure:clean(c[8]).toLowerCase(),
-    type:clean(c[9]).toLowerCase(),
-    price:clean(c[10]),
-    exclusive:clean(c[11]),
-    images:parseImages(clean(c[12] || ""))
-  })).filter(p=>p.title);
-
-  console.log("Loaded:", data.length);
-
-  getAreaList();
-  render();
-}
     return {
       id:i,
       title:clean(c[0]),
@@ -304,7 +122,9 @@ async function load(){
       exclusive:clean(c[11]),
       images:parseImages(clean(c[12] || ""))
     };
-  });
+  }).filter(p=>p.title);
+
+  console.log("Loaded:", data.length);
 
   getAreaList();
   render();
@@ -372,9 +192,7 @@ function prev(id){
 }
 
 load();
-
 document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
 </script>
-
 </body>
 </html>
