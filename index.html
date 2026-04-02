@@ -19,18 +19,6 @@
       position:relative;
     }
 
-    .adminBtn{
-      position:absolute;
-      right:12px;
-      top:12px;
-      background:#111827;
-      color:#fff;
-      border:none;
-      padding:8px 12px;
-      border-radius:8px;
-      cursor:pointer;
-    }
-
     .tabs { display:flex; gap:10px; justify-content:center; padding:10px; background:#fff; }
     .tabs button { padding:10px 14px; border:none; cursor:pointer; border-radius:8px; }
     .tabs button.active { background:#1e3a8a; color:#fff; }
@@ -41,8 +29,27 @@
 
     .card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
 
-    .img-box { position:relative; height:180px; background:#eee; }
+    .img-box { position:relative; height:200px; background:#eee; }
     .img-box img { width:100%; height:100%; object-fit:cover; }
+
+    .img-nav {
+      position:absolute;
+      bottom:10px;
+      left:0;
+      right:0;
+      display:flex;
+      justify-content:space-between;
+      padding:0 10px;
+    }
+
+    .img-nav button{
+      background:rgba(0,0,0,0.5);
+      color:#fff;
+      border:none;
+      padding:6px 10px;
+      border-radius:6px;
+      cursor:pointer;
+    }
 
     .badge { position:absolute; top:10px; left:10px; background:#f59e0b; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; }
     .tag { position:absolute; top:10px; right:10px; padding:4px 10px; border-radius:20px; font-size:12px; color:#fff; font-weight:bold; }
@@ -58,60 +65,12 @@
     #map { height:600px; display:none; }
 
     footer { text-align:center; padding:16px; background:#1e3a8a; color:#fff; margin-top:20px; }
-
-    /* ADMIN */
-    #adminPanel{
-      display:none;
-      background:#fff;
-      padding:16px;
-      margin-top:16px;
-      border-radius:12px;
-    }
-
-    input, textarea, select{
-      width:100%;
-      padding:8px;
-      margin:6px 0;
-      border-radius:8px;
-      border:1px solid #ddd;
-    }
-
-    .rowBtns button{
-      margin-right:6px;
-      padding:6px 10px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
-
-    .edit{background:#f59e0b;color:#fff;}
-    .del{background:#ef4444;color:#fff;}
-    .save{background:#16a34a;color:#fff;}
-
-    /* LOGIN MODAL */
-    #loginModal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.6);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:9999;
-    }
-
-    .modalBox{
-      background:#fff;
-      padding:20px;
-      border-radius:12px;
-      width:300px;
-    }
   </style>
 </head>
 <body>
 
 <header>
   <h1>FEONG REAL ESTATE PENANG</h1>
-  <button class="adminBtn" onclick="openLogin()">Admin</button>
 </header>
 
 <div class="tabs">
@@ -120,88 +79,95 @@
 </div>
 
 <div class="container">
-
-  <div id="listView">
-    <div class="grid" id="grid"></div>
-  </div>
-
+  <div id="listView"><div class="grid" id="grid"></div></div>
   <div id="map"></div>
-
-  <!-- ADMIN PANEL -->
-  <div id="adminPanel">
-    <h3>Admin Panel</h3>
-
-    <input id="title" placeholder="Title" />
-    <input id="area" placeholder="Area" />
-    <input id="size" placeholder="Size sqft" />
-    <input id="bed" placeholder="Bedroom" />
-    <input id="bath" placeholder="Bathroom" />
-    <input id="price" placeholder="Price" />
-    <input id="tenure" placeholder="Freehold / Leasehold" />
-
-    <select id="type">
-      <option value="sale">Sale</option>
-      <option value="rent">Rent</option>
-    </select>
-
-    <select id="exclusive">
-      <option value="no">Normal</option>
-      <option value="yes">Exclusive</option>
-    </select>
-
-    <textarea id="img" placeholder="Image URLs (separate by |)"></textarea>
-
-    <button class="save" onclick="save()">Save Property</button>
-
-    <hr/>
-    <div id="adminList"></div>
-  </div>
-
 </div>
 
 <footer>
   FEONG: 014-7405020 | REN 61687 | Today Properties
 </footer>
 
-<!-- LOGIN MODAL -->
-<div id="loginModal">
-  <div class="modalBox">
-    <h3>Admin Login</h3>
-    <input id="pass" type="password" placeholder="Password" />
-    <button onclick="login()" class="save">Login</button>
-  </div>
-</div>
-
 <script>
 
-const ADMIN_PASS = "feong123";
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
 
-function openLogin(){
-  document.getElementById('loginModal').style.display='flex';
-}
+let data = [];
+let imgIndex = {};
 
-function login(){
-  if(document.getElementById('pass').value === ADMIN_PASS){
-    document.getElementById('loginModal').style.display='none';
-    document.getElementById('adminPanel').style.display='block';
-    renderAdmin();
-  } else {
-    alert('Wrong password');
+// ================= CSV PARSER (fix comma issue) =================
+function parseCSV(text){
+  const lines = text.split("\n").filter(l=>l.trim());
+  const result = [];
+
+  for(let i=1;i<lines.length;i++){
+    const row = lines[i];
+    const cols = [];
+    let current = '';
+    let inQuotes = false;
+
+    for(let c of row){
+      if(c === '"') inQuotes = !inQuotes;
+      else if(c === ',' && !inQuotes){ cols.push(current); current=''; }
+      else current += c;
+    }
+    cols.push(current);
+
+    result.push(cols);
   }
+
+  return result;
 }
 
+// ================= LOAD SHEET =================
+async function loadSheet(){
+  const res = await fetch(SHEET_CSV_URL);
+  const text = await res.text();
+
+  const rows = parseCSV(text);
+
+  data = rows.map(cols=>{
+    const id = cols[0] + Math.random();
+
+    return {
+      id,
+      title: cols[0],
+      area: cols[1],
+      size: cols[2],
+      bed: cols[3],
+      bath: cols[4],
+      renovate: cols[5],
+      furnish: cols[6],
+      parking: cols[7],
+      tenure: cols[8],
+      type: cols[9],
+      price: cols[10],
+      exclusive: cols[11],
+      images: (cols[12] || "").split(/｜|\|/).map(x=>x.trim()).filter(Boolean),
+      whatsapp: cols[13] || "https://wa.me/60147405020"
+    };
+  });
+
+  render();
+}
+
+// ================= IMAGE CAROUSEL =================
+function nextImg(id, max){
+  imgIndex[id] = (imgIndex[id] || 0) + 1;
+  if(imgIndex[id] >= max) imgIndex[id] = 0;
+  render();
+}
+
+function prevImg(id, max){
+  imgIndex[id] = (imgIndex[id] || 0) - 1;
+  if(imgIndex[id] < 0) imgIndex[id] = max - 1;
+  render();
+}
+
+// ================= UI =================
 function switchTab(t){
   document.getElementById("listView").style.display = t==='list'?'block':'none';
   document.getElementById("map").style.display = t==='map'?'block':'none';
 }
-
-function parse(img){
-  if(!img) return ["https://via.placeholder.com/400"];
-  return img.split('|');
-}
-
-let data = JSON.parse(localStorage.getItem("data")||"[]");
-let editIndex=null;
 
 function render(){
   const g=document.getElementById("grid");
@@ -210,85 +176,38 @@ function render(){
   data.sort((a,b)=>(b.exclusive==='yes')-(a.exclusive==='yes'));
 
   data.forEach(p=>{
-    g.innerHTML+=`
+    const imgs = p.images.length ? p.images : ["https://via.placeholder.com/400"];
+
+    const idx = imgIndex[p.id] || 0;
+
+    g.innerHTML += `
     <div class='card'>
       <div class='img-box'>
         ${p.exclusive==='yes'?'<div class="badge">EXCLUSIVE</div>':''}
-        <div class='tag ${p.type}'>${p.type.toUpperCase()}</div>
-        <img src='${parse(p.img)[0]}' />
+        <div class='tag ${p.type}'>${p.type?.toUpperCase()}</div>
+
+        <img src='${imgs[idx]}' />
+
+        ${imgs.length>1?`
+        <div class='img-nav'>
+          <button onclick="prevImg('${p.id}',${imgs.length})">‹</button>
+          <button onclick="nextImg('${p.id}',${imgs.length})">›</button>
+        </div>`:''}
+
       </div>
+
       <div class='content'>
         <h3>${p.title}</h3>
         <div class='price'>RM ${p.price}</div>
         <div class='info'>${p.area} | ${p.size} sqft</div>
         <div class='info'>${p.bed} Bed | ${p.bath} Bath</div>
-        <a class='btn' href='https://wa.me/60147405020' target='_blank'>WhatsApp</a>
+        <a class='btn' href='${p.whatsapp}' target='_blank'>WhatsApp</a>
       </div>
     </div>`;
   });
 }
 
-function save(){
-  const p={
-    title:title.value,
-    area:area.value,
-    size:size.value,
-    bed:bed.value,
-    bath:bath.value,
-    price:price.value,
-    tenure:tenure.value,
-    type:type.value,
-    exclusive:exclusive.value,
-    img:img.value
-  };
-
-  if(editIndex===null) data.push(p);
-  else data[editIndex]=p;
-
-  localStorage.setItem("data",JSON.stringify(data));
-  render();
-  renderAdmin();
-}
-
-function renderAdmin(){
-  const box=document.getElementById("adminList");
-  box.innerHTML="";
-
-  data.forEach((p,i)=>{
-    box.innerHTML+=`
-    <div style='border:1px solid #eee;padding:8px;margin:6px 0;border-radius:8px;'>
-      <b>${p.title}</b><br/>
-      RM ${p.price}
-      <div class='rowBtns'>
-        <button class='edit' onclick='edit(${i})'>Edit</button>
-        <button class='del' onclick='del(${i})'>Delete</button>
-      </div>
-    </div>`;
-  });
-}
-
-function edit(i){
-  const p=data[i]; editIndex=i;
-  title.value=p.title;
-  area.value=p.area;
-  size.value=p.size;
-  bed.value=p.bed;
-  bath.value=p.bath;
-  price.value=p.price;
-  tenure.value=p.tenure;
-  type.value=p.type;
-  exclusive.value=p.exclusive;
-  img.value=p.img;
-}
-
-function del(i){
-  data.splice(i,1);
-  localStorage.setItem("data",JSON.stringify(data));
-  render();
-  renderAdmin();
-}
-
-render();
+loadSheet();
 
 </script>
 
