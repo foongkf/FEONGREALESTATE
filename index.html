@@ -5,7 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FEONG REAL ESTATE PENANG</title>
   <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f4f6f8; }
+    body { 
+  margin:0; 
+  font-family: Arial, sans-serif; 
+  background: url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80') center/cover fixed no-repeat;
+}
+body::before{
+  content:'';
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.45);
+  z-index:-1;
+}
     header { background:#1e3a8a; color:#fff; padding:16px; text-align:center; }
     .container { padding:16px; max-width:1200px; margin:auto; }
     .filters { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
