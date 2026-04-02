@@ -139,51 +139,71 @@ footer{
 <script>
 const URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
 
+// DOM FIX (CRITICAL)
+const typeFilter=document.getElementById("type");
+const search=document.getElementById("search");
+const area=document.getElementById("area");
+const exclusiveEl=document.getElementById("exclusive");
+const listEl=document.getElementById("list");
+
 let data=[],img={};
 
 const clean=v=>(v||"").replace(/\r/g,"").replace(/^"|"$/g,"").trim();
-const price=n=>(parseFloat((n||"").replace(/[^0-9.]/g,""))||0);
 const isEx=p=>(p.exclusive||"").toLowerCase()==="yes";
-const type=p=>p.type.includes("rent")?"rent":"sale";
+const type=p=>(p.type||"").includes("rent")?"rent":"sale";
 
 function parseImg(r){
-  return (r||"").split("|").filter(Boolean).map(u=>u.includes("drive.google")?("https://drive.google.com/thumbnail?id="+(u.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]):u);
+  return (r||"").split("|").filter(Boolean).map(u=>{
+    const m=u.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return m?"https://drive.google.com/thumbnail?id="+m[1]:u;
+  });
 }
 
-function wa(p){return`https://wa.me/60147405020?text=${encodeURIComponent(`Hi, interested in ${p.title}\n${p.area}\n${p.price}`)}`;}
+function wa(p){
+  return `https://wa.me/60147405020?text=${encodeURIComponent(`Hi, interested in ${p.title}\n${p.area}\n${p.price}`)}`;
+}
 
 async function load(){
-  const t=await (await fetch(URL)).text();
-  const rows=t.split("\n").slice(1).filter(Boolean);
+  try{
+    const t=await (await fetch(URL)).text();
+    const rows=t.split("\n").slice(1).filter(Boolean);
 
-  data=rows.map((r,i)=>{
-    let c=r.split(",");
-    if(c.length>13){
-      const p=c.slice(10,c.length-2).join(",");
-      c=[...c.slice(0,10),p,c[c.length-2],c[c.length-1]];
-    }
-    return{
-      id:i,
-      title:clean(c[0]),area:clean(c[1]),size:clean(c[2]),bedroom:clean(c[3]),bathroom:clean(c[4]),
-      renovate:clean(c[5]),furnish:clean(c[6]),parking:clean(c[7]),tenure:clean(c[8]),type:clean(c[9]),
-      price:clean(c[10]),exclusive:clean(c[11]),images:parseImg(clean(c[12]))
-    };
-  }).filter(p=>p.title);
+    data=rows.map((r,i)=>{
+      let c=r.split(",");
+      if(c.length>13){
+        const p=c.slice(10,c.length-2).join(",");
+        c=[...c.slice(0,10),p,c[c.length-2],c[c.length-1]];
+      }
+      return{
+        id:i,
+        title:clean(c[0]),area:clean(c[1]),size:clean(c[2]),bedroom:clean(c[3]),bathroom:clean(c[4]),
+        renovate:clean(c[5]),furnish:clean(c[6]),parking:clean(c[7]),tenure:clean(c[8]),type:clean(c[9]),
+        price:clean(c[10]),exclusive:clean(c[11]),images:parseImg(clean(c[12]))
+      };
+    }).filter(p=>p.title);
 
-  render();
+    render();
+  }catch(e){
+    console.error("CSV LOAD ERROR:",e);
+  }
 }
 
 function render(){
   const t=typeFilter.value||"all";
-  const s=search.value.toLowerCase();
-  const a=area.value;
+  const s=(search.value||"").toLowerCase();
+  const a=area.value||"all";
 
-  let list=data.filter(p=>(t=="all"||p.type.includes(t))&&(a=="all"||p.area==a)&&(!s||p.title.toLowerCase().includes(s)));
+  const filtered=data.filter(p=>
+    (t=="all"||p.type.includes(t))&&
+    (a=="all"||p.area==a)&&
+    (!s||p.title.toLowerCase().includes(s))
+  );
 
-  const ex=list.filter(isEx),no=list.filter(p=>!isEx(p));
+  const ex=filtered.filter(isEx);
+  const normal=filtered.filter(p=>!isEx(p));
 
-  exclusive.innerHTML=ex.map(card).join("");
-  list.innerHTML=no.map(card).join("");
+  exclusiveEl.innerHTML=ex.map(card).join("");
+  listEl.innerHTML=normal.map(card).join("");
 }
 
 function card(p){
@@ -211,13 +231,19 @@ function card(p){
 
 function chg(id,d){
   const p=data.find(x=>x.id==id);
+  if(!p||!p.images.length)return;
   img[id]=(img[id]+d+p.images.length)%p.images.length;
   document.getElementById("i"+id).src=p.images[img[id]];
 }
 
 load();
 
-typeFilter.oninput=search.oninput=area.oninput=render;
+// safe binding
+window.addEventListener("load",()=>{
+  typeFilter.oninput=render;
+  search.oninput=render;
+  area.oninput=render;
+});
 </script>
 </body>
 </html>
