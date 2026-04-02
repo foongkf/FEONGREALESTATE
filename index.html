@@ -144,7 +144,17 @@ header p{
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
-const WA_LINK = "https://wa.me/60147405020";
+function buildWA(p){
+  const msg = `Hi, I’m interested in this property:
+
+🏠 ${p.title}
+📍 ${p.area}
+💰 ${p.price}
+📐 ${p.size} sqft
+
+Please give me more details.`;
+  return `https://wa.me/60147405020?text=${encodeURIComponent(msg)}`;
+}
 
 let data = [];
 let imgIndex = {};
@@ -259,7 +269,7 @@ function render(){
         <div class="info">📐 ${p.size} sqft | 🛏 ${p.bedroom} | 🚿 ${p.bathroom}</div>
         <div class="info">🛠 ${p.renovate} | 🪑 ${p.furnish} | 🚗 ${p.parking}</div>
         <div class="info">📜 ${p.tenure}</div>
-        <a class="btn" href="${WA_LINK}" target="_blank">WhatsApp</a>
+        <a class="btn" href="${buildWA(p)}" target="_blank">WhatsApp</a>
       </div>
     </div>`;
   }
