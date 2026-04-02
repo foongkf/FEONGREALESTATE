@@ -82,28 +82,6 @@ header p{
     select, input { padding:8px; border-radius:8px; border:1px solid #ddd; }
     .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; }
 .exclusive-section { margin-bottom:20px; }
-
-/* ⭐ Exclusive horizontal scroll */
-#exclusiveGrid{
-  display:flex;
-  gap:16px;
-  overflow-x:auto;
-  padding-bottom:10px;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
-}
-
-#exclusiveGrid .card{
-  flex: 0 0 85vw;
-  min-width: 85vw;
-}
-#exclusiveGrid{
-  scroll-snap-type: x mandatory;
-}
-
-#exclusiveGrid .card{
-  scroll-snap-align: center;
-}
 .exclusive-title {
   font-size:14px;
   font-weight:500;
@@ -317,54 +295,6 @@ async function load(){
 
   getAreaList();
   render();
-  startExclusiveCarousel();
-}
-
-let carouselTimer;
-
-function startExclusiveCarousel(){
-  const el = document.getElementById('exclusiveGrid');
-  if(!el || el.dataset.carouselInit) return;
-  el.dataset.carouselInit = "1";
-
-  let timer = null;
-
-  function getStep(){
-    const card = el.querySelector('.card');
-    if(!card) return 300;
-    const style = getComputedStyle(el);
-    const gap = parseInt(style.gap || 16);
-    const step = el.clientWidth;
-  }
-
-  function start(){
-    if(timer) clearInterval(timer);
-    timer = setInterval(()=>{
-      const step = getStep();
-      const maxScroll = el.scrollWidth - el.clientWidth - 5;
-
-      if(el.scrollLeft >= maxScroll){
-        el.scrollTo({left:0,behavior:'smooth'});
-      }else{
-        el.scrollBy({left:step,behavior:'smooth'});
-      }
-    }, 3000);
-  }
-
-  function stop(){
-    if(timer){
-      clearInterval(timer);
-      timer = null;
-    }
-  }
-
-  // hover pause (iPhone also uses touch fallback)
-  el.addEventListener('mouseenter', stop);
-  el.addEventListener('mouseleave', start);
-  el.addEventListener('touchstart', stop);
-  el.addEventListener('touchend', start);
-
-  start();
 }
 
 function render(){
