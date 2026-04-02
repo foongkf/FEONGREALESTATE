@@ -314,18 +314,51 @@ async function load(){
   startExclusiveCarousel();
 }
 
+let carouselTimer;
+
 function startExclusiveCarousel(){
   const el = document.getElementById('exclusiveGrid');
   if(!el || el.dataset.carouselInit) return;
   el.dataset.carouselInit = "1";
 
-  setInterval(()=>{
-    if(el.scrollLeft + el.clientWidth >= el.scrollWidth - 5){
-      el.scrollTo({left:0,behavior:'smooth'});
-    }else{
-      el.scrollBy({left:300,behavior:'smooth'});
+  let timer = null;
+
+  function getStep(){
+    const card = el.querySelector('.card');
+    if(!card) return 300;
+    const style = getComputedStyle(el);
+    const gap = parseInt(style.gap || 16);
+    return card.offsetWidth + gap;
+  }
+
+  function start(){
+    if(timer) clearInterval(timer);
+    timer = setInterval(()=>{
+      const step = getStep();
+      const maxScroll = el.scrollWidth - el.clientWidth - 5;
+
+      if(el.scrollLeft >= maxScroll){
+        el.scrollTo({left:0,behavior:'smooth'});
+      }else{
+        el.scrollBy({left:step,behavior:'smooth'});
+      }
+    }, 3000);
+  }
+
+  function stop(){
+    if(timer){
+      clearInterval(timer);
+      timer = null;
     }
-  }, 3000);
+  }
+
+  // hover pause (iPhone also uses touch fallback)
+  el.addEventListener('mouseenter', stop);
+  el.addEventListener('mouseleave', start);
+  el.addEventListener('touchstart', stop);
+  el.addEventListener('touchend', start);
+
+  start();
 }
 
 function render(){
