@@ -38,11 +38,7 @@
       <option value="sale">For Sale</option>
       <option value="rent">For Rent</option>
     </select>
-    <select id="tenure">
-      <option value="all">Tenure</option>
-      <option value="freehold">Freehold</option>
-      <option value="leasehold">Leasehold</option>
-    </select>
+    
     <select id="area"><option value="all">Area</option></select>
     <select id="sort">
       <option value="default">Default</option>
@@ -134,13 +130,13 @@ function render(){
   const g=document.getElementById("grid");
   const t=document.getElementById("type").value;
   const s=document.getElementById("search").value.toLowerCase();
-  const te=document.getElementById("tenure").value;
+  
   const a=document.getElementById("area").value;
   const so=document.getElementById("sort").value;
 
   let list = data.filter(p=>{
     if(t!=="all" && !p.type.includes(t)) return false;
-    if(te!=="all" && !p.tenure.includes(te)) return false;
+    
     if(a!=="all" && p.area!==a) return false;
     if(s && !p.title.toLowerCase().includes(s)) return false;
     return true;
