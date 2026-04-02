@@ -93,76 +93,23 @@ function getAreaList(){
 }
 
 async function load(){
-  console.log("Loading sheet...");
-  const res = await fetch(SHEET_URL + "&t=" + Date.now()); // prevent cache
+  const res = await fetch(SHEET_URL);
   const text = await res.text();
 
-  console.log("RAW CSV length:", text.length);
-
-  const rows = text.split("
-").slice(1)
-    .map(r => r.replace(/
-/g, ""))
+  const rows = text.split("\n").slice(1)
+    .map(r => r.replace(/\r/g, ""))
     .filter(r => r.trim());
 
-  console.log("Rows:", rows.length);
-
-  // 🔥 DEBUG CSV parser (fix broken comma splitting)
-  function parseCSVLine(line){
-    const result = [];
-    let current = "";
-    let inQuotes = false;
-
-    for(let i=0;i<line.length;i++){
-      const char = line[i];
-      const next = line[i+1];
-
-      if(char === '"'){
-        inQuotes = !inQuotes;
-        continue;
-      }
-
-      if(char === ',' && !inQuotes){
-        result.push(current);
-        current = "";
-      } else {
-        current += char;
-      }
-    }
-    result.push(current);
-    return result;
-  }
-
   data = rows.map((r,i)=>{
-    let c = parseCSVLine(r);
+    let c = r.split(",");
 
-    console.log("Row", i, c);
-
-    // fix RM 450,000 safely already handled by parser
+    // fix RM 450,000 breaking columns
+    if(c.length > 13){
+      const price = c.slice(10, c.length - 2).join(",");
+      c = [...c.slice(0,10), price, c[c.length-2], c[c.length-1]];
+    }
 
     return {
-      id:i,
-      title:clean(c[0]),
-      area:clean(c[1]),
-      size:clean(c[2]),
-      bedroom:clean(c[3]),
-      bathroom:clean(c[4]),
-      renovate:clean(c[5]),
-      furnish:clean(c[6]),
-      parking:clean(c[7]),
-      tenure:clean(c[8]).toLowerCase(),
-      type:clean(c[9]).toLowerCase(),
-      price:clean(c[10]),
-      exclusive:clean(c[11]),
-      images:parseImages(clean(c[12] || ""))
-    };
-  }).filter(p=>p.title);
-
-  console.log("Parsed data:", data);
-
-  getAreaList();
-  render();
-}return {
       id:i,
       title:clean(c[0]),
       area:clean(c[1]),
