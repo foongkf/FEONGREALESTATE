@@ -1,345 +1,544 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FEONG REAL ESTATE PENANG</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FEONG REAL ESTATE PENANG</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #000;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    /* 背景幻灯片 + 暗色遮罩（合并为一个伪元素） */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -2;
+      background-size: cover;
+      background-position: center;
+      animation: bgSlide 25s infinite;
+      filter: grayscale(40%) brightness(0.6);
+    }
+    @keyframes bgSlide {
+      0%   { background-image: url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80'); }
+      25%  { background-image: url('https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=2000&q=80'); }
+      50%  { background-image: url('https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=2000&q=80'); }
+      75%  { background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80'); }
+      100% { background-image: url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80'); }
+    }
+    /* 半透明遮罩（不影响背景图） */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
 
-<style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  background: #000;
-  overflow-x:hidden;
-}
+    /* 顶部浮动品牌 */
+    .floating-brand {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      cursor: default;
+      transition: all 0.2s;
+    }
+    .floating-brand:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+    }
+    .logo { font-size: 24px; }
+    .brand-text .name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #111;
+    }
+    .brand-text .sub {
+      font-size: 10px;
+      color: rgba(0,0,0,0.6);
+      letter-spacing: 0.5px;
+    }
 
-/* 🌆 Background slideshow */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  background-size:cover;
-  background-position:center;
-  animation:bgSlide 25s infinite;
-  filter:grayscale(40%) brightness(0.45);
-}
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
 
-body::after{
-  content:'';
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  background:rgba(0,0,0,0.45);
-}
+    /* 筛选栏 */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      padding: 16px 20px;
+      border-radius: 40px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    select, input {
+      padding: 10px 14px;
+      border-radius: 40px;
+      border: none;
+      background: white;
+      font-size: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      outline: none;
+      cursor: pointer;
+    }
+    input {
+      flex: 1;
+      min-width: 160px;
+    }
 
-@keyframes bgSlide{
-  0%{background-image:url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29');}
-  25%{background-image:url('https://images.unsplash.com/photo-1494526585095-c41746248156');}
-  50%{background-image:url('https://images.unsplash.com/photo-1467269204594-9661b134dd2b');}
-  75%{background-image:url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b');}
-  100%{background-image:url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29');}
-}
+    /* 独占区标题 */
+    .exclusive-section {
+      margin-bottom: 30px;
+    }
+    .exclusive-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(255,215,0,0.9);
+      border-radius: 40px;
+      color: #2c2c2c;
+      backdrop-filter: blur(4px);
+    }
 
-/* HEADER */
-header {
-  background:rgba(255,255,255,0.85);
-  backdrop-filter:blur(12px);
-  padding:18px;
-  text-align:center;
-}
+    /* 网格卡片 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      backdrop-filter: blur(2px);
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 32px rgba(0,0,0,0.15);
+    }
+    .gold-card {
+      background: linear-gradient(135deg, #fff9e8, #ffefc0);
+      border: 1px solid #f5b042;
+    }
+    .img-box {
+      position: relative;
+      height: 200px;
+      background: #e9e9e9;
+      overflow: hidden;
+    }
+    .img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: 0.2s;
+    }
+    .badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #f59e0b;
+      color: #000;
+      padding: 4px 10px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: bold;
+      z-index: 2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: bold;
+      color: white;
+      z-index: 2;
+    }
+    .tag.sale { background: #ef4444; }
+    .tag.rent { background: #3b82f6; }
+    .nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: 0.1s;
+      z-index: 3;
+    }
+    .nav:hover { background: rgba(0,0,0,0.8); }
+    .prev { left: 8px; }
+    .next { right: 8px; }
+    .image-counter {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      z-index: 2;
+    }
 
-/* LAYOUT */
-.container { padding:16px; max-width:1200px; margin:auto; }
-
-.filters { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
-
-select, input {
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-
-/* GRID */
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-  gap:16px;
-}
-
-/* EXCLUSIVE CAROUSEL (ONLY CHANGE HERE) */
-.exclusive-carousel{
-  display:flex;
-  gap:16px;
-  overflow-x:auto;
-  scroll-behavior:smooth;
-  -webkit-overflow-scrolling:touch;
-  padding:10px 5px;
-}
-
-.exclusive-carousel::-webkit-scrollbar{
-  display:none;
-}
-
-.exclusive-carousel .card{
-  min-width:280px;
-  flex:0 0 auto;
-}
-
-/* KEEP EVERYTHING ELSE EXACTLY SAME */
-.exclusive-section { margin-bottom:20px; }
-
-.exclusive-title {
-  font-size:14px;
-  padding:6px 10px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.6);
-  display:inline-block;
-}
-
-.exclusive-wrapper{
-  position:relative;
-  display:flex;
-  align-items:center;
-}
-
-.carousel-btn{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  z-index:10;
-  background:rgba(0,0,0,0.5);
-  color:#fff;
-  border:none;
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  cursor:pointer;
-}
-
-.carousel-btn.left{ left:0; }
-.carousel-btn.right{ right:0; }
-
-/* CARD */
-.card {
-  background:#fff;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-.img-box { position:relative; height:180px; }
-
-.img-box img { width:100%; height:100%; object-fit:cover; }
-
-.badge {
-  position:absolute;
-  top:10px; left:10px;
-  background:#f59e0b;
-  color:#fff;
-  padding:4px 8px;
-  border-radius:6px;
-  font-size:12px;
-}
-
-.tag {
-  position:absolute;
-  top:10px; right:10px;
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:12px;
-  color:#fff;
-}
-
-.tag.sale{ background:#ef4444; }
-.tag.rent{ background:#3b82f6; }
-
-.content { padding:12px; }
-
-.price { color:#16a34a; font-weight:bold; }
-
-.btn{
-  display:block;
-  text-align:center;
-  background:linear-gradient(135deg,#25D366,#1ebe5d);
-  color:#fff;
-  padding:11px;
-  margin-top:10px;
-  border-radius:10px;
-  text-decoration:none;
-}
-
-/* floating brand */
-.floating-brand{
-  position:fixed;
-  top:18px;
-  right:18px;
-  background:rgba(255,255,255,0.75);
-  padding:10px 14px;
-  border-radius:14px;
-}
-
-/* mobile */
-@media (max-width:600px){
-  .grid{ grid-template-columns:1fr; }
-  .exclusive-carousel .card{ min-width:85%; }
-}
-</style>
+    .content {
+      padding: 16px;
+    }
+    .content h3 {
+      font-size: 18px;
+      margin-bottom: 6px;
+      color: #1f2937;
+    }
+    .price {
+      color: #16a34a;
+      font-weight: 800;
+      font-size: 20px;
+      margin: 8px 0;
+    }
+    .info {
+      font-size: 13px;
+      margin: 5px 0;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn {
+      display: block;
+      text-align: center;
+      background: linear-gradient(135deg, #25D366, #1ebe5d);
+      color: white;
+      padding: 10px;
+      margin-top: 14px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(37,211,102,0.3);
+    }
+    .btn:hover {
+      transform: scale(0.98);
+      box-shadow: 0 6px 16px rgba(37,211,102,0.4);
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      margin-top: 30px;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(12px);
+      font-size: 13px;
+      color: #111;
+      border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    @media (max-width: 640px) {
+      .filters { flex-direction: column; border-radius: 24px; }
+      .grid { gap: 16px; }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="floating-brand">🏙 FEONG REAL ESTATE</div>
-
-<div class="container">
-
-<div class="filters">
-  <select id="type">
-    <option value="all">All</option>
-    <option value="sale">For Sale</option>
-    <option value="rent">For Rent</option>
-  </select>
-
-  <select id="area"><option value="all">Area</option></select>
-
-  <select id="sort">
-    <option value="default">Default</option>
-    <option value="low">Price Low</option>
-    <option value="high">Price High</option>
-  </select>
-
-  <input id="search" placeholder="Search..." />
-</div>
-
-<!-- EXCLUSIVE -->
-<div class="exclusive-section">
-  <div class="exclusive-title">⭐ Exclusive Listings</div>
-
-  <div class="exclusive-wrapper">
-    <button class="carousel-btn left" onclick="scrollExclusive(-1)">‹</button>
-
-    <div class="exclusive-carousel" id="exclusiveCarousel"></div>
-
-    <button class="carousel-btn right" onclick="scrollExclusive(1)">›</button>
+<div class="floating-brand">
+  <div class="logo">🏙️</div>
+  <div class="brand-text">
+    <div class="name">FEONG REAL ESTATE</div>
+    <div class="sub">Penang Property Listing</div>
   </div>
 </div>
 
-<!-- NORMAL -->
-<div class="grid" id="grid"></div>
+<div class="container">
+  <div class="filters">
+    <select id="type">
+      <option value="all">所有类型</option>
+      <option value="sale">出售</option>
+      <option value="rent">出租</option>
+    </select>
+    <select id="area"><option value="all">区域</option></select>
+    <select id="sort">
+      <option value="default">默认排序</option>
+      <option value="exclusive">独占优先</option>
+      <option value="low">价格从低到高</option>
+      <option value="high">价格从高到低</option>
+    </select>
+    <input id="search" placeholder="搜索楼盘名称..." />
+  </div>
 
+  <div class="exclusive-section">
+    <div class="exclusive-title">⭐ 独家代理房源</div>
+    <div class="grid" id="exclusiveGrid"></div>
+  </div>
+  <div class="grid" id="grid"></div>
 </div>
+<footer>📞 FEONG: 014-7405020 | REN 61687 | 今日最新房源</footer>
 
 <script>
+// 工具函数：HTML转义防止XSS
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+    return c;
+  });
+}
 
+// Google Sheets CSV地址
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
 
-let data = [];
+// 图片索引记录
 let imgIndex = {};
+let allProperties = [];
 
-function clean(v){ return (v||"").replace(/\r/g,"").replace(/"/g,"").trim(); }
-
-function parseImages(raw){
-  if(!raw) return ["https://via.placeholder.com/400x300"];
-  return raw.split("|");
+// 解析CSV行（避免价格中的逗号错位，按实际列数13列处理）
+function parseCSVRow(line, expectedCols = 13) {
+  const result = [];
+  let inQuote = false;
+  let current = '';
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuote = !inQuote;
+    } else if (ch === ',' && !inQuote) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  // 如果列数不足或超出，尝试合并价格字段（第11列索引10）
+  if (result.length > expectedCols) {
+    // 合并价格中多余的逗号: 索引10到倒数第3
+    let pricePart = result.slice(10, result.length - 2).join(',');
+    let newRow = [...result.slice(0,10), pricePart, ...result.slice(-2)];
+    return newRow;
+  }
+  while(result.length < expectedCols) result.push('');
+  return result;
 }
 
-function isExclusive(p){
-  return (p.exclusive||"").toLowerCase()==="yes";
+// 处理图片URL（Google Drive 转 thumbnail）
+function formatImgUrl(url) {
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800`;
+    const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idMatch) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
+  }
+  return url;
 }
 
-function buildWA(p){
-  return `https://wa.me/60147405020?text=${encodeURIComponent("Hi interested: "+p.title)}`;
+// 解析图片列表（以 | 分割）
+function parseImages(raw) {
+  if (!raw) return ['https://via.placeholder.com/400x240?text=No+Image'];
+  return raw.split('|').map(s => s.trim()).filter(Boolean).map(formatImgUrl);
 }
 
-async function load(){
-  const res = await fetch(SHEET_URL);
-  const text = await res.text();
-
-  const rows = text.split("\n").slice(1);
-
-  data = rows.map((r,i)=>{
-    let c = r.split(",");
-
-    return {
-      id:i,
-      title:clean(c[0]),
-      area:clean(c[1]),
-      size:clean(c[2]),
-      bedroom:clean(c[3]),
-      bathroom:clean(c[4]),
-      price:clean(c[10]),
-      type:clean(c[9]),
-      exclusive:clean(c[11]),
-      images:parseImages(c[12])
-    };
-  }).filter(p=>p.title);
-
-  render();
+// 提取价格数字（用于排序）
+function getPriceNumber(priceStr) {
+  if (!priceStr) return 0;
+  const num = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
+  return isNaN(num) ? 0 : num;
 }
 
-function scrollExclusive(dir){
-  document.getElementById("exclusiveCarousel")
-    .scrollBy({ left: dir*300, behavior:"smooth" });
+// 构建WhatsApp链接
+function buildWALink(property) {
+  const msg = `Hi，我对这个单位感兴趣：\n🏠 ${property.title}\n📍 ${property.area}\n💰 ${property.price}\n📐 ${property.size} sqft\n请提供更多信息，谢谢。`;
+  return `https://wa.me/60147405020?text=${encodeURIComponent(msg)}`;
 }
 
-function render(){
+// 加载数据
+async function loadData() {
+  try {
+    const resp = await fetch(SHEET_URL);
+    const csvText = await resp.text();
+    const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) return;
 
-  let list = data;
+    const headers = lines[0].split(',').map(h => h.trim());
+    allProperties = [];
 
-  const t = document.getElementById("type").value;
-  const s = document.getElementById("search").value.toLowerCase();
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVRow(lines[i], 13);
+      if (cols.length < 10 || !cols[0]) continue;
+      const prop = {
+        id: i,
+        title: escapeHtml(cols[0] || ''),
+        area: escapeHtml(cols[1] || ''),
+        size: escapeHtml(cols[2] || ''),
+        bedroom: escapeHtml(cols[3] || ''),
+        bathroom: escapeHtml(cols[4] || ''),
+        renovate: escapeHtml(cols[5] || ''),
+        furnish: escapeHtml(cols[6] || ''),
+        parking: escapeHtml(cols[7] || ''),
+        tenure: escapeHtml(cols[8] || '').toLowerCase(),
+        type: (cols[9] || '').toLowerCase(),
+        price: escapeHtml(cols[10] || ''),
+        exclusive: (cols[11] || '').toLowerCase() === 'yes',
+        imagesRaw: cols[12] || ''
+      };
+      prop.images = parseImages(prop.imagesRaw);
+      prop.priceNum = getPriceNumber(prop.price);
+      allProperties.push(prop);
+    }
 
-  if(t!=="all") list = list.filter(p=>p.type.includes(t));
-  if(s) list = list.filter(p=>p.title.toLowerCase().includes(s));
+    // 初始化图片索引
+    allProperties.forEach(p => { imgIndex[p.id] = 0; });
+    populateAreaFilter();
+    render();
+  } catch (err) {
+    console.error('加载失败', err);
+    document.getElementById('grid').innerHTML = '<div style="color:white;">数据加载失败，请检查网络或表格权限。</div>';
+  }
+}
 
-  const exclusive = list.filter(isExclusive);
-  const normal = list.filter(p=>!isExclusive(p));
+// 填充区域下拉框
+function populateAreaFilter() {
+  const areas = [...new Set(allProperties.map(p => p.area).filter(a => a))];
+  const areaSelect = document.getElementById('area');
+  areaSelect.innerHTML = '<option value="all">所有区域</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+}
 
-  const ec = document.getElementById("exclusiveCarousel");
-  const g = document.getElementById("grid");
+// 渲染主逻辑（包含排序）
+function render() {
+  const typeVal = document.getElementById('type').value;
+  const areaVal = document.getElementById('area').value;
+  const searchVal = document.getElementById('search').value.trim().toLowerCase();
+  const sortVal = document.getElementById('sort').value;
 
-  ec.innerHTML = "";
-  g.innerHTML = "";
+  let filtered = allProperties.filter(p => {
+    if (typeVal !== 'all' && !p.type.includes(typeVal)) return false;
+    if (areaVal !== 'all' && p.area !== areaVal) return false;
+    if (searchVal && !p.title.toLowerCase().includes(searchVal)) return false;
+    return true;
+  });
 
-  function card(p){
-    return `
-    <div class="card">
+  // 排序（独占优先是一种排序，但独占区会单独抽离，所以普通区不再重复排独占优先）
+  // 处理独占优先：普通列表里需要把独占排在前面，但独占列表单独展示后，普通区应该排除独占？不，我们独占区已经单独展示所有独占，普通区不能再显示独占，否则重复。
+  // 改进：普通区只显示非独占，独占区显示独占。排序时各自独立排序。
+  let exclusiveProps = filtered.filter(p => p.exclusive === true);
+  let normalProps = filtered.filter(p => p.exclusive === false);
+
+  // 分别对独占区和普通区应用价格排序
+  const applySort = (list) => {
+    if (sortVal === 'low') return [...list].sort((a,b) => a.priceNum - b.priceNum);
+    if (sortVal === 'high') return [...list].sort((a,b) => b.priceNum - a.priceNum);
+    if (sortVal === 'exclusive') return [...list]; // 独占优先已经在分离时实现，这里保持原序
+    return list; // default 保持原始顺序（按表格顺序）
+  };
+
+  exclusiveProps = applySort(exclusiveProps);
+  normalProps = applySort(normalProps);
+
+  // 渲染独占区
+  const exclusiveGrid = document.getElementById('exclusiveGrid');
+  exclusiveGrid.innerHTML = exclusiveProps.map(p => renderCard(p, true)).join('');
+
+  // 渲染普通区
+  const normalGrid = document.getElementById('grid');
+  normalGrid.innerHTML = normalProps.map(p => renderCard(p, false)).join('');
+}
+
+// 单卡片渲染 (isGold仅仅控制样式)
+function renderCard(p, isGold) {
+  const images = p.images;
+  const currentIdx = imgIndex[p.id] || 0;
+  const currentImg = images[currentIdx] || images[0];
+  const totalImgs = images.length;
+  const showNav = totalImgs > 1;
+  const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
+  const tagLabel = typeTag === 'rent' ? '出租' : '出售';
+
+  return `
+    <div class="card ${p.exclusive ? 'gold-card' : ''}">
       <div class="img-box">
-        ${isExclusive(p) ? `<div class="badge">EXCLUSIVE</div>` : ""}
-        <div class="tag sale">SALE</div>
-        <img src="${p.images[0]}" />
+        ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
+        <div class="tag ${typeTag}">${tagLabel}</div>
+        <img id="img${p.id}" src="${currentImg}" onerror="this.src='https://via.placeholder.com/400x240?text=Image+Error'">
+        ${showNav ? `<button class="nav prev" onclick="changeImage(${p.id}, -1)">‹</button>
+                      <button class="nav next" onclick="changeImage(${p.id}, 1)">›</button>` : ''}
+        <div class="image-counter">${currentIdx+1}/${totalImgs}</div>
       </div>
       <div class="content">
         <h3>${p.title}</h3>
         <div class="price">${p.price}</div>
-        <a class="btn" href="${buildWA(p)}" target="_blank">WhatsApp</a>
+        <div class="info">📍 ${p.area}</div>
+        <div class="info">📐 ${p.size} sqft &nbsp;| 🛏 ${p.bedroom} &nbsp;| 🚿 ${p.bathroom}</div>
+        <div class="info">🛠 ${p.renovate} &nbsp;| 🪑 ${p.furnish} &nbsp;| 🚗 ${p.parking}</div>
+        <div class="info">📜 ${p.tenure}</div>
+        <a class="btn" href="${buildWALink(p)}" target="_blank">📲 WhatsApp 咨询</a>
       </div>
-    </div>`;
-  }
-
-  exclusive.forEach(p=>ec.innerHTML += card(p));
-  normal.forEach(p=>g.innerHTML += card(p));
+    </div>
+  `;
 }
 
-/* AUTO SCROLL (UNCHANGED) */
-setInterval(()=>{
-  const el = document.getElementById("exclusiveCarousel");
-  if(!el) return;
+// 切换图片
+window.changeImage = function(propId, delta) {
+  const prop = allProperties.find(p => p.id === propId);
+  if (!prop || !prop.images.length) return;
+  let newIdx = (imgIndex[propId] || 0) + delta;
+  if (newIdx < 0) newIdx = prop.images.length - 1;
+  if (newIdx >= prop.images.length) newIdx = 0;
+  imgIndex[propId] = newIdx;
+  const imgElem = document.getElementById(`img${propId}`);
+  if (imgElem) imgElem.src = prop.images[newIdx];
+  // 更新计数器显示（简单刷新局部，重新渲染整个卡片开销大，但更稳妥可刷新，为了体验直接更新文本）
+  const counterDiv = imgElem?.parentElement?.querySelector('.image-counter');
+  if (counterDiv) counterDiv.innerText = `${newIdx+1}/${prop.images.length}`;
+};
 
-  const max = el.scrollWidth - el.clientWidth;
+// 监听筛选变化
+document.querySelectorAll('#type, #area, #sort, #search').forEach(el => el.addEventListener('input', () => render()));
 
-  if(el.scrollLeft >= max){
-    el.scrollTo({ left:0, behavior:"smooth" });
-  }else{
-    el.scrollBy({ left:300, behavior:"smooth" });
-  }
-}, 3500);
-
-document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
-
-load();
-
+// 启动
+loadData();
 </script>
-
 </body>
 </html>
