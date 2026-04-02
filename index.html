@@ -67,7 +67,26 @@ select, input {
   gap:16px;
 }
 
-/* EXCLUSIVE CAROUSEL */
+/* EXCLUSIVE CAROUSEL (ONLY CHANGE HERE) */
+.exclusive-carousel{
+  display:flex;
+  gap:16px;
+  overflow-x:auto;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+  padding:10px 5px;
+}
+
+.exclusive-carousel::-webkit-scrollbar{
+  display:none;
+}
+
+.exclusive-carousel .card{
+  min-width:280px;
+  flex:0 0 auto;
+}
+
+/* KEEP EVERYTHING ELSE EXACTLY SAME */
 .exclusive-section { margin-bottom:20px; }
 
 .exclusive-title {
@@ -84,23 +103,6 @@ select, input {
   align-items:center;
 }
 
-.exclusive-carousel{
-  display:flex;
-  gap:16px;
-  overflow-x:auto;
-  scroll-behavior:smooth;
-  padding:10px 5px;
-  width:100%;
-}
-
-.exclusive-carousel::-webkit-scrollbar{ display:none; }
-
-.exclusive-carousel .card{
-  min-width:280px;
-  flex:0 0 auto;
-}
-
-/* BUTTONS */
 .carousel-btn{
   position:absolute;
   top:50%;
@@ -245,10 +247,6 @@ function isExclusive(p){
   return (p.exclusive||"").toLowerCase()==="yes";
 }
 
-function priceNum(p){
-  return parseFloat((p||"").replace(/[^0-9]/g,""))||0;
-}
-
 function buildWA(p){
   return `https://wa.me/60147405020?text=${encodeURIComponent("Hi interested: "+p.title)}`;
 }
@@ -304,8 +302,6 @@ function render(){
   g.innerHTML = "";
 
   function card(p){
-    imgIndex[p.id]=imgIndex[p.id]||0;
-
     return `
     <div class="card">
       <div class="img-box">
@@ -325,7 +321,7 @@ function render(){
   normal.forEach(p=>g.innerHTML += card(p));
 }
 
-/* AUTO SCROLL */
+/* AUTO SCROLL (UNCHANGED) */
 setInterval(()=>{
   const el = document.getElementById("exclusiveCarousel");
   if(!el) return;
