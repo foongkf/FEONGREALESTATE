@@ -211,24 +211,58 @@ function getAreaList(){
 }
 
 async function load(){
-  const res = await fetch(SHEET_URL);
-  const text = await res.text();
+  try{
+    const res = await fetch(SHEET_URL);
+    const text = await res.text();
 
-  function parseCSV(text){
-    const rows = [];
-    let row = [];
-    let val = "";
-    let inQuotes = false;
+    // ✅ SAFE CSV PARSER (line-based, avoids breaking everything)
+    const lines = text.split("\n").filter(l=>l.trim());
+    const rows = lines.slice(1).map(line=>{
+      const cols = [];
+      let cur = "";
+      let inQuotes = false;
 
-    for (let i = 0; i < text.length; i++){
-      const c = text[i];
-      const next = text[i+1];
+      for(let i=0;i<line.length;i++){
+        const c = line[i];
 
-      if (c === '"' && inQuotes && next === '"') {
-        val += '"';
-        i++;
-        continue;
+        if(c === '"'){
+          inQuotes = !inQuotes;
+        }else if(c === ',' && !inQuotes){
+          cols.push(cur);
+          cur = "";
+        }else{
+          cur += c;
+        }
       }
+
+      cols.push(cur);
+      return cols;
+    });
+
+    data = rows.map((c,i)=>({
+      id:i,
+      title:clean(c[0]),
+      area:clean(c[1]),
+      size:clean(c[2]),
+      bedroom:clean(c[3]),
+      bathroom:clean(c[4]),
+      renovate:clean(c[5]),
+      furnish:clean(c[6]),
+      parking:clean(c[7]),
+      tenure:clean(c[8]).toLowerCase(),
+      type:clean(c[9]).toLowerCase(),
+      price:clean(c[10]),
+      exclusive:clean(c[11]),
+      images:parseImages(clean(c[12]))
+    }));
+
+    getAreaList();
+    render();
+
+  }catch(e){
+    console.log("LOAD ERROR:", e);
+  }
+}
 
       if (c === '"') {
         inQuotes = !inQuotes;
