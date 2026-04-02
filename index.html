@@ -118,12 +118,18 @@ header p{
   backdrop-filter:blur(12px);
   font-size:13px;
 }
-  </style>
+  .top-header{position:sticky;top:0;z-index:1000;backdrop-filter:blur(16px);background:rgba(255,255,255,0.75);border-bottom:1px solid rgba(0,0,0,0.08);padding:14px 18px;display:flex;justify-content:center;}
+.brand-wrap{text-align:center;}
+.brand-title{font-size:22px;letter-spacing:3px;font-weight:600;text-transform:uppercase;color:#111;}
+.brand-sub{font-size:12px;letter-spacing:1.5px;color:rgba(0,0,0,0.6);margin-top:2px;}
+</style>
 </head>
 <body>
-<header>
-  <h1>FEONG REAL ESTATE PENANG</h1>
-  <p>Penang Property Listing</p>
+<header class="top-header">
+  <div class="brand-wrap">
+    <div class="brand-title">FEONG REAL ESTATE</div>
+    <div class="brand-sub">Penang Property Listing</div>
+  </div>
 </header>
 <div class="container">
   <div class="filters">
