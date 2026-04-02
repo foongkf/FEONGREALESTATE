@@ -94,9 +94,15 @@ header p{
 }
 
 #exclusiveGrid .card{
-  min-width:280px;
-  flex:0 0 auto;
-  scroll-snap-align:start;
+  flex: 0 0 85vw;
+  min-width: 85vw;
+}
+#exclusiveGrid{
+  scroll-snap-type: x mandatory;
+}
+
+#exclusiveGrid .card{
+  scroll-snap-align: center;
 }
 .exclusive-title {
   font-size:14px;
@@ -328,7 +334,7 @@ function startExclusiveCarousel(){
     if(!card) return 300;
     const style = getComputedStyle(el);
     const gap = parseInt(style.gap || 16);
-    return card.offsetWidth + gap;
+    return const step = el.clientWidth;;
   }
 
   function start(){
