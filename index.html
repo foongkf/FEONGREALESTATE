@@ -313,6 +313,20 @@ async function load(){
   render();
 }
 
+function startExclusiveCarousel(){
+  const el = document.getElementById('exclusiveGrid');
+  if(!el || el.dataset.carouselInit) return;
+  el.dataset.carouselInit = "1";
+
+  setInterval(()=>{
+    if(el.scrollLeft + el.clientWidth >= el.scrollWidth - 5){
+      el.scrollTo({left:0,behavior:'smooth'});
+    }else{
+      el.scrollBy({left:300,behavior:'smooth'});
+    }
+  }, 3000);
+}
+
 function render(){
   const g=document.getElementById("grid");
   const eg=document.getElementById("exclusiveGrid");
