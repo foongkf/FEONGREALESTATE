@@ -49,12 +49,48 @@ body::before{
     header {
   position:sticky;
   top:0;
-  background:rgba(255,255,255,0.88);
+  background:rgba(255,255,255,0.85);
   backdrop-filter:blur(12px);
   color:#111;
-  padding:18px;
+  padding:22px 18px;
   text-align:center;
   border-bottom:1px solid rgba(0,0,0,0.08);
+  transition:all 0.3s ease;
+  z-index:1000;
+}
+
+header.shrink {
+  padding:10px 18px;
+  background:rgba(255,255,255,0.95);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+header h1{
+  font-size:22px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  font-weight:600;
+  margin:0;
+  transition:all 0.3s ease;
+}
+
+header.shrink h1{
+  font-size:16px;
+  letter-spacing:1.5px;
+}
+
+header p{
+  opacity:0.6;
+  letter-spacing:0.5px;
+  font-size:13px;
+  margin:4px 0 0 0;
+  transition:all 0.3s ease;
+}
+
+header.shrink p{
+  opacity:0;
+  height:0;
+  margin:0;
 }
 header h1{
   font-size:22px;
@@ -109,7 +145,16 @@ header p{
     .price { color:#16a34a; font-weight:bold; font-size:18px; margin:6px 0; }
     .info { font-size:13px; margin:4px 0; color:#444; }
     .btn { display:block; text-align:center; background:#25D366; color:#fff; padding:10px; margin-top:10px; border-radius:8px; text-decoration:none; }
-    footer { text-align:center; padding:16px; background:#1e3a8a; color:#fff; margin-top:20px; }
+    footer {
+  text-align:center;
+  padding:16px;
+  margin-top:20px;
+  background:rgba(255,255,255,0.85);
+  color:#111;
+  border-top:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px);
+  font-size:13px;
+}
   </style>
 </head>
 <body>
@@ -296,6 +341,17 @@ function prev(id){
 }
 
 load();
+
+// 🧠 Shrink header on scroll
+window.addEventListener("scroll", () => {
+  const header = document.querySelector("header");
+  if(window.scrollY > 80){
+    header.classList.add("shrink");
+  } else {
+    header.classList.remove("shrink");
+  }
+});
+
 document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
 </script>
 </body>
