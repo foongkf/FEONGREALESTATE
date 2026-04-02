@@ -1,249 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FEONG REAL ESTATE PENANG</title>
-<style>
-body{
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FEONG REAL ESTATE PENANG</title>
+  <style>
+    body {
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#000;
+  font-family: Arial, sans-serif;
+  background: #000;
   overflow-x:hidden;
 }
 
+/* 🌆 Animated city background slideshow */
+
+
+@keyframes bgSlide{
+  0%{background-image:url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80');}
+  25%{background-image:url('https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=2000&q=80');}
+  50%{background-image:url('https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=2000&q=80');}
+  75%{background-image:url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80');}
+  100%{background-image:url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80');}
+}
 body::before{
   content:'';
   position:fixed;
-  inset:0;
+  top:0;left:0;right:0;bottom:0;
   background:rgba(0,0,0,0.45);
   z-index:-1;
 }
-
-header{
+    header {
   position:sticky;
   top:0;
-  z-index:1000;
-  text-align:center;
-  padding:20px 16px;
   background:rgba(255,255,255,0.85);
   backdrop-filter:blur(12px);
+  color:#111;
+  padding:22px 18px;
+  text-align:center;
   border-bottom:1px solid rgba(0,0,0,0.08);
-  transition:.25s;
+  transition:all 0.3s ease;
+  z-index:1000;
 }
-header.shrink{
-  padding:10px 16px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
+
+header.shrink {
+  padding:10px 18px;
+  background:rgba(255,255,255,0.95);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+header h1{
+  font-size:22px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  font-weight:600;
+  margin:0;
+  transition:all 0.3s ease;
+}
+
+header.shrink h1{
+  font-size:16px;
+  letter-spacing:1.5px;
+}
+
+header p{
+  opacity:0.6;
+  letter-spacing:0.5px;
+  font-size:13px;
+  margin:4px 0 0 0;
+  transition:all 0.3s ease;
+}
+
+header.shrink p{
+  opacity:0;
+  height:0;
+  margin:0;
 }
 header h1{
-  margin:0;
-  font-size:24px;
-  letter-spacing:2px;
+  font-size:22px;
+  letter-spacing:1px;
   text-transform:uppercase;
+  font-weight:600;
+  text-shadow:none;
 }
 header p{
-  margin:4px 0 0;
+  opacity:0.6;
+  letter-spacing:0.5px;
   font-size:13px;
-  opacity:.7;
-  transition:.2s;
 }
-header.shrink p{opacity:0;height:0;margin:0;}
-
-.container{max-width:1200px;margin:auto;padding:16px;}
-
-.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
-select,input{
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
+header h1{
+  font-size:28px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  text-shadow:0 2px 10px rgba(0,0,0,0.4);
 }
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:16px;
+header p{
+  opacity:0.9;
+  letter-spacing:1px;
 }
-
-.exclusive-title{
-  display:inline-block;
-  font-size:13px;
-  padding:6px 10px;
-  border:1px solid rgba(0,0,0,.15);
-  border-radius:10px;
-  background:rgba(255,255,255,.6);
+    .container { padding:16px; max-width:1200px; margin:auto; }
+    .filters { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+    select, input { padding:8px; border-radius:8px; border:1px solid #ddd; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; }
+.exclusive-section { margin-bottom:20px; }
+.exclusive-title {
+  font-size:14px;
+  font-weight:500;
   margin-bottom:10px;
+  color:#111;
+  display:inline-block;
+  padding:6px 10px;
+  border:1px solid rgba(0,0,0,0.15);
+  border-radius:10px;
+  background:rgba(255,255,255,0.6);
+  box-shadow:none;
+  letter-spacing:0.5px;
 }
-
-.card{
-  background:#fff;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  display:flex;
-  flex-direction:column;
-}
-.gold{background:linear-gradient(135deg,#fff7ed,#fde68a);border:2px solid #f59e0b;}
-
-.img{position:relative;height:180px;}
-.img img{width:100%;height:100%;object-fit:cover;}
-
-.nav{
-  position:absolute;top:50%;transform:translateY(-50%);
-  background:rgba(0,0,0,.4);color:#fff;border:0;
-  padding:6px 10px;cursor:pointer;
-}
-.prev{left:8px}.next{right:8px}
-
-.badge{position:absolute;top:10px;left:10px;background:#f59e0b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px}
-.tag{position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:20px;font-size:12px;color:#fff;font-weight:bold}
-.tag.sale{background:#ef4444}.tag.rent{background:#3b82f6}
-
-.content{padding:12px}
-.price{color:#16a34a;font-weight:bold;font-size:18px;margin:6px 0}
-.info{font-size:13px;color:#444;margin:4px 0}
-.btn{display:block;text-align:center;background:#25D366;color:#fff;padding:10px;border-radius:8px;text-decoration:none;margin-top:10px}
-
-footer{
+.gold-card { background:linear-gradient(135deg,#fff7ed,#fde68a); border:2px solid #f59e0b; }
+    .card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); display:flex; flex-direction:column; }
+    .img-box { position:relative; height:180px; background:#eee; }
+    .img-box img { width:100%; height:100%; object-fit:cover; }
+    .nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.4); color:#fff; border:none; padding:6px 10px; cursor:pointer; }
+    .prev { left:8px; } .next { right:8px; }
+    .badge { position:absolute; top:10px; left:10px; background:#f59e0b; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; z-index:2; }
+    .tag { position:absolute; top:10px; right:10px; padding:4px 10px; border-radius:20px; font-size:12px; color:#fff; z-index:2; font-weight:bold; }
+    .tag.sale { background:#ef4444; } .tag.rent { background:#3b82f6; }
+    .content { padding:12px; }
+    .price { color:#16a34a; font-weight:bold; font-size:18px; margin:6px 0; }
+    .info { font-size:13px; margin:4px 0; color:#444; }
+    .btn { display:block; text-align:center; background:#25D366; color:#fff; padding:10px; margin-top:10px; border-radius:8px; text-decoration:none; }
+    footer {
   text-align:center;
-  padding:14px;
+  padding:16px;
   margin-top:20px;
-  background:rgba(255,255,255,.85);
+  background:rgba(255,255,255,0.85);
+  color:#111;
+  border-top:1px solid rgba(0,0,0,0.08);
   backdrop-filter:blur(12px);
-  border-top:1px solid rgba(0,0,0,.08);
   font-size:13px;
 }
-</style>
+  </style>
 </head>
 <body>
 <header>
   <h1>FEONG REAL ESTATE PENANG</h1>
   <p>Penang Property Listing</p>
 </header>
-
 <div class="container">
   <div class="filters">
-    <select id="type"><option value="all">All</option><option value="sale">Sale</option><option value="rent">Rent</option></select>
+    <select id="type">
+      <option value="all">All</option>
+      <option value="sale">For Sale</option>
+      <option value="rent">For Rent</option>
+    </select>
+    
     <select id="area"><option value="all">Area</option></select>
-    <select id="sort"><option>Default</option><option value="exclusive">Exclusive First</option><option value="low">Low→High</option><option value="high">High→Low</option></select>
+    <select id="sort">
+      <option value="default">Default</option>
+      <option value="exclusive">Exclusive First</option>
+      <option value="low">Price Low → High</option>
+      <option value="high">Price High → Low</option>
+    </select>
     <input id="search" placeholder="Search..." />
   </div>
-
-  <div class="exclusive-title">⭐ Exclusive Listings</div>
-  <div class="grid" id="exclusive"></div>
-
-  <div class="grid" id="list"></div>
+  <div class="exclusive-section">
+    <div class="exclusive-title">⭐ Exclusive Listings</div>
+    <div class="grid" id="exclusiveGrid"></div>
+  </div>
+  <div class="grid" id="grid"></div>
 </div>
-
-<footer>FEONG | 014-7405020 | REN 61687</footer>
+<footer>FEONG: 014-7405020 | REN 61687 | Today Properties</footer>
 
 <script>
-const URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
+function buildWA(p){
+  const msg = `Hi, I’m interested in this property:
 
-// DOM FIX (CRITICAL)
-const typeFilter=document.getElementById("type");
-const search=document.getElementById("search");
-const area=document.getElementById("area");
-const exclusiveEl=document.getElementById("exclusive");
-const listEl=document.getElementById("list");
+🏠 ${p.title}
+📍 ${p.area}
+💰 ${p.price}
+📐 ${p.size} sqft
 
-let data=[],img={};
-
-const clean=v=>(v||"").replace(/\r/g,"").replace(/^"|"$/g,"").trim();
-const isEx=p=>(p.exclusive||"").toLowerCase()==="yes";
-const type=p=>(p.type||"").includes("rent")?"rent":"sale";
-
-function parseImg(r){
-  return (r||"").split("|").filter(Boolean).map(u=>{
-    const m=u.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    return m?"https://drive.google.com/thumbnail?id="+m[1]:u;
-  });
+Please give me more details.`;
+  return `https://wa.me/60147405020?text=${encodeURIComponent(msg)}`;
 }
 
-function wa(p){
-  return `https://wa.me/60147405020?text=${encodeURIComponent(`Hi, interested in ${p.title}\n${p.area}\n${p.price}`)}`;
+let data = [];
+let imgIndex = {};
+
+function clean(v){ return (v||"").replace(/\r/g,"").replace(/^\"|\"$/g,"").trim(); }
+
+function formatImg(url){
+  if(url.includes("drive.google.com")){
+    let id = (url.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1];
+    if(!id) id = (url.match(/[?&]id=([a-zA-Z0-9_-]+)/)||[])[1];
+    if(id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+  }
+  return url;
+}
+
+function parseImages(raw){
+  if(!raw) return ["https://via.placeholder.com/400x300?text=No+Image"];
+  return raw.split("|").map(x=>x.trim()).filter(Boolean).map(formatImg);
+}
+
+function priceNum(p){ return parseFloat((p||"").replace(/[^0-9.]/g,""))||0; }
+function isExclusive(p){ return (p.exclusive||"").toLowerCase()==="yes"; }
+function typeLabel(type){ return type.includes("rent") ? "rent" : "sale"; }
+
+function getAreaList(){
+  const areas = [...new Set(data.map(p=>p.area).filter(Boolean))];
+  const sel = document.getElementById("area");
+  sel.innerHTML = '<option value="all">Area</option>' + areas.map(a=>`<option value="${a}">${a}</option>`).join('');
 }
 
 async function load(){
-  try{
-    const t=await (await fetch(URL)).text();
-    const rows=t.split("\n").slice(1).filter(Boolean);
+  const res = await fetch(SHEET_URL);
+  const text = await res.text();
 
-    data=rows.map((r,i)=>{
-      let c=r.split(",");
-      if(c.length>13){
-        const p=c.slice(10,c.length-2).join(",");
-        c=[...c.slice(0,10),p,c[c.length-2],c[c.length-1]];
-      }
-      return{
-        id:i,
-        title:clean(c[0]),area:clean(c[1]),size:clean(c[2]),bedroom:clean(c[3]),bathroom:clean(c[4]),
-        renovate:clean(c[5]),furnish:clean(c[6]),parking:clean(c[7]),tenure:clean(c[8]),type:clean(c[9]),
-        price:clean(c[10]),exclusive:clean(c[11]),images:parseImg(clean(c[12]))
-      };
-    }).filter(p=>p.title);
+  const rows = text.split("\n").slice(1)
+    .map(r => r.replace(/\r/g, ""))
+    .filter(r => r.trim());
 
-    render();
-  }catch(e){
-    console.error("CSV LOAD ERROR:",e);
-  }
+  data = rows.map((r,i)=>{
+    let c = r.split(",");
+
+    // fix RM 450,000 breaking columns
+    if(c.length > 13){
+      const price = c.slice(10, c.length - 2).join(",");
+      c = [...c.slice(0,10), price, c[c.length-2], c[c.length-1]];
+    }
+
+    return {
+      id:i,
+      title:clean(c[0]),
+      area:clean(c[1]),
+      size:clean(c[2]),
+      bedroom:clean(c[3]),
+      bathroom:clean(c[4]),
+      renovate:clean(c[5]),
+      furnish:clean(c[6]),
+      parking:clean(c[7]),
+      tenure:clean(c[8]).toLowerCase(),
+      type:clean(c[9]).toLowerCase(),
+      price:clean(c[10]),
+      exclusive:clean(c[11]),
+      images:parseImages(clean(c[12] || ""))
+    };
+  }).filter(p=>p.title);
+
+  console.log("Loaded:", data.length);
+
+  getAreaList();
+  render();
 }
 
 function render(){
-  const t=typeFilter.value||"all";
-  const s=(search.value||"").toLowerCase();
-  const a=area.value||"all";
+  const g=document.getElementById("grid");
+  const eg=document.getElementById("exclusiveGrid");
 
-  const filtered=data.filter(p=>
-    (t=="all"||p.type.includes(t))&&
-    (a=="all"||p.area==a)&&
-    (!s||p.title.toLowerCase().includes(s))
-  );
+  const t=document.getElementById("type").value;
+  const s=document.getElementById("search").value.toLowerCase();
+  const a=document.getElementById("area").value;
+  const so=document.getElementById("sort").value;
 
-  const ex=filtered.filter(isEx);
-  const normal=filtered.filter(p=>!isEx(p));
+  let list = data.filter(p=>{
+    if(t!=="all" && !p.type.includes(t)) return false;
+    if(a!=="all" && p.area!==a) return false;
+    if(s && !p.title.toLowerCase().includes(s)) return false;
+    return true;
+  });
 
-  exclusiveEl.innerHTML=ex.map(card).join("");
-  listEl.innerHTML=normal.map(card).join("");
+  let exclusiveList = list.filter(p=>isExclusive(p));
+  let normalList = list.filter(p=>!isExclusive(p));
+
+  eg.innerHTML="";
+  g.innerHTML="";
+
+  function renderCard(p, isGold=false){
+    imgIndex[p.id]=imgIndex[p.id]||0;
+    const img=p.images[imgIndex[p.id]];
+    const tag = typeLabel(p.type);
+
+    return `
+    <div class="card ${isGold?'gold-card':''}">
+      <div class="img-box">
+        ${isExclusive(p)?'<div class="badge">⭐ EXCLUSIVE</div>':''}
+        <div class="tag ${tag}">${tag.toUpperCase()}</div>
+        <img id="img${p.id}" src="${img}" />
+        <button class="nav prev" onclick="prev(${p.id})">‹</button>
+        <button class="nav next" onclick="next(${p.id})">›</button>
+      </div>
+      <div class="content">
+        <h3>${p.title}</h3>
+        <div class="price">${p.price}</div>
+        <div class="info">📍 ${p.area}</div>
+        <div class="info">📐 ${p.size} sqft | 🛏 ${p.bedroom} | 🚿 ${p.bathroom}</div>
+        <div class="info">🛠 ${p.renovate} | 🪑 ${p.furnish} | 🚗 ${p.parking}</div>
+        <div class="info">📜 ${p.tenure}</div>
+        <a class="btn" href="${buildWA(p)}" target="_blank">WhatsApp</a>
+      </div>
+    </div>`;
+  }
+
+  exclusiveList.forEach(p=>{
+    eg.innerHTML += renderCard(p,true);
+  });
+
+  normalList.forEach(p=>{
+    g.innerHTML += renderCard(p,false);
+  });
 }
 
-function card(p){
-  img[p.id]=img[p.id]||0;
-  const i=p.images[img[p.id]]||"https://via.placeholder.com/400";
-  const t=type(p);
-
-  return `<div class="card ${isEx(p)?'gold':''}">
-    <div class="img">
-      ${isEx(p)?'<div class="badge">EXCLUSIVE</div>':''}
-      <div class="tag ${t}">${t.toUpperCase()}</div>
-      <img id="i${p.id}" src="${i}" />
-      <button class="nav prev" onclick="chg(${p.id},-1)">‹</button>
-      <button class="nav next" onclick="chg(${p.id},1)">›</button>
-    </div>
-    <div class="content">
-      <h3>${p.title}</h3>
-      <div class="price">${p.price}</div>
-      <div class="info">📍 ${p.area}</div>
-      <div class="info">${p.size} sqft | 🛏 ${p.bedroom} | 🚿 ${p.bathroom}</div>
-      <a class="btn" href="${wa(p)}" target="_blank">WhatsApp</a>
-    </div>
-  </div>`;
-}
-
-function chg(id,d){
+function next(id){
   const p=data.find(x=>x.id==id);
-  if(!p||!p.images.length)return;
-  img[id]=(img[id]+d+p.images.length)%p.images.length;
-  document.getElementById("i"+id).src=p.images[img[id]];
+  imgIndex[id]=(imgIndex[id]+1)%p.images.length;
+  document.getElementById("img"+id).src=p.images[imgIndex[id]];
+}
+
+function prev(id){
+  const p=data.find(x=>x.id==id);
+  imgIndex[id]=(imgIndex[id]-1+p.images.length)%p.images.length;
+  document.getElementById("img"+id).src=p.images[imgIndex[id]];
 }
 
 load();
 
-// safe binding
-window.addEventListener("load",()=>{
-  typeFilter.oninput=render;
-  search.oninput=render;
-  area.oninput=render;
+// 🧠 Shrink header on scroll
+window.addEventListener("scroll", () => {
+  const header = document.querySelector("header");
+  if(window.scrollY > 80){
+    header.classList.add("shrink");
+  } else {
+    header.classList.remove("shrink");
+  }
 });
+
+document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
 </script>
 </body>
 </html>
