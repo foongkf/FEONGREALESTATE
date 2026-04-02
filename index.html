@@ -214,10 +214,59 @@ async function load(){
   const res = await fetch(SHEET_URL);
   const text = await res.text();
 
-  const rows = text.split("\n").slice(1);
+  function parseCSV(text){
+    const rows = [];
+    let row = [];
+    let val = "";
+    let inQuotes = false;
 
-  data = rows.map((r,i)=>{
-    const c = r.split(",");
+    for (let i = 0; i < text.length; i++){
+      const c = text[i];
+      const next = text[i+1];
+
+      if (c === '"' && inQuotes && next === '"') {
+        val += '"';
+        i++;
+        continue;
+      }
+
+      if (c === '"') {
+        inQuotes = !inQuotes;
+        continue;
+      }
+
+      if (c === ',' && !inQuotes) {
+        row.push(val);
+        val = "";
+        continue;
+      }
+
+      if ((c === '
+' || c === '
+') && !inQuotes) {
+        if (val !== "" || row.length > 0) {
+          row.push(val);
+          rows.push(row);
+          row = [];
+          val = "";
+        }
+        continue;
+      }
+
+      val += c;
+    }
+
+    if (val !== "" || row.length > 0) {
+      row.push(val);
+      rows.push(row);
+    }
+
+    return rows;
+  }
+
+  const rows = parseCSV(text);
+
+  data = rows.slice(1).map((c,i)=>{
     return {
       id:i,
       title:clean(c[0]),
