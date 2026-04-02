@@ -181,20 +181,7 @@ let imgIndex = {};
 function clean(v){ return (v||"").replace(/\r/g,"").replace(/^\"|\"$/g,"").trim(); }
 
 // ✅ FIXED CSV PARSER (handles commas in quotes)
-function parseCSV(text){
-  const lines = text.split("\n").filter(l=>l.trim());
-  const rows = [];
-
-  for(let i=1;i<lines.length;i++){
-    let row = lines[i];
-    let cols = [];
-    let cur = "";
-    let inQuotes = false;
-
-    for(let c of row){
-      if(c === '"') inQuotes = !inQuotes;
-      else if(c === ',' && !inQuotes){ cols.push(cur); cur=""; }
-      else cur += c;
+else cur += c;
     }
     cols.push(cur);
 
@@ -204,9 +191,18 @@ function parseCSV(text){
   return rows;
 }
 
+function convertDriveLink(url){
+  if(!url) return "";
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(m){
+    return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+  }
+  return url;
+}
+
 function parseImages(raw){
   if(!raw) return ["https://via.placeholder.com/400x300?text=No+Image"];
-  return raw.split("|").map(x=>x.trim()).filter(Boolean);
+  return raw.split("|").map(x=>x.trim()).filter(Boolean).map(convertDriveLink);
 }
 
 function priceNum(p){ return parseFloat((p||"").replace(/[^0-9.]/g,""))||0; }
@@ -225,9 +221,9 @@ async function load(){
   const res = await fetch(SHEET_URL);
   const text = await res.text();
 
-  const rows = parseCSV(text);
+  const rows = Papa.parse(text, {skipEmptyLines:true}).data;
 
-  data = rows.map((c,i)=>({
+  data = rows.slice(1).map((c,i)=>({
     id:i,
     title:clean(c[0]),
     area:clean(c[1]),
