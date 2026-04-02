@@ -79,11 +79,25 @@
       padding:4px 8px;
       border-radius:6px;
       font-size:12px;
+      z-index:2;
     }
 
-    .content {
-      padding:12px;
+    .tag {
+      position:absolute;
+      top:10px;
+      right:10px;
+      padding:4px 10px;
+      border-radius:20px;
+      font-size:12px;
+      color:#fff;
+      z-index:2;
+      font-weight:bold;
     }
+
+    .tag.sale { background:#ef4444; }
+    .tag.rent { background:#3b82f6; }
+
+    .content { padding:12px; }
 
     .price {
       color:#16a34a;
@@ -142,7 +156,7 @@
 
     <select id="sort">
       <option value="default">Default</option>
-      <option value="featured">Featured First</option>
+      <option value="exclusive">Exclusive First</option>
       <option value="low">Price Low → High</option>
       <option value="high">Price High → Low</option>
     </select>
@@ -181,7 +195,11 @@ function formatImg(url){
 
 function priceNum(p){ return parseFloat((p||"").replace(/[^0-9.]/g,""))||0; }
 
-function featured(p){ return (p.title||"").toLowerCase().includes("featured") || p.title.includes("⭐"); }
+function isExclusive(p){ return (p.exclusive||"").toLowerCase()==="yes"; }
+
+function typeLabel(type){
+  return type.includes("rent") ? "rent" : "sale";
+}
 
 async function load(){
   const res = await fetch(SHEET_URL);
@@ -203,7 +221,8 @@ async function load(){
       bath:clean(c[7]),
       reno:clean(c[8]),
       furnish:clean(c[9]),
-      tenure:clean(c[10]).toLowerCase()
+      tenure:clean(c[10]).toLowerCase(),
+      exclusive:clean(c[11])
     };
   });
 
@@ -224,7 +243,7 @@ function render(){
     return true;
   });
 
-  if(so=="featured") list.sort((a,b)=>featured(b)-featured(a));
+  if(so=="exclusive") list.sort((a,b)=>isExclusive(b)-isExclusive(a));
   if(so=="low") list.sort((a,b)=>priceNum(a.price)-priceNum(b.price));
   if(so=="high") list.sort((a,b)=>priceNum(b.price)-priceNum(a.price));
 
@@ -233,11 +252,13 @@ function render(){
   list.forEach(p=>{
     imgIndex[p.id]=imgIndex[p.id]||0;
     const img=p.images[imgIndex[p.id]];
+    const tag = typeLabel(p.type);
 
     g.innerHTML+=`
     <div class="card">
       <div class="img-box">
-        ${featured(p)?'<div class="badge">FEATURED</div>':''}
+        ${isExclusive(p)?'<div class="badge">EXCLUSIVE</div>':''}
+        <div class="tag ${tag}">${tag.toUpperCase()}</div>
         <img id="img${p.id}" src="${img}" />
         <button class="nav prev" onclick="prev(${p.id})">‹</button>
         <button class="nav next" onclick="next(${p.id})">›</button>
