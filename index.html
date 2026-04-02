@@ -211,23 +211,39 @@ function getAreaList(){
 }
 
 async function load(){
-  try{
-    const res = await fetch(SHEET_URL);
-    const text = await res.text();
+  const res = await fetch(SHEET_URL);
+  const text = await res.text();
 
-    // ✅ SAFE CSV PARSER (line-based, avoids breaking everything)
-    const lines = text.split("\n").filter(l=>l.trim());
-    const rows = lines.slice(1).map(line=>{
-      const cols = [];
-      let cur = "";
-      let inQuotes = false;
+  // ✅ MOST STABLE FIX: simple parse + fallback protection
+  const lines = text.split("
+").slice(1).filter(l=>l.trim());
 
-      for(let i=0;i<line.length;i++){
-        const c = line[i];
+  data = lines.map((r,i)=>{
+    const c = r.split(",");
 
-        if(c === '"'){
-          inQuotes = !inQuotes;
-        }else if(c === ',' && !inQuotes){
+    return {
+      id:i,
+      title:clean(c[0]),
+      area:clean(c[1]),
+      size:clean(c[2]),
+      bedroom:clean(c[3]),
+      bathroom:clean(c[4]),
+      renovate:clean(c[5]),
+      furnish:clean(c[6]),
+      parking:clean(c[7]),
+      tenure:clean(c[8]).toLowerCase(),
+      type:clean(c[9]).toLowerCase(),
+      price:clean(c[10]),
+      exclusive:clean(c[11]),
+      images:parseImages(clean(c[12]))
+    };
+  }).filter(p=>p.title);
+
+  console.log("Loaded listings:", data.length);
+
+  getAreaList();
+  render();
+}else if(c === ',' && !inQuotes){
           cols.push(cur);
           cur = "";
         }else{
