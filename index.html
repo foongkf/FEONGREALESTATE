@@ -214,10 +214,13 @@ async function load(){
   const res = await fetch(SHEET_URL);
   const text = await res.text();
 
-  const rows = text.split("\n").slice(1);
+  const rows = text.split("\n")
+  .slice(1)
+  .map(r => r.replace(/\r/g, "")) // 🔥关键
+  .filter(r => r.trim());        // 🔥关键
 
   data = rows.map((r,i)=>{
-    const c = r.split(",");
+    const c = r.split(",").map(x => x.trim());
     return {
       id:i,
       title:clean(c[0]),
@@ -232,7 +235,7 @@ async function load(){
       type:clean(c[9]).toLowerCase(),
       price:clean(c[10]),
       exclusive:clean(c[11]),
-      images:parseImages(clean(c[12]))
+      images:parseImages(clean(c[12] || ""))
     };
   });
 
