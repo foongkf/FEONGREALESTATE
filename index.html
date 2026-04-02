@@ -148,7 +148,11 @@
       <option value="rent">For Rent</option>
     </select>
 
-    
+    <select id="tenure">
+      <option value="all">Tenure</option>
+      <option value="freehold">Freehold</option>
+      <option value="leasehold">Leasehold</option>
+    </select>
 
     <select id="area">
       <option value="all">Area</option>
@@ -180,29 +184,18 @@ let imgIndex = {};
 
 function clean(v){ return (v||"").replace(/\r/g,"").replace(/^\"|\"$/g,"").trim(); }
 
-// ✅ FIXED CSV PARSER (handles commas in quotes)
-else cur += c;
-    }
-    cols.push(cur);
-
-    rows.push(cols);
-  }
-
-  return rows;
-}
-
-function convertDriveLink(url){
-  if(!url) return "";
-  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if(m){
-    return `https://drive.google.com/uc?export=view&id=${m[1]}`;
-  }
-  return url;
-}
-
 function parseImages(raw){
   if(!raw) return ["https://via.placeholder.com/400x300?text=No+Image"];
-  return raw.split("|").map(x=>x.trim()).filter(Boolean).map(convertDriveLink);
+  return raw.split("|").map(x=>x.trim()).filter(Boolean).map(formatImg);
+}
+
+function formatImg(url){
+  if(url.includes("drive.google.com")){
+    let id = (url.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1];
+    if(!id) id = (url.match(/[?&]id=([a-zA-Z0-9_-]+)/)||[])[1];
+    if(id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+  }
+  return url;
 }
 
 function priceNum(p){ return parseFloat((p||"").replace(/[^0-9.]/g,""))||0; }
@@ -212,33 +205,36 @@ function isExclusive(p){ return (p.exclusive||"").toLowerCase()==="yes"; }
 function typeLabel(type){ return type.includes("rent") ? "rent" : "sale"; }
 
 function getAreaList(){
-  const areas=[...new Set(data.map(p=>p.area).filter(Boolean))];
-  document.getElementById("area").innerHTML=
-    '<option value="all">Area</option>' + areas.map(a=>`<option value="${a}">${a}</option>`).join('');
+  const areas = [...new Set(data.map(p=>p.area).filter(Boolean))];
+  const sel = document.getElementById("area");
+  sel.innerHTML = '<option value="all">Area</option>' + areas.map(a=>`<option value="${a}">${a}</option>`).join('');
 }
 
 async function load(){
   const res = await fetch(SHEET_URL);
   const text = await res.text();
 
-  const rows = Papa.parse(text, {skipEmptyLines:true}).data;
+  const rows = text.split("\n").slice(1);
 
-  data = rows.slice(1).map((c,i)=>({
-    id:i,
-    title:clean(c[0]),
-    area:clean(c[1]),
-    size:clean(c[2]),
-    bedroom:clean(c[3]),
-    bathroom:clean(c[4]),
-    renovate:clean(c[5]),
-    furnish:clean(c[6]),
-    parking:clean(c[7]),
-    tenure:clean(c[8]).toLowerCase(),
-    type:clean(c[9]).toLowerCase(),
-    price:clean(c[10]),
-    exclusive:clean(c[11]),
-    images:parseImages(clean(c[12]))
-  }));
+  data = rows.map((r,i)=>{
+    const c = r.split(",");
+    return {
+      id:i,
+      title:clean(c[0]),
+      area:clean(c[1]),
+      size:clean(c[2]),
+      bedroom:clean(c[3]),
+      bathroom:clean(c[4]),
+      renovate:clean(c[5]),
+      furnish:clean(c[6]),
+      parking:clean(c[7]),
+      tenure:clean(c[8]).toLowerCase(),
+      type:clean(c[9]).toLowerCase(),
+      price:clean(c[10]),
+      exclusive:clean(c[11]),
+      images:parseImages(clean(c[12]))
+    };
+  });
 
   getAreaList();
   render();
@@ -248,46 +244,35 @@ function render(){
   const g=document.getElementById("grid");
   const t=document.getElementById("type").value;
   const s=document.getElementById("search").value.toLowerCase();
-  
+  const te=document.getElementById("tenure").value;
   const a=document.getElementById("area").value;
   const so=document.getElementById("sort").value;
 
-  let list=data.filter(p=>{
-    if(t!="all" && !p.type.includes(t)) return false;
-    
-    if(a!="all" && p.area!==a) return false;
+  let list = data.filter(p=>{
+    if(t!=="all" && !p.type.includes(t)) return false;
+    if(te!=="all" && !p.tenure.includes(te)) return false;
+    if(a!=="all" && p.area!==a) return false;
     if(s && !p.title.toLowerCase().includes(s)) return false;
     return true;
   });
 
   if(so=="exclusive") list.sort((a,b)=>isExclusive(b)-isExclusive(a));
-
-  // always prioritize exclusive first
-  list.sort((a,b)=> isExclusive(b)-isExclusive(a));
-
-  if(so=="low") list.sort((a,b)=>{
-    if(isExclusive(b)!==isExclusive(a)) return isExclusive(b)-isExclusive(a);
-    return priceNum(a.price)-priceNum(b.price);
-  });
-
-  if(so=="high") list.sort((a,b)=>{
-    if(isExclusive(b)!==isExclusive(a)) return isExclusive(b)-isExclusive(a);
-    return priceNum(b.price)-priceNum(a.price);
-  });
+  if(so=="low") list.sort((a,b)=>priceNum(a.price)-priceNum(b.price));
+  if(so=="high") list.sort((a,b)=>priceNum(b.price)-priceNum(a.price));
 
   g.innerHTML="";
 
   list.forEach(p=>{
     imgIndex[p.id]=imgIndex[p.id]||0;
     const img=p.images[imgIndex[p.id]];
-    const tag=typeLabel(p.type);
+    const tag = typeLabel(p.type);
 
     g.innerHTML+=`
     <div class="card">
       <div class="img-box">
         ${isExclusive(p)?'<div class="badge">EXCLUSIVE</div>':''}
         <div class="tag ${tag}">${tag.toUpperCase()}</div>
-        <img src="${img}" />
+        <img id="img${p.id}" src="${img}" />
         <button class="nav prev" onclick="prev(${p.id})">‹</button>
         <button class="nav next" onclick="next(${p.id})">›</button>
       </div>
@@ -307,17 +292,18 @@ function render(){
 function next(id){
   const p=data.find(x=>x.id==id);
   imgIndex[id]=(imgIndex[id]+1)%p.images.length;
-  render();
+  document.getElementById("img"+id).src=p.images[imgIndex[id]];
 }
 
 function prev(id){
   const p=data.find(x=>x.id==id);
   imgIndex[id]=(imgIndex[id]-1+p.images.length)%p.images.length;
-  render();
+  document.getElementById("img"+id).src=p.images[imgIndex[id]];
 }
 
-document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
 load();
+
+document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
 </script>
 
 </body>
