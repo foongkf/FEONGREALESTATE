@@ -47,9 +47,8 @@ body::before{
   z-index:-1;
 }
     header {
-  position:sticky;
-  top:0;
-  background:rgba(255,255,255,0.88);
+  position:static;
+  background:rgba(255,255,255,0.85);
   backdrop-filter:blur(12px);
   color:#111;
   padding:18px;
@@ -109,7 +108,16 @@ header p{
     .price { color:#16a34a; font-weight:bold; font-size:18px; margin:6px 0; }
     .info { font-size:13px; margin:4px 0; color:#444; }
     .btn { display:block; text-align:center; background:#25D366; color:#fff; padding:10px; margin-top:10px; border-radius:8px; text-decoration:none; }
-    footer { text-align:center; padding:16px; background:#1e3a8a; color:#fff; margin-top:20px; }
+    footer {
+  text-align:center;
+  padding:16px;
+  margin-top:20px;
+  background:rgba(255,255,255,0.85);
+  color:#111;
+  border-top:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px);
+  font-size:13px;
+}
   </style>
 </head>
 <body>
