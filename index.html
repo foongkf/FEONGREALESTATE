@@ -220,7 +220,21 @@ async function load(){
   .filter(r => r.trim());        // 🔥关键
 
   data = rows.map((r,i)=>{
-    const c = r.split(",").map(x => x.trim());
+    let c = r.split(",").map(x => x.trim());
+
+    // 🔥 FIX: handle comma inside price (e.g. RM 450,000)
+    if(c.length > 13){
+      // merge price parts back
+      const priceParts = c.slice(10, c.length - 2);
+      const fixedPrice = priceParts.join(",");
+
+      c = [
+        ...c.slice(0,10),
+        fixedPrice,
+        c[c.length - 2], // exclusive
+        c[c.length - 1]  // images
+      ];
+    }
     return {
       id:i,
       title:clean(c[0]),
