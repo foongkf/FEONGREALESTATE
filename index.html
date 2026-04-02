@@ -154,6 +154,10 @@
       <option value="leasehold">Leasehold</option>
     </select>
 
+    <select id="area">
+      <option value="all">Area</option>
+    </select>
+
     <select id="sort">
       <option value="default">Default</option>
       <option value="exclusive">Exclusive First</option>
@@ -173,6 +177,7 @@
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
+const WA_LINK = "https://wa.me/60147405020";
 
 let data = [];
 let imgIndex = {};
@@ -197,8 +202,12 @@ function priceNum(p){ return parseFloat((p||"").replace(/[^0-9.]/g,""))||0; }
 
 function isExclusive(p){ return (p.exclusive||"").toLowerCase()==="yes"; }
 
-function typeLabel(type){
-  return type.includes("rent") ? "rent" : "sale";
+function typeLabel(type){ return type.includes("rent") ? "rent" : "sale"; }
+
+function getAreaList(){
+  const areas = [...new Set(data.map(p=>p.area).filter(Boolean))];
+  const sel = document.getElementById("area");
+  sel.innerHTML = '<option value="all">Area</option>' + areas.map(a=>`<option value="${a}">${a}</option>`).join('');
 }
 
 async function load(){
@@ -212,20 +221,22 @@ async function load(){
     return {
       id:i,
       title:clean(c[0]),
-      price:clean(c[1]),
-      type:clean(c[2]).toLowerCase(),
-      images:parseImages(clean(c[3])),
-      whatsapp:clean(c[4]),
-      size:clean(c[5]),
-      bed:clean(c[6]),
-      bath:clean(c[7]),
-      reno:clean(c[8]),
-      furnish:clean(c[9]),
-      tenure:clean(c[10]).toLowerCase(),
-      exclusive:clean(c[11])
+      area:clean(c[1]),
+      size:clean(c[2]),
+      bedroom:clean(c[3]),
+      bathroom:clean(c[4]),
+      renovate:clean(c[5]),
+      furnish:clean(c[6]),
+      parking:clean(c[7]),
+      tenure:clean(c[8]).toLowerCase(),
+      type:clean(c[9]).toLowerCase(),
+      price:clean(c[10]),
+      exclusive:clean(c[11]),
+      images:parseImages(clean(c[12]))
     };
   });
 
+  getAreaList();
   render();
 }
 
@@ -234,11 +245,13 @@ function render(){
   const t=document.getElementById("type").value;
   const s=document.getElementById("search").value.toLowerCase();
   const te=document.getElementById("tenure").value;
+  const a=document.getElementById("area").value;
   const so=document.getElementById("sort").value;
 
   let list = data.filter(p=>{
     if(t!=="all" && !p.type.includes(t)) return false;
     if(te!=="all" && !p.tenure.includes(te)) return false;
+    if(a!=="all" && p.area!==a) return false;
     if(s && !p.title.toLowerCase().includes(s)) return false;
     return true;
   });
@@ -266,10 +279,11 @@ function render(){
       <div class="content">
         <h3>${p.title}</h3>
         <div class="price">${p.price}</div>
-        <div class="info">📐 ${p.size} sqft | 🛏 ${p.bed} | 🚿 ${p.bath}</div>
-        <div class="info">🛠 ${p.reno} | 🪑 ${p.furnish}</div>
+        <div class="info">📍 ${p.area}</div>
+        <div class="info">📐 ${p.size} sqft | 🛏 ${p.bedroom} | 🚿 ${p.bathroom}</div>
+        <div class="info">🛠 ${p.renovate} | 🪑 ${p.furnish} | 🚗 ${p.parking}</div>
         <div class="info">📜 ${p.tenure}</div>
-        <a class="btn" href="${p.whatsapp}" target="_blank">WhatsApp</a>
+        <a class="btn" href="${WA_LINK}" target="_blank">WhatsApp</a>
       </div>
     </div>`;
   });
