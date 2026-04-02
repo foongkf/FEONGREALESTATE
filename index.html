@@ -13,7 +13,7 @@ body{
   overflow-x:hidden;
 }
 
-/* ================= BACKGROUND SLIDESHOW ================= */
+/* ================= BACKGROUND ================= */
 body::before{
   content:'';
   position:fixed;
@@ -41,7 +41,7 @@ body::after{
   100%{background-image:url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80');}
 }
 
-/* ================= HEADER BRAND ================= */
+/* ================= BRAND ================= */
 .floating-brand{
   position:fixed;
   top:18px;
@@ -55,14 +55,12 @@ body::after{
   background:rgba(255,255,255,0.75);
   backdrop-filter:blur(16px);
   border:1px solid rgba(0,0,0,0.08);
-  box-shadow:0 10px 30px rgba(0,0,0,0.12);
 }
 
 .floating-brand .name{
   font-size:12px;
   font-weight:600;
   letter-spacing:2px;
-  text-transform:uppercase;
 }
 
 .floating-brand .sub{
@@ -90,24 +88,23 @@ select,input{
   border:1px solid #ddd;
 }
 
+/* ================= GRID ================= */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
   gap:16px;
 }
 
-/* ================= EXCLUSIVE CAROUSEL ================= */
+/* ================= EXCLUSIVE ================= */
 .exclusive-section{
   margin-bottom:20px;
 }
 
 .exclusive-title{
   font-size:14px;
-  font-weight:500;
-  margin-bottom:10px;
   padding:6px 10px;
-  border-radius:10px;
   background:rgba(255,255,255,0.6);
+  border-radius:10px;
   display:inline-block;
 }
 
@@ -116,13 +113,6 @@ select,input{
   overflow-x:auto;
   gap:16px;
   scroll-snap-type:x mandatory;
-  padding-bottom:10px;
-}
-
-.exclusive-carousel .card{
-  min-width:280px;
-  flex:0 0 auto;
-  scroll-snap-align:start;
 }
 
 .exclusive-carousel::-webkit-scrollbar{
@@ -135,13 +125,6 @@ select,input{
   border-radius:12px;
   overflow:hidden;
   box-shadow:0 4px 12px rgba(0,0,0,0.1);
-  display:flex;
-  flex-direction:column;
-}
-
-.gold-card{
-  background:linear-gradient(135deg,#fff7ed,#fde68a);
-  border:2px solid #f59e0b;
 }
 
 .img-box{
@@ -163,7 +146,6 @@ select,input{
   color:#fff;
   border:none;
   padding:6px 10px;
-  cursor:pointer;
 }
 
 .prev{left:8px;}
@@ -186,8 +168,8 @@ select,input{
   right:10px;
   padding:4px 10px;
   border-radius:20px;
-  font-size:12px;
   color:#fff;
+  font-size:12px;
 }
 
 .tag.sale{background:#ef4444;}
@@ -205,7 +187,6 @@ select,input{
   padding:10px;
   margin-top:10px;
   border-radius:10px;
-  text-decoration:none;
 }
 
 /* ================= FOOTER ================= */
@@ -242,13 +223,6 @@ footer{
 
     <select id="area"><option value="all">Area</option></select>
 
-    <select id="sort">
-      <option value="default">Default</option>
-      <option value="exclusive">Exclusive First</option>
-      <option value="low">Price Low → High</option>
-      <option value="high">Price High → Low</option>
-    </select>
-
     <input id="search" placeholder="Search..." />
   </div>
 
@@ -268,22 +242,23 @@ footer{
 
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
 
-let data = [];
-let imgIndex = {};
+let data=[];
+let imgIndex={};
 
 function clean(v){
   return (v||"").replace(/\r/g,"").replace(/^\"|\"$/g,"").trim();
 }
 
+/* CSV SAFE PARSER */
 function parseCSV(text){
   const rows = text.split("\n").slice(1).filter(r=>r.trim());
 
   return rows.map((r,i)=>{
     let c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
-    if(c.length > 13){
+    if(c.length>13){
       const price = c.slice(10,c.length-2).join(",");
-      c = [...c.slice(0,10), price, c[c.length-2], c[c.length-1]];
+      c=[...c.slice(0,10),price,c[c.length-2],c[c.length-1]];
     }
 
     return{
@@ -309,69 +284,64 @@ function isExclusive(p){
   return (p.exclusive||"").toLowerCase()==="yes";
 }
 
-function typeLabel(t){
-  return t.includes("rent") ? "rent" : "sale";
-}
-
 function buildWA(p){
-  const msg = `Hi, I’m interested:
+  return "https://wa.me/60147405020?text="+encodeURIComponent(
+`Hi, I’m interested:
 
 🏠 ${p.title}
 📍 ${p.area}
 💰 ${p.price}
-📐 ${p.size} sqft`;
-
-  return "https://wa.me/60147405020?text="+encodeURIComponent(msg);
+📐 ${p.size} sqft`
+  );
 }
 
 async function load(){
   const res = await fetch(SHEET_URL);
   const text = await res.text();
+
   data = parseCSV(text);
 
-  const areas = [...new Set(data.map(p=>p.area))];
-  document.getElementById("area").innerHTML =
-    '<option value="all">Area</option>' +
+  const areas=[...new Set(data.map(p=>p.area))];
+  document.getElementById("area").innerHTML=
+    '<option value="all">Area</option>'+
     areas.map(a=>`<option>${a}</option>`).join("");
 
   render();
 }
 
-/* ================= RENDER ================= */
 function render(){
-  const t = document.getElementById("type").value;
-  const a = document.getElementById("area").value;
-  const s = document.getElementById("search").value.toLowerCase();
+  const t=document.getElementById("type").value;
+  const a=document.getElementById("area").value;
+  const s=document.getElementById("search").value.toLowerCase();
 
-  let list = data.filter(p=>{
-    if(t!=="all" && !p.type.includes(t)) return false;
-    if(a!=="all" && p.area!==a) return false;
-    if(s && !p.title.toLowerCase().includes(s)) return false;
+  let list=data.filter(p=>{
+    if(t!=="all"&&!p.type.includes(t))return false;
+    if(a!=="all"&&p.area!==a)return false;
+    if(s&&!p.title.toLowerCase().includes(s))return false;
     return true;
   });
 
-  const exclusive = list.filter(isExclusive);
-  const normal = list.filter(p=>!isExclusive(p));
+  const ex=list.filter(isExclusive);
+  const normal=list.filter(p=>!isExclusive(p));
 
-  document.getElementById("exclusiveGrid").innerHTML =
-    exclusive.map(renderCard).join("");
+  document.getElementById("exclusiveGrid").innerHTML=
+    ex.map(renderCard).join("");
 
-  document.getElementById("grid").innerHTML =
+  document.getElementById("grid").innerHTML=
     normal.map(renderCard).join("");
 }
 
 function renderCard(p){
   imgIndex[p.id]=imgIndex[p.id]||0;
-  const img = p.images[imgIndex[p.id]] || "https://via.placeholder.com/400";
-
-  const tag = typeLabel(p.type);
+  const img=p.images[imgIndex[p.id]]||"https://via.placeholder.com/400";
+  const tag=p.type.includes("rent")?"rent":"sale";
 
   return `
   <div class="card">
     <div class="img-box">
-      ${isExclusive(p) ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
+      ${isExclusive(p)?'<div class="badge">⭐ EXCLUSIVE</div>':''}
       <div class="tag ${tag}">${tag.toUpperCase()}</div>
-      <img id="img${p.id}" src="${img}" />
+      <img id="img${p.id}" src="${img}">
       <button class="nav prev" onclick="prev(${p.id})">‹</button>
       <button class="nav next" onclick="next(${p.id})">›</button>
     </div>
@@ -380,42 +350,25 @@ function renderCard(p){
       <h3>${p.title}</h3>
       <div class="price">${p.price}</div>
       <div class="info">📍 ${p.area}</div>
-      <div class="info">📐 ${p.size} sqft | 🛏 ${p.bedroom} | 🚿 ${p.bathroom}</div>
-      <div class="info">🛠 ${p.renovate} | 🪑 ${p.furnish} | 🚗 ${p.parking}</div>
-
+      <div class="info">📐 ${p.size} sqft</div>
       <a class="btn" href="${buildWA(p)}" target="_blank">WhatsApp</a>
     </div>
   </div>`;
 }
 
-/* ================= IMAGE SLIDER ================= */
 function next(id){
-  const p = data.find(x=>x.id==id);
+  const p=data.find(x=>x.id==id);
   imgIndex[id]=(imgIndex[id]+1)%p.images.length;
-  document.getElementById("img"+id).src = p.images[imgIndex[id]];
+  document.getElementById("img"+id).src=p.images[imgIndex[id]];
 }
 
 function prev(id){
-  const p = data.find(x=>x.id==id);
+  const p=data.find(x=>x.id==id);
   imgIndex[id]=(imgIndex[id]-1+p.images.length)%p.images.length;
-  document.getElementById("img"+id).src = p.images[imgIndex[id]];
+  document.getElementById("img"+id).src=p.images[imgIndex[id]];
 }
 
-/* ================= AUTO CAROUSEL ================= */
-setInterval(()=>{
-  const el = document.getElementById("exclusiveGrid");
-  if(!el) return;
-
-  el.scrollBy({left:300,behavior:"smooth"});
-
-  if(el.scrollLeft + el.clientWidth >= el.scrollWidth){
-    el.scrollTo({left:0,behavior:"smooth"});
-  }
-},3000);
-
-/* ================= EVENTS ================= */
-document.querySelectorAll("select,input")
-.forEach(e=>e.oninput=render);
+document.querySelectorAll("select,input").forEach(e=>e.oninput=render);
 
 load();
 
