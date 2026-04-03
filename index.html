@@ -137,7 +137,7 @@
       box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
     }
 
-    /* Exclusive 横向滚动 - 修复卡片按钮贴底 */
+    /* Exclusive 横向滚动 */
     .exclusive-section {
       margin-bottom: 48px;
     }
@@ -180,13 +180,11 @@
       white-space: normal;
       align-items: stretch;
     }
-    /* 关键修复：独占区卡片使用 flex 布局，不覆盖全局 .card 的 display */
+    /* 独占区卡片：设置最小高度，保证即使标签缺失也不会太矮，且按钮始终在底部 */
     .exclusive-grid .card {
       width: 280px;
-      min-height: 140px;
       flex-shrink: 0;
-      height: 100%;
-      /* 继承 .card 的 flex 列布局，不再设置 display: inline-block */
+      min-height: 400px;  /* 确保所有卡片至少这个高度，内容少时按钮不会上移 */
     }
 
     /* 普通网格 */
@@ -306,7 +304,6 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      min-height: 140px;
     }
     .content h3 {
       font-size: 16px;
@@ -334,7 +331,6 @@
       flex-wrap: wrap;
       gap: 6px;
       margin: 8px 0;
-      min-height: 48px;
     }
     .detail-tag {
       background: #f5f5f7;
@@ -612,7 +608,7 @@
       }
       .exclusive-grid .card {
         width: 260px;
-        height: 100%;
+        min-height: 380px;  /* 移动端适当降低最小高度 */
       }
       .grid {
         gap: 14px;
