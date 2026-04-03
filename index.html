@@ -90,12 +90,17 @@
       z-index: 1;
     }
 
-    /* 顶部品牌 */
-    .floating-brand {
+    /* 顶部品牌 + 功能图标 */
+    .top-bar {
       position: fixed;
       top: 24px;
       right: 28px;
       z-index: 1000;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .floating-brand {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -123,8 +128,27 @@
       font-size: 10px;
       color: var(--text-muted);
     }
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      border: 0.5px solid rgba(0, 0, 0, 0.05);
+      border-radius: 40px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+    .icon-btn:hover {
+      background: white;
+      transform: scale(0.96);
+    }
 
-    /* 筛选栏 - 移除了价格和卧室筛选器 */
+    /* 筛选栏 */
     .filters {
       display: flex;
       flex-wrap: wrap;
@@ -256,6 +280,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      position: relative;
     }
     .card:hover {
       transform: translateY(-3px);
@@ -264,6 +289,31 @@
     .gold-card {
       background: #fffef7;
       border-left: 3px solid #f5a623;
+    }
+    /* 收藏心形按钮 */
+    .favorite-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 40px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      transition: 0.2s;
+      color: #ff3b30;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .favorite-btn:hover {
+      transform: scale(1.05);
+      background: white;
     }
 
     .img-box {
@@ -507,7 +557,7 @@
       font-size: 12px;
     }
 
-    /* 模态框 */
+    /* 模态框 (通用) */
     .modal {
       display: none;
       position: fixed;
@@ -655,6 +705,71 @@
       transform: scale(0.98);
     }
 
+    /* 小型模态框 (收藏夹/历史) */
+    .small-modal-content {
+      max-width: 500px;
+      background: white;
+      border-radius: 28px;
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .small-modal-content h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .small-modal-content .close-small {
+      cursor: pointer;
+      font-size: 24px;
+    }
+    .favorite-list, .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .favorite-item, .history-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      background: #f5f5f7;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .favorite-item:hover, .history-item:hover {
+      background: #e8e8ed;
+    }
+    .favorite-item img, .history-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+    .favorite-item .info, .history-item .info {
+      flex: 1;
+    }
+    .favorite-item .title, .history-item .title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .favorite-item .price, .history-item .price {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .remove-fav {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #ff3b30;
+      padding: 4px;
+    }
+
     /* 移动端 */
     @media (max-width: 768px) {
       .container {
@@ -689,17 +804,30 @@
       .modal-price {
         font-size: 24px;
       }
+      .top-bar {
+        top: 16px;
+        right: 16px;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="floating-brand">
-  <div class="logo">🏙️</div>
-  <div class="brand-text">
-    <div class="name">FEONG REAL ESTATE</div>
-    <div class="sub">Penang Property Listing</div>
+<div class="top-bar">
+  <div class="floating-brand">
+    <div class="logo">🏙️</div>
+    <div class="brand-text">
+      <div class="name">FEONG REAL ESTATE</div>
+      <div class="sub">Penang Property Listing</div>
+    </div>
   </div>
+  <div class="icon-btn" id="favoritesIcon">❤️</div>
+  <div class="icon-btn" id="historyIcon">🕒</div>
 </div>
 
 <div class="container">
@@ -734,6 +862,7 @@
 </div>
 <footer>FEONG: 014-7405020 | REN 61687 | Today Properties</footer>
 
+<!-- 房源详情模态框 -->
 <div id="detailModal" class="modal">
   <div class="modal-content">
     <div class="modal-img-box">
@@ -753,6 +882,22 @@
   </div>
 </div>
 
+<!-- 收藏夹模态框 -->
+<div id="favoritesModal" class="modal">
+  <div class="small-modal-content">
+    <h3>❤️ Favorites <span class="close-small" id="closeFavorites">✕</span></h3>
+    <div id="favoritesList" class="favorite-list"></div>
+  </div>
+</div>
+
+<!-- 最近浏览模态框 -->
+<div id="historyModal" class="modal">
+  <div class="small-modal-content">
+    <h3>🕒 Recently Viewed <span class="close-small" id="closeHistory">✕</span></h3>
+    <div id="historyList" class="history-list"></div>
+  </div>
+</div>
+
 <script>
 // ======================= 工具函数 =======================
 function escapeHtml(str) {
@@ -765,27 +910,24 @@ function escapeHtml(str) {
   });
 }
 
-// 价格格式化：输入数字（或包含数字的字符串），返回 "RM 1,234,567"
+// 价格格式化
 function formatPrice(priceRaw) {
   if (!priceRaw) return '';
-  // 提取数字（支持已有 RM、逗号等）
   let numStr = priceRaw.toString().replace(/[^0-9]/g, '');
   if (numStr === '') return '';
   let num = parseInt(numStr, 10);
-  if (isNaN(num)) return priceRaw; // 后备
-  // 格式化千位分隔符
+  if (isNaN(num)) return priceRaw;
   let formatted = num.toLocaleString('en-US');
   return `RM ${formatted}`;
 }
 
-// 提取价格数字（用于排序）
 function getPriceNumber(priceStr) {
   if (!priceStr) return 0;
   const num = parseFloat(priceStr.toString().replace(/[^0-9]/g, ''));
   return isNaN(num) ? 0 : num;
 }
 
-// Google Drive 缩略图优化
+// Google Drive 图片
 function formatImgUrl(url, size = 'small') {
   if (!url) return '';
   if (url.includes('drive.google.com')) {
@@ -808,39 +950,76 @@ function parseImages(raw, size = 'small') {
   return raw.split('|').map(s => s.trim()).filter(Boolean).map(url => formatImgUrl(url, size));
 }
 
+// WhatsApp 消息自动带图片
 function buildWALink(property) {
-  const msg = `Hi, I’m interested in this property:\n🏠 ${property.title}\n📍 ${property.area}\n💰 ${property.price}\n📐 ${property.size} sqft\n🛏 ${property.bedroom} bed\n🚿 ${property.bathroom} bath\n🚗 ${property.parking} park\n🛠 ${property.renovate} reno\n🪑 ${property.furnish} furnish\n📜 ${property.tenure}\n\nPlease give me more details.`;
+  const imageUrl = property.imagesSmall && property.imagesSmall[0] ? property.imagesSmall[0] : '';
+  const msg = `Hi, I’m interested in this property:\n🏠 ${property.title}\n📍 ${property.area}\n💰 ${property.price}\n📐 ${property.size} sqft\n🛏 ${property.bedroom} bed\n🚿 ${property.bathroom} bath\n🚗 ${property.parking} park\n🛠 ${property.renovate} reno\n🪑 ${property.furnish} furnish\n📜 ${property.tenure}\n\n📸 Image: ${imageUrl}\n\nPlease give me more details.`;
   return `https://wa.me/60147405020?text=${encodeURIComponent(msg)}`;
 }
 
-// 示例数据（价格已改为纯数字，展示格式化效果）
-function getSampleProperties() {
-  return [
-    { id: 1, title: "The Maritime Suite", area: "Gurney Drive", size: "1250", bedroom: "3", bathroom: "2", renovate: "Fully", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1250000", exclusive: true, imagesRaw: "https://placehold.co/800x500/0071e3/white?text=Maritime|https://placehold.co/800x500/f5a623/white?text=Maritime+2" },
-    { id: 2, title: "Quayside Residence", area: "Tanjung Tokong", size: "980", bedroom: "2", bathroom: "2", renovate: "Partly", furnish: "Fully", parking: "1", tenure: "freehold", type: "sale", priceRaw: "890000", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Quayside" },
-    { id: 3, title: "Penang World City", area: "Bayan Lepas", size: "1100", bedroom: "3", bathroom: "2", renovate: "Standard", furnish: "Empty", parking: "2", tenure: "leasehold", type: "rent", priceRaw: "2800", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff3b30/white?text=PWC" },
-    { id: 4, title: "Seri Tanjung Pinang", area: "Tanjung Tokong", size: "1500", bedroom: "4", bathroom: "3", renovate: "Luxury", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", priceRaw: "2100000", exclusive: true, imagesRaw: "https://placehold.co/800x500/f5a623/white?text=STP" },
-    { id: 5, title: "The Light Waterfront", area: "Jelutong", size: "1350", bedroom: "3", bathroom: "2", renovate: "New", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1480000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5856d6/white?text=Light" },
-    { id: 6, title: "Setia V Residences", area: "Bayan Lepas", size: "850", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Fully", parking: "1", tenure: "leasehold", type: "rent", priceRaw: "2200", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff9500/white?text=VRes" },
-    { id: 7, title: "By The Sea", area: "Tanjung Bungah", size: "1050", bedroom: "3", bathroom: "2", renovate: "Well-maintained", furnish: "Partly", parking: "1", tenure: "freehold", type: "sale", priceRaw: "1050000", exclusive: true, imagesRaw: "https://placehold.co/800x500/af52de/white?text=ByTheSea" },
-    { id: 8, title: "Mansion One", area: "George Town", size: "700", bedroom: "1", bathroom: "1", renovate: "Simple", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", priceRaw: "1800", exclusive: false, imagesRaw: "https://placehold.co/800x500/64d2ff/white?text=Mansion" },
-    { id: 9, title: "Tri Pinnacle", area: "George Town", size: "1200", bedroom: "3", bathroom: "2", renovate: "Modern", furnish: "Empty", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1320000", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff2d55/white?text=TriP" },
-    { id: 10, title: "Jazz Residences", area: "Bayan Lepas", size: "920", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Partly", parking: "1", tenure: "leasehold", type: "sale", priceRaw: "680000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5e5ce6/white?text=Jazz" },
-    { id: 11, title: "The Landmark", area: "George Town", size: "1600", bedroom: "4", bathroom: "3", renovate: "Premium", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", priceRaw: "2450000", exclusive: true, imagesRaw: "https://placehold.co/800x500/ffcc00/white?text=Landmark" },
-    { id: 12, title: "Ocean View Condo", area: "Tanjung Bungah", size: "1100", bedroom: "3", bathroom: "2", renovate: "Renovated", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", priceRaw: "3200", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Ocean" }
-  ];
+// ======================= localStorage 操作 =======================
+// 收藏
+function getFavorites() {
+  return JSON.parse(localStorage.getItem('favorites') || '[]');
+}
+function saveFavorites(favorites) {
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+}
+function toggleFavorite(propertyId) {
+  let favs = getFavorites();
+  if (favs.includes(propertyId)) {
+    favs = favs.filter(id => id !== propertyId);
+  } else {
+    favs.push(propertyId);
+  }
+  saveFavorites(favs);
+  return favs.includes(propertyId);
+}
+function isFavorite(propertyId) {
+  return getFavorites().includes(propertyId);
 }
 
-// ======================= 全局变量 =======================
+// 最近浏览 (最多10条，去重，最新的在前)
+function getRecentViews() {
+  return JSON.parse(localStorage.getItem('recentViews') || '[]');
+}
+function addRecentView(propertyId) {
+  let recents = getRecentViews();
+  recents = recents.filter(id => id !== propertyId);
+  recents.unshift(propertyId);
+  if (recents.length > 10) recents.pop();
+  localStorage.setItem('recentViews', JSON.stringify(recents));
+}
+
+// 筛选条件保存/恢复
+function saveFilters() {
+  const filters = {
+    type: document.getElementById('type').value,
+    area: document.getElementById('area').value,
+    sort: document.getElementById('sort').value,
+    search: document.getElementById('search').value
+  };
+  localStorage.setItem('propertyFilters', JSON.stringify(filters));
+}
+function loadFilters() {
+  const saved = localStorage.getItem('propertyFilters');
+  if (saved) {
+    const filters = JSON.parse(saved);
+    if (filters.type) document.getElementById('type').value = filters.type;
+    if (filters.area) document.getElementById('area').value = filters.area;
+    if (filters.sort) document.getElementById('sort').value = filters.sort;
+    if (filters.search) document.getElementById('search').value = filters.search;
+  }
+}
+
+// ======================= 数据加载与渲染 =======================
 let allProperties = [];
 let imgIndex = {};
 let currentPage = 1;
 const ITEMS_PER_PAGE = 12;
 let currentModalProperty = null;
 let currentModalImageIndex = 0;
-let isLoading = true;
 
-// ======================= 解析 CSV（自动格式化价格） =======================
 function parseCSVRow(line, expectedCols = 13) {
   const result = [];
   let inQuote = false;
@@ -876,7 +1055,6 @@ function buildPropertiesFromCSV(csvText) {
     const rawPrice = cols[10] || '';
     const formattedPrice = formatPrice(rawPrice);
     const priceNum = getPriceNumber(rawPrice);
-    
     const prop = {
       id: i,
       title: escapeHtml(cols[0] || ''),
@@ -889,9 +1067,8 @@ function buildPropertiesFromCSV(csvText) {
       parking: escapeHtml(cols[7] || ''),
       tenure: escapeHtml(cols[8] || '').toLowerCase(),
       type: (cols[9] || '').toLowerCase(),
-      price: formattedPrice,      // 显示的格式化价格
-      priceRaw: rawPrice,         // 原始输入（仅用于调试）
-      priceNum: priceNum,         // 数字用于排序
+      price: formattedPrice,
+      priceNum: priceNum,
       exclusive: (cols[11] || '').toLowerCase() === 'yes',
       imagesRaw: cols[12] || ''
     };
@@ -902,45 +1079,59 @@ function buildPropertiesFromCSV(csvText) {
   return properties;
 }
 
-// 显示骨架屏
-function showSkeleton() {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '<div class="skeleton-grid">' + Array(6).fill('<div class="skeleton-card"></div>').join('') + '</div>';
+function getSampleProperties() {
+  const samples = [
+    { id: 1, title: "The Maritime Suite", area: "Gurney Drive", size: "1250", bedroom: "3", bathroom: "2", renovate: "Fully", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1250000", exclusive: true, imagesRaw: "https://placehold.co/800x500/0071e3/white?text=Maritime|https://placehold.co/800x500/f5a623/white?text=Maritime+2" },
+    { id: 2, title: "Quayside Residence", area: "Tanjung Tokong", size: "980", bedroom: "2", bathroom: "2", renovate: "Partly", furnish: "Fully", parking: "1", tenure: "freehold", type: "sale", priceRaw: "890000", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Quayside" },
+    { id: 3, title: "Penang World City", area: "Bayan Lepas", size: "1100", bedroom: "3", bathroom: "2", renovate: "Standard", furnish: "Empty", parking: "2", tenure: "leasehold", type: "rent", priceRaw: "2800", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff3b30/white?text=PWC" },
+    { id: 4, title: "Seri Tanjung Pinang", area: "Tanjung Tokong", size: "1500", bedroom: "4", bathroom: "3", renovate: "Luxury", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", priceRaw: "2100000", exclusive: true, imagesRaw: "https://placehold.co/800x500/f5a623/white?text=STP" },
+    { id: 5, title: "The Light Waterfront", area: "Jelutong", size: "1350", bedroom: "3", bathroom: "2", renovate: "New", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1480000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5856d6/white?text=Light" },
+    { id: 6, title: "Setia V Residences", area: "Bayan Lepas", size: "850", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Fully", parking: "1", tenure: "leasehold", type: "rent", priceRaw: "2200", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff9500/white?text=VRes" },
+    { id: 7, title: "By The Sea", area: "Tanjung Bungah", size: "1050", bedroom: "3", bathroom: "2", renovate: "Well-maintained", furnish: "Partly", parking: "1", tenure: "freehold", type: "sale", priceRaw: "1050000", exclusive: true, imagesRaw: "https://placehold.co/800x500/af52de/white?text=ByTheSea" },
+    { id: 8, title: "Mansion One", area: "George Town", size: "700", bedroom: "1", bathroom: "1", renovate: "Simple", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", priceRaw: "1800", exclusive: false, imagesRaw: "https://placehold.co/800x500/64d2ff/white?text=Mansion" },
+    { id: 9, title: "Tri Pinnacle", area: "George Town", size: "1200", bedroom: "3", bathroom: "2", renovate: "Modern", furnish: "Empty", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1320000", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff2d55/white?text=TriP" },
+    { id: 10, title: "Jazz Residences", area: "Bayan Lepas", size: "920", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Partly", parking: "1", tenure: "leasehold", type: "sale", priceRaw: "680000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5e5ce6/white?text=Jazz" },
+    { id: 11, title: "The Landmark", area: "George Town", size: "1600", bedroom: "4", bathroom: "3", renovate: "Premium", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", priceRaw: "2450000", exclusive: true, imagesRaw: "https://placehold.co/800x500/ffcc00/white?text=Landmark" },
+    { id: 12, title: "Ocean View Condo", area: "Tanjung Bungah", size: "1100", bedroom: "3", bathroom: "2", renovate: "Renovated", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", priceRaw: "3200", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Ocean" }
+  ];
+  return samples.map(p => {
+    const formattedPrice = formatPrice(p.priceRaw);
+    return {
+      ...p,
+      price: formattedPrice,
+      priceNum: getPriceNumber(p.priceRaw),
+      imagesSmall: parseImages(p.imagesRaw, 'small'),
+      imagesLarge: parseImages(p.imagesRaw, 'large')
+    };
+  });
 }
 
 async function loadData() {
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
   showSkeleton();
   try {
-    console.log("Loading real data...");
     const resp = await fetch(SHEET_URL);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const csvText = await resp.text();
     const properties = buildPropertiesFromCSV(csvText);
     if (properties.length === 0) throw new Error("No valid rows");
     allProperties = properties;
-    console.log(`Loaded ${allProperties.length} real properties.`);
   } catch (err) {
     console.warn("Using sample data", err);
-    const samples = getSampleProperties();
-    allProperties = samples.map(p => {
-      const formattedPrice = formatPrice(p.priceRaw);
-      return {
-        ...p,
-        price: formattedPrice,
-        priceNum: getPriceNumber(p.priceRaw),
-        imagesSmall: parseImages(p.imagesRaw, 'small'),
-        imagesLarge: parseImages(p.imagesRaw, 'large')
-      };
-    });
+    allProperties = getSampleProperties();
   }
   allProperties.forEach(p => { imgIndex[p.id] = 0; });
   populateAreaFilter();
+  loadFilters();            // 恢复筛选条件
   currentPage = 1;
-  isLoading = false;
   renderExclusive();
   renderNormalPaged();
   checkScrollGradient();
+}
+
+function showSkeleton() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<div class="skeleton-grid">' + Array(6).fill('<div class="skeleton-card"></div>').join('') + '</div>';
 }
 
 function populateAreaFilter() {
@@ -1002,6 +1193,7 @@ function renderExclusive() {
     container.innerHTML = exclusiveProps.map(p => renderCard(p, true)).join('');
   }
   document.querySelectorAll('.card img').forEach(img => img.setAttribute('loading', 'lazy'));
+  attachFavoriteListeners();
 }
 
 function renderNormalPaged() {
@@ -1019,8 +1211,133 @@ function renderNormalPaged() {
   }
   renderPaginationControls(totalPages);
   document.querySelectorAll('.card img').forEach(img => img.setAttribute('loading', 'lazy'));
+  attachFavoriteListeners();
 }
 
+function renderCard(p, isGold) {
+  const images = p.imagesSmall;
+  const currentIdx = imgIndex[p.id] || 0;
+  const currentImg = images[currentIdx] || images[0];
+  const totalImgs = images.length;
+  const showNav = totalImgs > 1;
+  const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
+  const tagLabel = typeTag === 'rent' ? 'RENT' : 'SALE';
+  const fav = isFavorite(p.id) ? '❤️' : '🤍';
+  
+  const tags = [];
+  if (p.size) tags.push(`📐 ${p.size} sqft`);
+  if (p.bedroom) tags.push(`🛏 ${p.bedroom} bed`);
+  if (p.bathroom) tags.push(`🚿 ${p.bathroom} bath`);
+  if (p.parking) tags.push(`🚗 ${p.parking} park`);
+  if (p.renovate) tags.push(`🛠 ${p.renovate} reno`);
+  if (p.furnish) tags.push(`🪑 ${p.furnish} furnish`);
+  if (p.tenure) tags.push(`📜 ${p.tenure}`);
+  const tagsHtml = tags.map(t => `<span class="detail-tag">${t}</span>`).join('');
+
+  return `
+    <div class="card ${p.exclusive ? 'gold-card' : ''}" data-id="${p.id}">
+      <div class="img-box" data-id="${p.id}">
+        ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
+        <div class="tag ${typeTag}">${tagLabel}</div>
+        <img id="img${p.id}" src="${currentImg}" alt="${p.title}" loading="lazy" onerror="this.src='https://placehold.co/600x400/f5f5f7/86868b?text=Error'">
+        ${showNav ? `<button class="nav prev" onclick="event.stopPropagation(); changeImage(${p.id}, -1)">‹</button>
+                      <button class="nav next" onclick="event.stopPropagation(); changeImage(${p.id}, 1)">›</button>` : ''}
+        <div class="image-counter">${currentIdx+1}/${totalImgs}</div>
+      </div>
+      <div class="content">
+        <h3>${p.title}</h3>
+        <div class="price">${p.price}</div>
+        <div class="info">📍 ${p.area}</div>
+        <div class="detail-tags">${tagsHtml}</div>
+      </div>
+      <div class="card-buttons">
+        <a class="btn" href="${buildWALink(p)}" target="_blank" onclick="event.stopPropagation();">WhatsApp</a>
+        <button class="btn-outline" onclick="event.stopPropagation(); openDetailModal(${p.id})">View Details</button>
+      </div>
+      <button class="favorite-btn" data-id="${p.id}" onclick="event.stopPropagation(); toggleFavoriteCard(${p.id})">${fav}</button>
+    </div>
+  `;
+}
+
+function toggleFavoriteCard(propertyId) {
+  const newState = toggleFavorite(propertyId);
+  const btn = document.querySelector(`.favorite-btn[data-id="${propertyId}"]`);
+  if (btn) btn.innerText = newState ? '❤️' : '🤍';
+}
+
+function attachFavoriteListeners() {
+  // 已经通过 onclick 属性绑定，无需额外操作
+}
+
+window.changeImage = function(propId, delta) {
+  const prop = allProperties.find(p => p.id === propId);
+  if (!prop || !prop.imagesSmall.length) return;
+  let newIdx = (imgIndex[propId] || 0) + delta;
+  if (newIdx < 0) newIdx = prop.imagesSmall.length - 1;
+  if (newIdx >= prop.imagesSmall.length) newIdx = 0;
+  imgIndex[propId] = newIdx;
+  const imgElem = document.getElementById(`img${propId}`);
+  if (imgElem) imgElem.src = prop.imagesSmall[newIdx];
+  const counterDiv = imgElem?.parentElement?.querySelector('.image-counter');
+  if (counterDiv) counterDiv.innerText = `${newIdx+1}/${prop.imagesSmall.length}`;
+};
+
+function openDetailModal(propertyId) {
+  const prop = allProperties.find(p => p.id === propertyId);
+  if (!prop) return;
+  addRecentView(propertyId);   // 记录浏览历史
+  currentModalProperty = prop;
+  currentModalImageIndex = 0;
+  updateModalContent();
+  document.getElementById('detailModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function updateModalContent() {
+  if (!currentModalProperty) return;
+  const images = currentModalProperty.imagesLarge;
+  const currentImg = images[currentModalImageIndex] || images[0];
+  document.getElementById('modalImage').src = currentImg;
+  document.getElementById('modalCounter').innerText = `${currentModalImageIndex+1}/${images.length}`;
+  document.getElementById('modalTitle').innerText = currentModalProperty.title;
+  document.getElementById('modalPrice').innerText = currentModalProperty.price;
+  document.getElementById('modalArea').innerHTML = `📍 ${currentModalProperty.area}`;
+  
+  const tags = [];
+  if (currentModalProperty.size) tags.push(`📐 ${currentModalProperty.size} sqft`);
+  if (currentModalProperty.bedroom) tags.push(`🛏 ${currentModalProperty.bedroom} bed`);
+  if (currentModalProperty.bathroom) tags.push(`🚿 ${currentModalProperty.bathroom} bath`);
+  if (currentModalProperty.parking) tags.push(`🚗 ${currentModalProperty.parking} park`);
+  if (currentModalProperty.renovate) tags.push(`🛠 ${currentModalProperty.renovate} reno`);
+  if (currentModalProperty.furnish) tags.push(`🪑 ${currentModalProperty.furnish} furnish`);
+  if (currentModalProperty.tenure) tags.push(`📜 ${currentModalProperty.tenure}`);
+  document.getElementById('modalTags').innerHTML = tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+  
+  const waLink = buildWALink(currentModalProperty);
+  document.getElementById('modalWALink').href = waLink;
+}
+
+function closeModal() {
+  document.getElementById('detailModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function nextModalImage() {
+  if (!currentModalProperty) return;
+  if (currentModalImageIndex + 1 < currentModalProperty.imagesLarge.length) {
+    currentModalImageIndex++;
+    updateModalContent();
+  }
+}
+function prevModalImage() {
+  if (!currentModalProperty) return;
+  if (currentModalImageIndex - 1 >= 0) {
+    currentModalImageIndex--;
+    updateModalContent();
+  }
+}
+
+// 分页
 function renderPaginationControls(totalPages) {
   const paginationDiv = document.getElementById('pagination');
   if (totalPages <= 1) {
@@ -1077,125 +1394,96 @@ function renderPaginationControls(totalPages) {
   }
 }
 
-function renderCard(p, isGold) {
-  const images = p.imagesSmall;
-  const currentIdx = imgIndex[p.id] || 0;
-  const currentImg = images[currentIdx] || images[0];
-  const totalImgs = images.length;
-  const showNav = totalImgs > 1;
-  const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
-  const tagLabel = typeTag === 'rent' ? 'RENT' : 'SALE';
-
-  const tags = [];
-  if (p.size) tags.push(`📐 ${p.size} sqft`);
-  if (p.bedroom) tags.push(`🛏 ${p.bedroom} bed`);
-  if (p.bathroom) tags.push(`🚿 ${p.bathroom} bath`);
-  if (p.parking) tags.push(`🚗 ${p.parking} park`);
-  if (p.renovate) tags.push(`🛠 ${p.renovate} reno`);
-  if (p.furnish) tags.push(`🪑 ${p.furnish} furnish`);
-  if (p.tenure) tags.push(`📜 ${p.tenure}`);
-  const tagsHtml = tags.map(t => `<span class="detail-tag">${t}</span>`).join('');
-
-  return `
-    <div class="card ${p.exclusive ? 'gold-card' : ''}" data-id="${p.id}">
-      <div class="img-box" data-id="${p.id}">
-        ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
-        <div class="tag ${typeTag}">${tagLabel}</div>
-        <img id="img${p.id}" src="${currentImg}" alt="${p.title}" loading="lazy" onerror="this.src='https://placehold.co/600x400/f5f5f7/86868b?text=Error'">
-        ${showNav ? `<button class="nav prev" onclick="event.stopPropagation(); changeImage(${p.id}, -1)">‹</button>
-                      <button class="nav next" onclick="event.stopPropagation(); changeImage(${p.id}, 1)">›</button>` : ''}
-        <div class="image-counter">${currentIdx+1}/${totalImgs}</div>
-      </div>
-      <div class="content">
-        <h3>${p.title}</h3>
-        <div class="price">${p.price}</div>
-        <div class="info">📍 ${p.area}</div>
-        <div class="detail-tags">${tagsHtml}</div>
-      </div>
-      <div class="card-buttons">
-        <a class="btn" href="${buildWALink(p)}" target="_blank" onclick="event.stopPropagation();">WhatsApp</a>
-        <button class="btn-outline" onclick="event.stopPropagation(); openDetailModal(${p.id})">View Details</button>
-      </div>
-    </div>
-  `;
-}
-
-window.changeImage = function(propId, delta) {
-  const prop = allProperties.find(p => p.id === propId);
-  if (!prop || !prop.imagesSmall.length) return;
-  let newIdx = (imgIndex[propId] || 0) + delta;
-  if (newIdx < 0) newIdx = prop.imagesSmall.length - 1;
-  if (newIdx >= prop.imagesSmall.length) newIdx = 0;
-  imgIndex[propId] = newIdx;
-  const imgElem = document.getElementById(`img${propId}`);
-  if (imgElem) imgElem.src = prop.imagesSmall[newIdx];
-  const counterDiv = imgElem?.parentElement?.querySelector('.image-counter');
-  if (counterDiv) counterDiv.innerText = `${newIdx+1}/${prop.imagesSmall.length}`;
-};
-
-function openDetailModal(propertyId) {
-  const prop = allProperties.find(p => p.id === propertyId);
-  if (!prop) return;
-  currentModalProperty = prop;
-  currentModalImageIndex = 0;
-  updateModalContent();
-  document.getElementById('detailModal').style.display = 'flex';
+// 收藏夹和历史模态框
+function showFavoritesModal() {
+  const favIds = getFavorites();
+  const container = document.getElementById('favoritesList');
+  if (favIds.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px;">No favorites yet. Click the heart on any property.</div>';
+  } else {
+    const items = favIds.map(id => {
+      const prop = allProperties.find(p => p.id === id);
+      if (!prop) return '';
+      return `
+        <div class="favorite-item" data-id="${id}">
+          <img src="${prop.imagesSmall[0]}" alt="${prop.title}" loading="lazy">
+          <div class="info">
+            <div class="title">${prop.title}</div>
+            <div class="price">${prop.price}</div>
+            <div class="info">📍 ${prop.area}</div>
+          </div>
+          <button class="remove-fav" data-id="${id}">🗑️</button>
+        </div>
+      `;
+    }).join('');
+    container.innerHTML = items;
+    // 绑定点击事件
+    container.querySelectorAll('.favorite-item').forEach(item => {
+      const id = parseInt(item.dataset.id);
+      item.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-fav')) return;
+        openDetailModal(id);
+        closeFavoritesModal();
+      });
+    });
+    container.querySelectorAll('.remove-fav').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id);
+        toggleFavorite(id);
+        showFavoritesModal(); // 刷新
+      });
+    });
+  }
+  document.getElementById('favoritesModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
-
-function updateModalContent() {
-  if (!currentModalProperty) return;
-  const images = currentModalProperty.imagesLarge;
-  const currentImg = images[currentModalImageIndex] || images[0];
-  document.getElementById('modalImage').src = currentImg;
-  document.getElementById('modalCounter').innerText = `${currentModalImageIndex+1}/${images.length}`;
-  document.getElementById('modalTitle').innerText = currentModalProperty.title;
-  document.getElementById('modalPrice').innerText = currentModalProperty.price;
-  document.getElementById('modalArea').innerHTML = `📍 ${currentModalProperty.area}`;
-  
-  const tags = [];
-  if (currentModalProperty.size) tags.push(`📐 ${currentModalProperty.size} sqft`);
-  if (currentModalProperty.bedroom) tags.push(`🛏 ${currentModalProperty.bedroom} bed`);
-  if (currentModalProperty.bathroom) tags.push(`🚿 ${currentModalProperty.bathroom} bath`);
-  if (currentModalProperty.parking) tags.push(`🚗 ${currentModalProperty.parking} park`);
-  if (currentModalProperty.renovate) tags.push(`🛠 ${currentModalProperty.renovate} reno`);
-  if (currentModalProperty.furnish) tags.push(`🪑 ${currentModalProperty.furnish} furnish`);
-  if (currentModalProperty.tenure) tags.push(`📜 ${currentModalProperty.tenure}`);
-  document.getElementById('modalTags').innerHTML = tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
-  
-  const waLink = buildWALink(currentModalProperty);
-  document.getElementById('modalWALink').href = waLink;
-}
-
-function closeModal() {
-  document.getElementById('detailModal').style.display = 'none';
+function closeFavoritesModal() {
+  document.getElementById('favoritesModal').style.display = 'none';
   document.body.style.overflow = '';
 }
-
-function nextModalImage() {
-  if (!currentModalProperty) return;
-  if (currentModalImageIndex + 1 < currentModalProperty.imagesLarge.length) {
-    currentModalImageIndex++;
-    updateModalContent();
+function showHistoryModal() {
+  const recentIds = getRecentViews();
+  const container = document.getElementById('historyList');
+  if (recentIds.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px;">No recently viewed properties.</div>';
+  } else {
+    const items = recentIds.map(id => {
+      const prop = allProperties.find(p => p.id === id);
+      if (!prop) return '';
+      return `
+        <div class="history-item" data-id="${id}">
+          <img src="${prop.imagesSmall[0]}" alt="${prop.title}" loading="lazy">
+          <div class="info">
+            <div class="title">${prop.title}</div>
+            <div class="price">${prop.price}</div>
+            <div class="info">📍 ${prop.area}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    container.innerHTML = items;
+    container.querySelectorAll('.history-item').forEach(item => {
+      const id = parseInt(item.dataset.id);
+      item.addEventListener('click', () => {
+        openDetailModal(id);
+        closeHistoryModal();
+      });
+    });
   }
+  document.getElementById('historyModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
-
-function prevModalImage() {
-  if (!currentModalProperty) return;
-  if (currentModalImageIndex - 1 >= 0) {
-    currentModalImageIndex--;
-    updateModalContent();
-  }
+function closeHistoryModal() {
+  document.getElementById('historyModal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 // 触摸滑动
 function initTouchSwipe() {
-  let touchStartX = 0;
-  let touchEndX = 0;
+  let touchStartX = 0, touchEndX = 0;
   document.querySelectorAll('.img-box').forEach(box => {
-    box.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    });
+    box.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
     box.addEventListener('touchend', (e) => {
       touchEndX = e.changedTouches[0].screenX;
       const cardDiv = box.closest('.card');
@@ -1235,18 +1523,28 @@ function checkScrollGradient() {
 
 function onFilterChange() {
   currentPage = 1;
+  saveFilters();   // 保存筛选条件
   renderExclusive();
   renderNormalPaged();
   setTimeout(initTouchSwipe, 100);
   checkScrollGradient();
 }
 
+// 事件绑定
 document.querySelectorAll('#type, #area, #sort, #search').forEach(el => el.addEventListener('input', onFilterChange));
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 document.getElementById('modalClose').addEventListener('click', closeModal);
 document.getElementById('modalPrev').addEventListener('click', prevModalImage);
 document.getElementById('modalNext').addEventListener('click', nextModalImage);
 window.addEventListener('click', (e) => { if (e.target === document.getElementById('detailModal')) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+document.getElementById('favoritesIcon').addEventListener('click', showFavoritesModal);
+document.getElementById('historyIcon').addEventListener('click', showHistoryModal);
+document.getElementById('closeFavorites').addEventListener('click', closeFavoritesModal);
+document.getElementById('closeHistory').addEventListener('click', closeHistoryModal);
+window.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('favoritesModal')) closeFavoritesModal();
+  if (e.target === document.getElementById('historyModal')) closeHistoryModal();
+});
 
 loadData().then(() => {
   initTouchSwipe();
