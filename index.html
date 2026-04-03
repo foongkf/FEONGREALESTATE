@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Feong Real Estate — Penang</title>
   <style>
-    /* ---------- RESET & BASE ---------- */
     * {
       margin: 0;
       padding: 0;
@@ -21,7 +20,7 @@
       overflow-x: hidden;
     }
 
-    /* 城市幻灯片背景（调亮） */
+    /* 城市幻灯片背景 */
     body::before {
       content: '';
       position: fixed;
@@ -42,7 +41,6 @@
       75%  { background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80'); }
       100% { background-image: url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=2000&q=80'); }
     }
-    /* 半透明白色遮罩（提亮） */
     body::after {
       content: '';
       position: fixed;
@@ -62,7 +60,7 @@
       z-index: 1;
     }
 
-    /* 顶部品牌（固定在右上） */
+    /* 顶部品牌 */
     .floating-brand {
       position: fixed;
       top: 24px;
@@ -96,7 +94,7 @@
       color: #6e6e73;
     }
 
-    /* 筛选栏 - 增加顶部间距避免遮挡 */
+    /* 筛选栏 */
     .filters {
       display: flex;
       flex-wrap: wrap;
@@ -139,7 +137,7 @@
       box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
     }
 
-    /* Exclusive 区域：横向滚动 */
+    /* Exclusive 横向滚动 - 修复卡片按钮贴底 */
     .exclusive-section {
       margin-bottom: 48px;
     }
@@ -180,12 +178,13 @@
       display: inline-flex;
       gap: 20px;
       white-space: normal;
+      align-items: stretch;
     }
+    /* 关键修复：独占区卡片使用 flex 布局，不覆盖全局 .card 的 display */
     .exclusive-grid .card {
       width: 280px;
-      display: inline-block;
-      vertical-align: top;
-      white-space: normal;
+      flex-shrink: 0;
+      /* 继承 .card 的 flex 列布局，不再设置 display: inline-block */
     }
 
     /* 普通网格 */
@@ -196,7 +195,7 @@
       margin-bottom: 32px;
     }
 
-    /* 卡片通用样式 */
+    /* 卡片通用样式 - flex 列布局，按钮自动贴底 */
     .card {
       background: #ffffff;
       border-radius: 18px;
@@ -204,6 +203,9 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
       border: 0.5px solid #e8e8ed;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     .card:hover {
       transform: translateY(-3px);
@@ -219,6 +221,7 @@
       height: 160px;
       background-color: #f5f5f7;
       overflow: hidden;
+      flex-shrink: 0;
     }
     .img-box img {
       width: 100%;
@@ -295,8 +298,13 @@
       z-index: 2;
     }
 
+    /* 内容区域 */
     .content {
-      padding: 14px 14px 18px;
+      padding: 14px 14px 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 140px;
     }
     .content h3 {
       font-size: 16px;
@@ -314,13 +322,17 @@
       color: #1d1d1f;
       margin: 6px 0 8px;
     }
-
-    /* 小标签区域 */
+    .info {
+      font-size: 11px;
+      color: #6e6e73;
+      margin-bottom: 6px;
+    }
     .detail-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin: 8px 0 6px;
+      margin: 8px 0;
+      min-height: 48px;
     }
     .detail-tag {
       background: #f5f5f7;
@@ -334,27 +346,43 @@
       gap: 4px;
       letter-spacing: -0.2px;
     }
-    .detail-tag i {
-      font-style: normal;
-      font-size: 11px;
-    }
 
-    .btn {
-      display: block;
+    /* 按钮容器 - 自动贴底 */
+    .card-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+      padding: 0 14px 14px 14px;
+    }
+    .btn, .btn-outline {
+      flex: 1;
       text-align: center;
-      background: #1d1d1f;
-      color: white;
       padding: 8px 0;
-      margin-top: 12px;
       border-radius: 12px;
-      text-decoration: none;
       font-weight: 500;
       font-size: 13px;
+      text-decoration: none;
       transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .btn {
+      background: #1d1d1f;
+      color: white;
     }
     .btn:hover {
       background: #000;
       transform: scale(0.97);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #d2d2d7;
+      color: #1d1d1f;
+    }
+    .btn-outline:hover {
+      background: #f5f5f7;
+      border-color: #1d1d1f;
     }
 
     /* 分页控件 */
@@ -422,12 +450,159 @@
       font-size: 12px;
     }
 
-    /* ---------- 移动端优化：筛选栏下移避免遮挡，标签换行正常 ---------- */
+    /* 模态框 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .modal-content {
+      max-width: 700px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      animation: modalFadeIn 0.2s ease;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-img-box {
+      position: relative;
+      height: 320px;
+      background: #f5f5f7;
+    }
+    .modal-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .modal-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 40px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .modal-nav:hover {
+      background: white;
+    }
+    .modal-prev { left: 16px; }
+    .modal-next { right: 16px; }
+    .modal-counter {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 30px;
+      font-size: 12px;
+      z-index: 10;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      border: none;
+      color: white;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: 0.2s;
+    }
+    .modal-close:hover {
+      background: rgba(0,0,0,0.8);
+    }
+    .modal-details {
+      padding: 24px;
+    }
+    .modal-details h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .modal-price {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin: 12px 0 8px;
+    }
+    .modal-area {
+      font-size: 16px;
+      color: #6e6e73;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .modal-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .modal-tag {
+      background: #f5f5f7;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .modal-wa-btn {
+      display: block;
+      background: #25D366;
+      color: white;
+      text-align: center;
+      padding: 14px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 20px;
+      transition: 0.2s;
+    }
+    .modal-wa-btn:hover {
+      background: #1ebe5d;
+      transform: scale(0.98);
+    }
+
+    /* 移动端适配 */
     @media (max-width: 768px) {
       .container {
         padding: 1.2rem 1rem;
       }
-      /* 给筛选栏增加上边距，避免被 floating-brand 遮挡 */
       .filters {
         margin-top: 60px;
         margin-bottom: 32px;
@@ -435,6 +610,7 @@
       }
       .exclusive-grid .card {
         width: 260px;
+        height: 100%;
       }
       .grid {
         gap: 14px;
@@ -446,6 +622,15 @@
       .detail-tag {
         font-size: 9px;
         padding: 3px 8px;
+      }
+      .modal-img-box {
+        height: 250px;
+      }
+      .modal-details h2 {
+        font-size: 20px;
+      }
+      .modal-price {
+        font-size: 24px;
       }
     }
   </style>
@@ -477,7 +662,6 @@
     <input id="search" placeholder="Search by property name..." />
   </div>
 
-  <!-- Exclusive 区域：横向滚动 -->
   <div class="exclusive-section">
     <div class="exclusive-title">⭐ Exclusive Listings</div>
     <div class="horizontal-scroll">
@@ -485,14 +669,32 @@
     </div>
   </div>
 
-  <!-- 普通房源网格（分页） -->
   <div class="grid" id="grid"></div>
   <div class="pagination" id="pagination"></div>
 </div>
 <footer>FEONG: 014-7405020 | REN 61687 | Today Properties</footer>
 
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-img-box">
+      <img id="modalImage" src="" alt="Property image">
+      <button class="modal-nav modal-prev" id="modalPrev">‹</button>
+      <button class="modal-nav modal-next" id="modalNext">›</button>
+      <div class="modal-counter" id="modalCounter">1/1</div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-details">
+      <h2 id="modalTitle"></h2>
+      <div class="modal-price" id="modalPrice"></div>
+      <div class="modal-area" id="modalArea"></div>
+      <div class="modal-tags" id="modalTags"></div>
+      <a href="#" id="modalWALink" class="modal-wa-btn" target="_blank">📲 Contact via WhatsApp</a>
+    </div>
+  </div>
+</div>
+
 <script>
-// ======================= 工具函数 =======================
+// 工具函数
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>]/g, function(m) {
@@ -507,15 +709,15 @@ function formatImgUrl(url) {
   if (!url) return '';
   if (url.includes('drive.google.com')) {
     const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (match && match[1]) return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w600`;
+    if (match && match[1]) return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800`;
     const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (idMatch) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w600`;
+    if (idMatch) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
   }
   return url;
 }
 
 function parseImages(raw) {
-  if (!raw) return ['https://placehold.co/600x400/f5f5f7/86868b?text=No+Image'];
+  if (!raw) return ['https://placehold.co/800x500/f5f5f7/86868b?text=No+Image'];
   return raw.split('|').map(s => s.trim()).filter(Boolean).map(formatImgUrl);
 }
 
@@ -526,36 +728,34 @@ function getPriceNumber(priceStr) {
 }
 
 function buildWALink(property) {
-  const msg = `Hi, I’m interested in this property:\n🏠 ${property.title}\n📍 ${property.area}\n💰 ${property.price}\n📐 ${property.size} sqft\nPlease give me more details.`;
+  const msg = `Hi, I’m interested in this property:\n🏠 ${property.title}\n📍 ${property.area}\n💰 ${property.price}\n📐 ${property.size} sqft\n🛏 ${property.bedroom} bed\n🚿 ${property.bathroom} bath\n🚗 ${property.parking} park\n🛠 ${property.renovate} reno\n🪑 ${property.furnish} furnish\n📜 ${property.tenure}\n\nPlease give me more details.`;
   return `https://wa.me/60147405020?text=${encodeURIComponent(msg)}`;
 }
 
-// ======================= 示例数据（当真实表格加载失败时使用） =======================
 function getSampleProperties() {
   return [
-    { id: 1, title: "The Maritime Suite", area: "Gurney Drive", size: "1250", bedroom: "3", bathroom: "2", renovate: "Fully", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", price: "RM 1,250,000", exclusive: true, imagesRaw: "https://placehold.co/600x400/0071e3/white?text=Maritime|https://placehold.co/600x400/f5a623/white?text=Maritime+2" },
-    { id: 2, title: "Quayside Residence", area: "Tanjung Tokong", size: "980", bedroom: "2", bathroom: "2", renovate: "Partly", furnish: "Fully", parking: "1", tenure: "freehold", type: "sale", price: "RM 890,000", exclusive: false, imagesRaw: "https://placehold.co/600x400/34c759/white?text=Quayside" },
-    { id: 3, title: "Penang World City", area: "Bayan Lepas", size: "1100", bedroom: "3", bathroom: "2", renovate: "Standard", furnish: "Empty", parking: "2", tenure: "leasehold", type: "rent", price: "RM 2,800/month", exclusive: false, imagesRaw: "https://placehold.co/600x400/ff3b30/white?text=PWC" },
-    { id: 4, title: "Seri Tanjung Pinang", area: "Tanjung Tokong", size: "1500", bedroom: "4", bathroom: "3", renovate: "Luxury", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", price: "RM 2,100,000", exclusive: true, imagesRaw: "https://placehold.co/600x400/f5a623/white?text=STP" },
-    { id: 5, title: "The Light Waterfront", area: "Jelutong", size: "1350", bedroom: "3", bathroom: "2", renovate: "New", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", price: "RM 1,480,000", exclusive: false, imagesRaw: "https://placehold.co/600x400/5856d6/white?text=Light" },
-    { id: 6, title: "Setia V Residences", area: "Bayan Lepas", size: "850", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Fully", parking: "1", tenure: "leasehold", type: "rent", price: "RM 2,200/month", exclusive: false, imagesRaw: "https://placehold.co/600x400/ff9500/white?text=VRes" },
-    { id: 7, title: "By The Sea", area: "Tanjung Bungah", size: "1050", bedroom: "3", bathroom: "2", renovate: "Well-maintained", furnish: "Partly", parking: "1", tenure: "freehold", type: "sale", price: "RM 1,050,000", exclusive: true, imagesRaw: "https://placehold.co/600x400/af52de/white?text=ByTheSea" },
-    { id: 8, title: "Mansion One", area: "George Town", size: "700", bedroom: "1", bathroom: "1", renovate: "Simple", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", price: "RM 1,800/month", exclusive: false, imagesRaw: "https://placehold.co/600x400/64d2ff/white?text=Mansion" },
-    { id: 9, title: "Tri Pinnacle", area: "George Town", size: "1200", bedroom: "3", bathroom: "2", renovate: "Modern", furnish: "Empty", parking: "2", tenure: "freehold", type: "sale", price: "RM 1,320,000", exclusive: false, imagesRaw: "https://placehold.co/600x400/ff2d55/white?text=TriP" },
-    { id: 10, title: "Jazz Residences", area: "Bayan Lepas", size: "920", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Partly", parking: "1", tenure: "leasehold", type: "sale", price: "RM 680,000", exclusive: false, imagesRaw: "https://placehold.co/600x400/5e5ce6/white?text=Jazz" },
-    { id: 11, title: "The Landmark", area: "George Town", size: "1600", bedroom: "4", bathroom: "3", renovate: "Premium", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", price: "RM 2,450,000", exclusive: true, imagesRaw: "https://placehold.co/600x400/ffcc00/white?text=Landmark" },
-    { id: 12, title: "Ocean View Condo", area: "Tanjung Bungah", size: "1100", bedroom: "3", bathroom: "2", renovate: "Renovated", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", price: "RM 3,200/month", exclusive: false, imagesRaw: "https://placehold.co/600x400/34c759/white?text=Ocean" }
+    { id: 1, title: "The Maritime Suite", area: "Gurney Drive", size: "1250", bedroom: "3", bathroom: "2", renovate: "Fully", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", price: "RM 1,250,000", exclusive: true, imagesRaw: "https://placehold.co/800x500/0071e3/white?text=Maritime|https://placehold.co/800x500/f5a623/white?text=Maritime+2" },
+    { id: 2, title: "Quayside Residence", area: "Tanjung Tokong", size: "980", bedroom: "2", bathroom: "2", renovate: "Partly", furnish: "Fully", parking: "1", tenure: "freehold", type: "sale", price: "RM 890,000", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Quayside" },
+    { id: 3, title: "Penang World City", area: "Bayan Lepas", size: "1100", bedroom: "3", bathroom: "2", renovate: "Standard", furnish: "Empty", parking: "2", tenure: "leasehold", type: "rent", price: "RM 2,800/month", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff3b30/white?text=PWC" },
+    { id: 4, title: "Seri Tanjung Pinang", area: "Tanjung Tokong", size: "1500", bedroom: "4", bathroom: "3", renovate: "Luxury", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", price: "RM 2,100,000", exclusive: true, imagesRaw: "https://placehold.co/800x500/f5a623/white?text=STP" },
+    { id: 5, title: "The Light Waterfront", area: "Jelutong", size: "1350", bedroom: "3", bathroom: "2", renovate: "New", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", price: "RM 1,480,000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5856d6/white?text=Light" },
+    { id: 6, title: "Setia V Residences", area: "Bayan Lepas", size: "850", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Fully", parking: "1", tenure: "leasehold", type: "rent", price: "RM 2,200/month", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff9500/white?text=VRes" },
+    { id: 7, title: "By The Sea", area: "Tanjung Bungah", size: "1050", bedroom: "3", bathroom: "2", renovate: "Well-maintained", furnish: "Partly", parking: "1", tenure: "freehold", type: "sale", price: "RM 1,050,000", exclusive: true, imagesRaw: "https://placehold.co/800x500/af52de/white?text=ByTheSea" },
+    { id: 8, title: "Mansion One", area: "George Town", size: "700", bedroom: "1", bathroom: "1", renovate: "Simple", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", price: "RM 1,800/month", exclusive: false, imagesRaw: "https://placehold.co/800x500/64d2ff/white?text=Mansion" },
+    { id: 9, title: "Tri Pinnacle", area: "George Town", size: "1200", bedroom: "3", bathroom: "2", renovate: "Modern", furnish: "Empty", parking: "2", tenure: "freehold", type: "sale", price: "RM 1,320,000", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff2d55/white?text=TriP" },
+    { id: 10, title: "Jazz Residences", area: "Bayan Lepas", size: "920", bedroom: "2", bathroom: "2", renovate: "Standard", furnish: "Partly", parking: "1", tenure: "leasehold", type: "sale", price: "RM 680,000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5e5ce6/white?text=Jazz" },
+    { id: 11, title: "The Landmark", area: "George Town", size: "1600", bedroom: "4", bathroom: "3", renovate: "Premium", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", price: "RM 2,450,000", exclusive: true, imagesRaw: "https://placehold.co/800x500/ffcc00/white?text=Landmark" },
+    { id: 12, title: "Ocean View Condo", area: "Tanjung Bungah", size: "1100", bedroom: "3", bathroom: "2", renovate: "Renovated", furnish: "Fully", parking: "1", tenure: "freehold", type: "rent", price: "RM 3,200/month", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Ocean" }
   ];
 }
 
-// ======================= 全局变量 =======================
 let allProperties = [];
 let imgIndex = {};
 let currentPage = 1;
 const ITEMS_PER_PAGE = 12;
-let usingSampleData = false;
+let currentModalProperty = null;
+let currentModalImageIndex = 0;
 
-// ======================= 解析 CSV（从真实表格） =======================
 function parseCSVRow(line, expectedCols = 13) {
   const result = [];
   let inQuote = false;
@@ -611,30 +811,25 @@ function buildPropertiesFromCSV(csvText) {
   return properties;
 }
 
-// ======================= 数据加载 =======================
 async function loadData() {
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
   try {
-    console.log("Attempting to load real data from Google Sheets...");
+    console.log("Loading real data...");
     const resp = await fetch(SHEET_URL);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const csvText = await resp.text();
     const properties = buildPropertiesFromCSV(csvText);
-    if (properties.length === 0) throw new Error("CSV parsed but no valid rows");
+    if (properties.length === 0) throw new Error("No valid rows");
     allProperties = properties;
-    usingSampleData = false;
-    console.log(`Successfully loaded ${allProperties.length} properties from Google Sheets.`);
+    console.log(`Loaded ${allProperties.length} real properties.`);
   } catch (err) {
-    console.warn("Failed to load real data, using sample data instead.", err);
+    console.warn("Using sample data", err);
     allProperties = getSampleProperties();
-    usingSampleData = true;
     allProperties.forEach(p => {
       p.images = parseImages(p.imagesRaw);
       p.priceNum = getPriceNumber(p.price);
     });
-    console.log(`Using ${allProperties.length} sample properties.`);
   }
-  
   allProperties.forEach(p => { imgIndex[p.id] = 0; });
   populateAreaFilter();
   currentPage = 1;
@@ -660,7 +855,6 @@ function getFilteredNormalProps() {
     if (searchVal && !p.title.toLowerCase().includes(searchVal)) return false;
     return true;
   });
-
   let normalProps = filtered.filter(p => !p.exclusive);
   const applySort = (list) => {
     if (sortVal === 'low') return [...list].sort((a,b) => a.priceNum - b.priceNum);
@@ -695,8 +889,8 @@ function getFilteredExclusiveProps() {
 
 function renderExclusive() {
   const exclusiveProps = getFilteredExclusiveProps();
-  const exclusiveContainer = document.getElementById('exclusiveGrid');
-  exclusiveContainer.innerHTML = exclusiveProps.map(p => renderCard(p, true)).join('');
+  const container = document.getElementById('exclusiveGrid');
+  container.innerHTML = exclusiveProps.map(p => renderCard(p, true)).join('');
 }
 
 function renderNormalPaged() {
@@ -704,13 +898,10 @@ function renderNormalPaged() {
   const totalPages = Math.ceil(normalProps.length / ITEMS_PER_PAGE);
   if (totalPages > 0 && currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
-  
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
   const pageItems = normalProps.slice(start, start + ITEMS_PER_PAGE);
-  
-  const gridContainer = document.getElementById('grid');
-  gridContainer.innerHTML = pageItems.map(p => renderCard(p, false)).join('');
-  
+  const grid = document.getElementById('grid');
+  grid.innerHTML = pageItems.map(p => renderCard(p, false)).join('');
   renderPaginationControls(totalPages);
 }
 
@@ -720,10 +911,8 @@ function renderPaginationControls(totalPages) {
     paginationDiv.innerHTML = '';
     return;
   }
-  
   let html = `<button class="prev-page" ${currentPage === 1 ? 'disabled' : ''}>‹ Previous</button>`;
   html += `<div class="page-numbers">`;
-  
   let startPage = Math.max(1, currentPage - 2);
   let endPage = Math.min(totalPages, currentPage + 2);
   if (startPage > 1) {
@@ -737,11 +926,9 @@ function renderPaginationControls(totalPages) {
     if (endPage < totalPages - 1) html += `<span>...</span>`;
     html += `<span data-page="${totalPages}">${totalPages}</span>`;
   }
-  html += `</div>`;
-  html += `<button class="next-page" ${currentPage === totalPages ? 'disabled' : ''}>Next ›</button>`;
-  
+  html += `</div><button class="next-page" ${currentPage === totalPages ? 'disabled' : ''}>Next ›</button>`;
   paginationDiv.innerHTML = html;
-  
+
   paginationDiv.querySelectorAll('.page-numbers span[data-page]').forEach(span => {
     span.addEventListener('click', () => {
       const page = parseInt(span.dataset.page);
@@ -754,27 +941,10 @@ function renderPaginationControls(totalPages) {
   });
   const prevBtn = paginationDiv.querySelector('.prev-page');
   const nextBtn = paginationDiv.querySelector('.next-page');
-  if (prevBtn && !prevBtn.disabled) {
-    prevBtn.addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--;
-        renderNormalPaged();
-        document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  }
-  if (nextBtn && !nextBtn.disabled) {
-    nextBtn.addEventListener('click', () => {
-      if (currentPage < totalPages) {
-        currentPage++;
-        renderNormalPaged();
-        document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  }
+  if (prevBtn && !prevBtn.disabled) prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderNormalPaged(); document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+  if (nextBtn && !nextBtn.disabled) nextBtn.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderNormalPaged(); document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
 }
 
-// 新版卡片渲染：使用小标签展示详情
 function renderCard(p, isGold) {
   const images = p.images;
   const currentIdx = imgIndex[p.id] || 0;
@@ -784,26 +954,24 @@ function renderCard(p, isGold) {
   const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
   const tagLabel = typeTag === 'rent' ? 'RENT' : 'SALE';
 
-  // 构建详情标签数组
   const tags = [];
   if (p.size) tags.push(`📐 ${p.size} sqft`);
-  if (p.bedroom) tags.push(`🛏 ${p.bedroom}`);
-  if (p.bathroom) tags.push(`🚿 ${p.bathroom}`);
-  if (p.parking) tags.push(`🚗 ${p.parking}`);
-  if (p.renovate) tags.push(`🛠 ${p.renovate}`);
-  if (p.furnish) tags.push(`🪑 ${p.furnish}`);
+  if (p.bedroom) tags.push(`🛏 ${p.bedroom} bed`);
+  if (p.bathroom) tags.push(`🚿 ${p.bathroom} bath`);
+  if (p.parking) tags.push(`🚗 ${p.parking} park`);
+  if (p.renovate) tags.push(`🛠 ${p.renovate} reno`);
+  if (p.furnish) tags.push(`🪑 ${p.furnish} furnish`);
   if (p.tenure) tags.push(`📜 ${p.tenure}`);
-  
   const tagsHtml = tags.map(t => `<span class="detail-tag">${t}</span>`).join('');
 
   return `
-    <div class="card ${p.exclusive ? 'gold-card' : ''}">
+    <div class="card ${p.exclusive ? 'gold-card' : ''}" data-id="${p.id}">
       <div class="img-box">
         ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
         <div class="tag ${typeTag}">${tagLabel}</div>
-        <img id="img${p.id}" src="${currentImg}" onerror="this.src='https://placehold.co/600x400/f5f5f7/86868b?text=Image+Error'">
-        ${showNav ? `<button class="nav prev" onclick="changeImage(${p.id}, -1)">‹</button>
-                      <button class="nav next" onclick="changeImage(${p.id}, 1)">›</button>` : ''}
+        <img id="img${p.id}" src="${currentImg}" onerror="this.src='https://placehold.co/600x400/f5f5f7/86868b?text=Error'">
+        ${showNav ? `<button class="nav prev" onclick="event.stopPropagation(); changeImage(${p.id}, -1)">‹</button>
+                      <button class="nav next" onclick="event.stopPropagation(); changeImage(${p.id}, 1)">›</button>` : ''}
         <div class="image-counter">${currentIdx+1}/${totalImgs}</div>
       </div>
       <div class="content">
@@ -811,7 +979,10 @@ function renderCard(p, isGold) {
         <div class="price">${p.price}</div>
         <div class="info">📍 ${p.area}</div>
         <div class="detail-tags">${tagsHtml}</div>
-        <a class="btn" href="${buildWALink(p)}" target="_blank">WhatsApp</a>
+      </div>
+      <div class="card-buttons">
+        <a class="btn" href="${buildWALink(p)}" target="_blank" onclick="event.stopPropagation();">WhatsApp</a>
+        <button class="btn-outline" onclick="event.stopPropagation(); openDetailModal(${p.id})">View Details</button>
       </div>
     </div>
   `;
@@ -830,12 +1001,74 @@ window.changeImage = function(propId, delta) {
   if (counterDiv) counterDiv.innerText = `${newIdx+1}/${prop.images.length}`;
 };
 
+function openDetailModal(propertyId) {
+  const prop = allProperties.find(p => p.id === propertyId);
+  if (!prop) return;
+  currentModalProperty = prop;
+  currentModalImageIndex = 0;
+  updateModalContent();
+  document.getElementById('detailModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function updateModalContent() {
+  if (!currentModalProperty) return;
+  const images = currentModalProperty.images;
+  const currentImg = images[currentModalImageIndex] || images[0];
+  document.getElementById('modalImage').src = currentImg;
+  document.getElementById('modalCounter').innerText = `${currentModalImageIndex+1}/${images.length}`;
+  document.getElementById('modalTitle').innerText = currentModalProperty.title;
+  document.getElementById('modalPrice').innerText = currentModalProperty.price;
+  document.getElementById('modalArea').innerHTML = `📍 ${currentModalProperty.area}`;
+  
+  const tags = [];
+  if (currentModalProperty.size) tags.push(`📐 ${currentModalProperty.size} sqft`);
+  if (currentModalProperty.bedroom) tags.push(`🛏 ${currentModalProperty.bedroom} bed`);
+  if (currentModalProperty.bathroom) tags.push(`🚿 ${currentModalProperty.bathroom} bath`);
+  if (currentModalProperty.parking) tags.push(`🚗 ${currentModalProperty.parking} park`);
+  if (currentModalProperty.renovate) tags.push(`🛠 ${currentModalProperty.renovate} reno`);
+  if (currentModalProperty.furnish) tags.push(`🪑 ${currentModalProperty.furnish} furnish`);
+  if (currentModalProperty.tenure) tags.push(`📜 ${currentModalProperty.tenure}`);
+  document.getElementById('modalTags').innerHTML = tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+  
+  const waLink = buildWALink(currentModalProperty);
+  document.getElementById('modalWALink').href = waLink;
+}
+
+function closeModal() {
+  document.getElementById('detailModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function nextModalImage() {
+  if (!currentModalProperty) return;
+  if (currentModalImageIndex + 1 < currentModalProperty.images.length) {
+    currentModalImageIndex++;
+    updateModalContent();
+  }
+}
+
+function prevModalImage() {
+  if (!currentModalProperty) return;
+  if (currentModalImageIndex - 1 >= 0) {
+    currentModalImageIndex--;
+    updateModalContent();
+  }
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalPrev').addEventListener('click', prevModalImage);
+document.getElementById('modalNext').addEventListener('click', nextModalImage);
+window.addEventListener('click', (e) => {
+  const modal = document.getElementById('detailModal');
+  if (e.target === modal) closeModal();
+});
+
 function onFilterChange() {
   currentPage = 1;
   renderExclusive();
   renderNormalPaged();
 }
-
 document.querySelectorAll('#type, #area, #sort, #search').forEach(el => el.addEventListener('input', onFilterChange));
 
 loadData();
