@@ -183,7 +183,9 @@
     /* 关键修复：独占区卡片使用 flex 布局，不覆盖全局 .card 的 display */
     .exclusive-grid .card {
       width: 280px;
+      min-height: 140px;
       flex-shrink: 0;
+      height: 100%;
       /* 继承 .card 的 flex 列布局，不再设置 display: inline-block */
     }
 
