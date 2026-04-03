@@ -1,91 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Feong Real Estate — Penang</title>
+<meta charset="UTF-8">
+<title>Real Estate Google Sheets Pro Lite</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --text:#1d1d1f;
-  --muted:#6e6e73;
-  --bg:#f5f5f7;
-  --card:#fff;
-  --shadow:0 10px 25px rgba(0,0,0,.08);
-  --primary:#0071e3;
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;
-  background:#f0f0f2;
-  color:var(--text);
-}
-
-/* layout */
+body{font-family:Arial;margin:0;background:#f5f5f7}
 .container{max-width:1200px;margin:auto;padding:20px}
 
-/* filters */
-.filters{
-  display:flex;gap:10px;flex-wrap:wrap;
-  background:#fff;padding:12px;border-radius:20px;
-  box-shadow:var(--shadow);margin-bottom:20px;
-}
-select,input{
-  padding:8px 12px;border-radius:12px;
-  border:1px solid #ddd;
-}
+.filters{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+input,select{padding:8px;border-radius:10px;border:1px solid #ddd}
 
-/* grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px}
 
-/* card */
 .card{
-  background:var(--card);
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-  display:flex;
-  flex-direction:column;
+  background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 20px rgba(0,0,0,.08)
 }
-.img{
-  height:160px;
-  background:#eee;
-  position:relative;
-}
-.img img{width:100%;height:100%;object-fit:cover}
-.content{padding:12px}
-.price{font-weight:600;margin:6px 0}
-.area{font-size:12px;color:var(--muted)}
 
-.btns{
-  display:flex;gap:8px;padding:12px;
-}
-.btn{
-  flex:1;padding:8px;border-radius:10px;
-  border:none;cursor:pointer;
-}
-.btn.primary{background:var(--primary);color:#fff}
-.btn.outline{border:1px solid #ddd;background:#fff}
-.btn.fav{width:40px}
+.card img{width:100%;height:160px;object-fit:cover}
+.content{padding:10px}
+.price{font-weight:bold;margin-top:5px}
 
-/* modal */
+.btns{display:flex;gap:6px;padding:10px}
+button{flex:1;padding:6px;border:none;border-radius:8px;cursor:pointer}
+.primary{background:#0071e3;color:#fff}
+.fav{width:40px}
+
 .modal{
-  display:none;position:fixed;inset:0;
+  position:fixed;inset:0;
+  display:none;align-items:center;justify-content:center;
   background:rgba(0,0,0,.6);
-  align-items:center;justify-content:center;
-  padding:20px;
 }
 .modal-content{
-  background:#fff;border-radius:16px;
-  max-width:600px;width:100%;
-  padding:20px;
+  background:#fff;padding:20px;border-radius:14px;width:90%;max-width:500px;
 }
-
-/* small modal */
-.small-list{display:flex;flex-direction:column;gap:10px}
-.item{display:flex;gap:10px;padding:10px;background:#f5f5f7;border-radius:12px;cursor:pointer}
-.item img{width:50px;height:50px;object-fit:cover;border-radius:8px}
 </style>
 </head>
 
@@ -93,20 +43,21 @@ select,input{
 
 <div class="container">
 
-  <div class="filters">
-    <select id="type">
-      <option value="all">All</option>
-      <option value="sale">Sale</option>
-      <option value="rent">Rent</option>
-    </select>
+<div class="filters">
+  <select id="type">
+    <option value="all">All</option>
+    <option value="sale">Sale</option>
+    <option value="rent">Rent</option>
+  </select>
 
-    <input id="search" placeholder="Search..." />
-  </div>
-
-  <div class="grid" id="grid"></div>
+  <input id="search" placeholder="Search...">
 </div>
 
-<!-- detail modal -->
+<div class="grid" id="grid"></div>
+
+</div>
+
+<!-- modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <h2 id="mTitle"></h2>
@@ -116,49 +67,68 @@ select,input{
   </div>
 </div>
 
-<!-- favorites -->
-<div class="modal" id="favModal">
-  <div class="modal-content">
-    <h3>Favorites</h3>
-    <div id="favList" class="small-list"></div>
-  </div>
-</div>
-
 <script>
-/* ================= DATA ================= */
-let data = [];
+
+/* ================= CONFIG ================= */
+/* 🔥 你只需要改这个 */
+const SHEET_CSV_URL =
+"https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv";
+
+/* ================= STATE ================= */
+let properties = [];
 let filtered = [];
-let fav = JSON.parse(localStorage.getItem("fav")||"[]");
-let recent = JSON.parse(localStorage.getItem("recent")||"[]");
 
-/* sample */
-data = [
-  {id:1,title:"Maritime",price:1200000,area:"Gurney",type:"sale",img:"https://placehold.co/600x400"},
-  {id:2,title:"Quayside",price:900000,area:"Tanjung",type:"sale",img:"https://placehold.co/600x400"},
-  {id:3,title:"Light",price:2500,area:"Jelutong",type:"rent",img:"https://placehold.co/600x400"}
-];
+/* ================= FETCH GOOGLE SHEET ================= */
+async function loadData(){
+  const res = await fetch(SHEET_CSV_URL);
+  const text = await res.text();
 
-filtered = [...data];
+  const rows = text.split("\n").slice(1);
+
+  properties = rows.map(r=>{
+    const cols = r.split(",");
+
+    return {
+      id: cols[0],
+      title: cols[1],
+      price: cols[2],
+      area: cols[3],
+      type: cols[4],
+      image: convertDrive(cols[5])
+    };
+  });
+
+  filtered = [...properties];
+  render();
+}
+
+/* ================= GOOGLE DRIVE FIX ================= */
+function convertDrive(url){
+  if(!url) return "";
+
+  const match = url.match(/\/d\/(.*?)\//);
+  if(match){
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  }
+
+  return url;
+}
 
 /* ================= RENDER ================= */
 function render(){
   const grid = document.getElementById("grid");
+
   grid.innerHTML = filtered.map(p=>`
     <div class="card">
-      <div class="img">
-        <img src="${p.img}">
-      </div>
+      <img src="${p.image}">
       <div class="content">
         <div>${p.title}</div>
         <div class="price">RM ${p.price}</div>
-        <div class="area">${p.area}</div>
+        <div>${p.area}</div>
       </div>
       <div class="btns">
-        <button class="btn primary" onclick="openModal(${p.id})">View</button>
-        <button class="btn outline" onclick="wa(${p.id})">WA</button>
-        <button class="btn fav" onclick="toggleFav(${p.id})">
-          ${fav.includes(p.id)?"❤️":"🤍"}
-        </button>
+        <button class="primary" onclick="openModal('${p.id}')">View</button>
+        <button onclick="wa('${p.title}','${p.price}')">WA</button>
       </div>
     </div>
   `).join("");
@@ -169,7 +139,7 @@ function applyFilter(){
   const type = document.getElementById("type").value;
   const search = document.getElementById("search").value.toLowerCase();
 
-  filtered = data.filter(p=>{
+  filtered = properties.filter(p=>{
     return (type==="all"||p.type===type)
     && p.title.toLowerCase().includes(search);
   });
@@ -177,68 +147,33 @@ function applyFilter(){
   render();
 }
 
-/* debounce */
-let t;
-document.getElementById("search").addEventListener("input",()=>{
-  clearTimeout(t);
-  t=setTimeout(applyFilter,200);
-});
-document.getElementById("type").addEventListener("change",applyFilter);
-
-/* ================= FAVORITES ================= */
-function toggleFav(id){
-  if(fav.includes(id)){
-    fav=fav.filter(i=>i!==id);
-  }else fav.push(id);
-
-  localStorage.setItem("fav",JSON.stringify(fav));
-  render();
-}
+document.getElementById("type").onchange = applyFilter;
+document.getElementById("search").oninput = applyFilter;
 
 /* ================= MODAL ================= */
-let current=null;
-
 function openModal(id){
-  current=data.find(p=>p.id===id);
-  document.getElementById("mTitle").innerText=current.title;
-  document.getElementById("mPrice").innerText="RM "+current.price;
-  document.getElementById("mArea").innerText=current.area;
+  const p = properties.find(x=>x.id===id);
+
+  document.getElementById("mTitle").innerText = p.title;
+  document.getElementById("mPrice").innerText = "RM "+p.price;
+  document.getElementById("mArea").innerText = p.area;
 
   document.getElementById("modal").style.display="flex";
-  document.body.style.overflow="hidden";
-
-  addRecent(id);
 }
 
 function closeModal(){
   document.getElementById("modal").style.display="none";
-  document.body.style.overflow="auto";
 }
-
-window.onclick=e=>{
-  if(e.target.classList.contains("modal")) closeModal();
-}
-document.addEventListener("keydown",e=>{
-  if(e.key==="Escape") closeModal();
-});
 
 /* ================= WHATSAPP ================= */
-function wa(id){
-  const p=data.find(x=>x.id===id);
-  const msg=encodeURIComponent(`Hi interested: ${p.title} RM ${p.price}`);
+function wa(title,price){
+  const msg = encodeURIComponent(`Interested: ${title} RM ${price}`);
   window.open(`https://wa.me/60147405020?text=${msg}`);
 }
 
-/* ================= RECENT ================= */
-function addRecent(id){
-  recent = recent.filter(i=>i!==id);
-  recent.unshift(id);
-  recent = recent.slice(0,10);
-  localStorage.setItem("recent",JSON.stringify(recent));
-}
-
 /* ================= INIT ================= */
-render();
+loadData();
+
 </script>
 
 </body>
