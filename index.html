@@ -290,31 +290,6 @@
       background: #fffef7;
       border-left: 3px solid #f5a623;
     }
-    /* 收藏心形按钮 */
-    .favorite-btn {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(8px);
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 40px;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 4;
-      transition: 0.2s;
-      color: #ff3b30;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .favorite-btn:hover {
-      transform: scale(1.05);
-      background: white;
-    }
 
     .img-box {
       position: relative;
@@ -360,6 +335,32 @@
     }
     .tag.sale { background: rgba(230, 60, 60, 0.9); }
     .tag.rent { background: rgba(0, 113, 227, 0.9); }
+
+    /* 收藏按钮 - 移到右上角图片区域内 */
+    .favorite-btn {
+      position: absolute;
+      top: 10px;
+      right: 50px;  /* 放在 SALE/RENT 标签左边 */
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 30px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      transition: 0.2s;
+      color: #ff3b30;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .favorite-btn:hover {
+      transform: scale(1.05);
+      background: white;
+    }
 
     .nav {
       position: absolute;
@@ -813,6 +814,12 @@
         height: 40px;
         font-size: 18px;
       }
+      .favorite-btn {
+        right: 45px;
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -958,7 +965,6 @@ function buildWALink(property) {
 }
 
 // ======================= localStorage 操作 =======================
-// 收藏
 function getFavorites() {
   return JSON.parse(localStorage.getItem('favorites') || '[]');
 }
@@ -979,7 +985,6 @@ function isFavorite(propertyId) {
   return getFavorites().includes(propertyId);
 }
 
-// 最近浏览 (最多10条，去重，最新的在前)
 function getRecentViews() {
   return JSON.parse(localStorage.getItem('recentViews') || '[]');
 }
@@ -991,7 +996,6 @@ function addRecentView(propertyId) {
   localStorage.setItem('recentViews', JSON.stringify(recents));
 }
 
-// 筛选条件保存/恢复
 function saveFilters() {
   const filters = {
     type: document.getElementById('type').value,
@@ -1122,7 +1126,7 @@ async function loadData() {
   }
   allProperties.forEach(p => { imgIndex[p.id] = 0; });
   populateAreaFilter();
-  loadFilters();            // 恢复筛选条件
+  loadFilters();
   currentPage = 1;
   renderExclusive();
   renderNormalPaged();
@@ -1193,7 +1197,6 @@ function renderExclusive() {
     container.innerHTML = exclusiveProps.map(p => renderCard(p, true)).join('');
   }
   document.querySelectorAll('.card img').forEach(img => img.setAttribute('loading', 'lazy'));
-  attachFavoriteListeners();
 }
 
 function renderNormalPaged() {
@@ -1211,7 +1214,6 @@ function renderNormalPaged() {
   }
   renderPaginationControls(totalPages);
   document.querySelectorAll('.card img').forEach(img => img.setAttribute('loading', 'lazy'));
-  attachFavoriteListeners();
 }
 
 function renderCard(p, isGold) {
@@ -1239,6 +1241,7 @@ function renderCard(p, isGold) {
       <div class="img-box" data-id="${p.id}">
         ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
         <div class="tag ${typeTag}">${tagLabel}</div>
+        <button class="favorite-btn" data-id="${p.id}" onclick="event.stopPropagation(); toggleFavoriteCard(${p.id})">${fav}</button>
         <img id="img${p.id}" src="${currentImg}" alt="${p.title}" loading="lazy" onerror="this.src='https://placehold.co/600x400/f5f5f7/86868b?text=Error'">
         ${showNav ? `<button class="nav prev" onclick="event.stopPropagation(); changeImage(${p.id}, -1)">‹</button>
                       <button class="nav next" onclick="event.stopPropagation(); changeImage(${p.id}, 1)">›</button>` : ''}
@@ -1254,7 +1257,6 @@ function renderCard(p, isGold) {
         <a class="btn" href="${buildWALink(p)}" target="_blank" onclick="event.stopPropagation();">WhatsApp</a>
         <button class="btn-outline" onclick="event.stopPropagation(); openDetailModal(${p.id})">View Details</button>
       </div>
-      <button class="favorite-btn" data-id="${p.id}" onclick="event.stopPropagation(); toggleFavoriteCard(${p.id})">${fav}</button>
     </div>
   `;
 }
@@ -1263,10 +1265,6 @@ function toggleFavoriteCard(propertyId) {
   const newState = toggleFavorite(propertyId);
   const btn = document.querySelector(`.favorite-btn[data-id="${propertyId}"]`);
   if (btn) btn.innerText = newState ? '❤️' : '🤍';
-}
-
-function attachFavoriteListeners() {
-  // 已经通过 onclick 属性绑定，无需额外操作
 }
 
 window.changeImage = function(propId, delta) {
@@ -1285,7 +1283,7 @@ window.changeImage = function(propId, delta) {
 function openDetailModal(propertyId) {
   const prop = allProperties.find(p => p.id === propertyId);
   if (!prop) return;
-  addRecentView(propertyId);   // 记录浏览历史
+  addRecentView(propertyId);
   currentModalProperty = prop;
   currentModalImageIndex = 0;
   updateModalContent();
@@ -1337,7 +1335,6 @@ function prevModalImage() {
   }
 }
 
-// 分页
 function renderPaginationControls(totalPages) {
   const paginationDiv = document.getElementById('pagination');
   if (totalPages <= 1) {
@@ -1417,7 +1414,6 @@ function showFavoritesModal() {
       `;
     }).join('');
     container.innerHTML = items;
-    // 绑定点击事件
     container.querySelectorAll('.favorite-item').forEach(item => {
       const id = parseInt(item.dataset.id);
       item.addEventListener('click', (e) => {
@@ -1431,7 +1427,7 @@ function showFavoritesModal() {
         e.stopPropagation();
         const id = parseInt(btn.dataset.id);
         toggleFavorite(id);
-        showFavoritesModal(); // 刷新
+        showFavoritesModal();
       });
     });
   }
@@ -1523,14 +1519,13 @@ function checkScrollGradient() {
 
 function onFilterChange() {
   currentPage = 1;
-  saveFilters();   // 保存筛选条件
+  saveFilters();
   renderExclusive();
   renderNormalPaged();
   setTimeout(initTouchSwipe, 100);
   checkScrollGradient();
 }
 
-// 事件绑定
 document.querySelectorAll('#type, #area, #sort, #search').forEach(el => el.addEventListener('input', onFilterChange));
 document.getElementById('modalClose').addEventListener('click', closeModal);
 document.getElementById('modalPrev').addEventListener('click', prevModalImage);
