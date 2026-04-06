@@ -45,6 +45,7 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(255,255,255,0.4);
       z-index: -1;
+      pointer-events: none;
     }
 
     /* Skeleton */
@@ -649,7 +650,7 @@
 
     /* Responsive */
     @media (max-width: 900px) {
-    .floating-brand .brand-text .sub { font-size: 9px; }
+      .floating-brand .brand-text .sub { font-size: 9px; }
     }
     @media (max-width: 768px) {
       .container { padding: 1rem 0.75rem; }
@@ -1055,7 +1056,8 @@
     const sortVal = document.getElementById('sort').value;
     const searchVal = document.getElementById('search').value.trim().toLowerCase();
     const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
-    const priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
+    const priceMaxRaw = document.getElementById('priceMax').value.trim();
+    const priceMax = priceMaxRaw === '' ? Infinity : parseFloat(priceMaxRaw);
 
     let list = allProperties.filter(p => {
       if (p.exclusive !== (exclusiveOnly === true)) return false;
@@ -1170,7 +1172,7 @@
     }
 
     // WhatsApp button (don't open modal)
-    if (e.target.closest('.btn') && e.target.tagName === 'A') return;
+    if (e.target.closest('a.btn')) return;
 
     // Details button
     const detailBtn = e.target.closest('[data-action="detail"]');
@@ -1190,7 +1192,8 @@
       return;
     }
 
-    // Whole card click → open detail
+    // Whole card click → open detail (suppressed if a swipe just occurred)
+    if (_cardSwipeHappened) { _cardSwipeHappened = false; return; }
     const card = e.target.closest('.card');
     if (card && card.dataset.id) {
       openDetailModal(parseInt(card.dataset.id));
@@ -1324,8 +1327,8 @@
       el.querySelectorAll('.favorite-item').forEach(function(item) {
         item.addEventListener('click', function(e) {
           if (e.target.closest('.remove-fav')) return;
-          openDetailModal(parseInt(item.dataset.id));
           closeFavoritesModal();
+          openDetailModal(parseInt(item.dataset.id));
         });
       });
       el.querySelectorAll('.remove-fav').forEach(function(btn) {
@@ -1362,8 +1365,8 @@
       }).join('');
       el.querySelectorAll('.history-item').forEach(function(item) {
         item.addEventListener('click', function() {
-          openDetailModal(parseInt(item.dataset.id));
           closeHistoryModal();
+          openDetailModal(parseInt(item.dataset.id));
         });
       });
     }
@@ -1434,6 +1437,7 @@
   }
 
   // ======================= TOUCH SWIPE ON CARDS =======================
+  var _cardSwipeHappened = false;
   (function() {
     const container = document.getElementById('normalContainer');
     const excl = document.getElementById('exclusiveGrid');
@@ -1448,8 +1452,8 @@
         const dx = e.changedTouches[0].screenX - ib._tx;
         const card = ib.closest('.card');
         if (card && card.dataset.id) {
-          if (dx < -30) changeImage(parseInt(card.dataset.id), 1);
-          if (dx > 30) changeImage(parseInt(card.dataset.id), -1);
+          if (dx < -30) { changeImage(parseInt(card.dataset.id), 1); _cardSwipeHappened = true; }
+          if (dx > 30)  { changeImage(parseInt(card.dataset.id), -1); _cardSwipeHappened = true; }
         }
         delete ib._tx;
       }, {passive:true});
