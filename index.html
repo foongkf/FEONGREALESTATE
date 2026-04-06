@@ -1,20 +1,7 @@
-<!-- Feong Real Estate v2.0 — 2026-04 -->
-<!-- Improvements: CSP, named constants, template literals, error boundaries,
-     localStorage validation, referrer policy, refresh button, version tag -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- SECURITY: Content Security Policy — limits where scripts/styles/images can load from -->
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self' https://docs.google.com https://drive.google.com https://wa.me https://images.unsplash.com https://placehold.co;
-    img-src * data:;
-    style-src 'unsafe-inline';
-    script-src 'unsafe-inline';
-    connect-src https://docs.google.com;
-  ">
-  <!-- SECURITY: Don't leak page URL when users click WhatsApp links -->
-  <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes"/>
   <title>Feong Real Estate — Penang Property Listing</title>
   <style>
@@ -52,7 +39,6 @@
       transition: opacity 1.5s ease-in-out;
     }
     .bg-slide.active { opacity: 1; }
-    /* pointer-events: none so overlay never intercepts clicks */
     body::after {
       content: '';
       position: fixed;
@@ -62,7 +48,7 @@
       pointer-events: none;
     }
 
-    /* Skeleton loader */
+    /* Skeleton */
     .skeleton-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -191,6 +177,7 @@
     }
     .price-range input:focus { box-shadow: none; border-color: transparent; }
     .price-range span { color: var(--text-muted); font-size: 12px; }
+    .filter-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
     .clear-btn {
       background: #ff3b30;
       color: white;
@@ -205,23 +192,8 @@
       white-space: nowrap;
     }
     .clear-btn:hover { background: #e0352b; }
-    .refresh-btn {
-      background: rgba(0,113,227,0.1);
-      color: var(--brand-blue);
-      border: 1px solid rgba(0,113,227,0.2);
-      border-radius: 40px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .refresh-btn:hover { background: rgba(0,113,227,0.15); }
-    .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Notices */
+    /* Data source notice */
     .data-notice {
       background: rgba(255, 149, 0, 0.1);
       border: 1px solid rgba(255, 149, 0, 0.3);
@@ -312,7 +284,10 @@
       cursor: pointer;
     }
     .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .card:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
+    .card:focus-visible {
+      outline: 2px solid var(--brand-blue);
+      outline-offset: 2px;
+    }
     .gold-card { background: #fffef7; border-left: 3px solid #f5a623; }
 
     .img-box {
@@ -761,12 +736,11 @@
         <input type="number" id="priceMax" placeholder="Max" min="0" step="10000" aria-label="Maximum price"/>
       </div>
       <button class="clear-btn" id="clearFilters">Clear Filters</button>
-      <button class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
     </div>
   </div>
 
   <div id="dataNotice" class="data-notice hidden">
-    ⚠️ Could not load live data — showing sample listings instead. Try clicking Refresh.
+    ⚠️ Could not load live data — showing sample listings instead.
   </div>
 
   <div class="exclusive-section">
@@ -801,8 +775,7 @@
       <div class="modal-price" id="modalPrice"></div>
       <div class="modal-area" id="modalArea"></div>
       <div class="modal-tags" id="modalTags"></div>
-      <!-- referrerpolicy: don't leak page URL to WhatsApp servers -->
-      <a href="#" id="modalWALink" class="modal-wa-btn" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">📲 Contact via WhatsApp</a>
+      <a href="#" id="modalWALink" class="modal-wa-btn" target="_blank" rel="noopener noreferrer">📲 Contact via WhatsApp</a>
     </div>
   </div>
 </div>
@@ -825,45 +798,9 @@
 
 <script>
   // ======================= CONFIG =======================
-  const WA_NUMBER     = '60147405020';
+  const WA_NUMBER = '60147405020';
   const ITEMS_PER_PAGE = 12;
-  const SHEET_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv';
-  const PLACEHOLDER   = 'https://placehold.co/600x400/f5f5f7/86868b?text=No+Image';
-  const IMG_ERROR_SRC = 'https://placehold.co/600x400/f5f5f7/86868b?text=Error';
-
-  // Named CSV column indices — update here if sheet columns move
-  const COL = {
-    TITLE:     0,
-    AREA:      1,
-    LAND_AREA: 2,
-    BUILT_UP:  3,
-    BEDROOM:   4,
-    BATHROOM:  5,
-    CONDITION: 6,
-    RENOVATE:  7,
-    FURNISH:   8,
-    PARKING:   9,
-    TENURE:    10,
-    TYPE:      11,
-    PRICE:     12,
-    EXCLUSIVE: 13,
-    IMAGES:    14
-  };
-
-  // Named localStorage keys — change in one place, takes effect everywhere
-  const STORAGE = {
-    FAVORITES: 'feong_favorites',
-    RECENT:    'feong_recent',
-    FILTERS:   'feong_filters'
-  };
-
-  // ======================= IMAGE ERROR FALLBACK (no inline handlers) =======================
-  // Catch broken images in capture phase — cleaner than inline onerror attributes
-  document.addEventListener('error', function(e) {
-    if (e.target.tagName === 'IMG' && e.target.src !== IMG_ERROR_SRC) {
-      e.target.src = IMG_ERROR_SRC;
-    }
-  }, true);
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
 
   // ======================= BACKGROUND SLIDESHOW =======================
   (function() {
@@ -878,12 +815,10 @@
   })();
 
   // ======================= UTILS =======================
-
-  // Safe HTML escaper — call on any user/CSV-sourced data before inserting into HTML
-  function esc(str) {
-    if (str === null || str === undefined) return '';
+  function escapeHtml(str) {
+    if (!str) return '';
     return String(str).replace(/[&<>"']/g, function(m) {
-      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m];
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
     });
   }
 
@@ -892,7 +827,7 @@
     const numStr = raw.toString().replace(/[^0-9]/g, '');
     if (!numStr) return '';
     const num = parseInt(numStr, 10);
-    if (isNaN(num)) return String(raw);
+    if (isNaN(num)) return raw;
     return 'RM ' + num.toLocaleString('en-US');
   }
 
@@ -905,7 +840,7 @@
   function formatImgUrl(url, size) {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
-      const m  = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
       const id = (m && m[1]) || (m2 && m2[1]);
       if (id) return 'https://drive.google.com/thumbnail?id=' + id + '&sz=' + (size === 'large' ? 'w1200' : 'w400');
@@ -914,26 +849,26 @@
   }
 
   function parseImages(raw, size) {
-    if (!raw) return [PLACEHOLDER];
+    if (!raw) return ['https://placehold.co/600x400/f5f5f7/86868b?text=No+Image'];
     const imgs = raw.split('|').map(s => s.trim()).filter(Boolean).map(u => formatImgUrl(u, size));
-    return imgs.length ? imgs : [PLACEHOLDER];
+    return imgs.length ? imgs : ['https://placehold.co/600x400/f5f5f7/86868b?text=No+Image'];
   }
 
   function buildWALink(p) {
     const imgUrl = p.imagesSmall && p.imagesSmall[0] ? p.imagesSmall[0] : '';
     const msg = [
-      "Hi, I'm interested in this property:",
+      'Hi, I\'m interested in this property:',
       '\uD83C\uDFE0 ' + p.title,
       '\uD83D\uDCCD ' + p.area,
       '\uD83D\uDCB0 ' + p.price,
       '\uD83C\uDF3F Land Area: ' + (p.landArea || '-') + ' sqft',
-      '\uD83C\uDFE2 Built Up: '  + (p.builtUp  || '-') + ' sqft',
-      '\uD83D\uDECF ' + p.bedroom   + ' bed',
-      '\uD83D\uDEBF ' + p.bathroom  + ' bath',
+      '\uD83C\uDFE2 Built Up: ' + (p.builtUp || '-') + ' sqft',
+      '\uD83D\uDECF ' + p.bedroom + ' bed',
+      '\uD83D\uDEBF ' + p.bathroom + ' bath',
       '\uD83D\uDD27 Condition: ' + p.condition,
-      '\uD83D\uDEE0 ' + p.renovate  + ' reno',
-      '\uD83E\uDE91 ' + p.furnish   + ' furnish',
-      '\uD83D\uDE97 ' + p.parking   + ' park',
+      '\uD83D\uDEE0 ' + p.renovate + ' reno',
+      '\uD83E\uDE91 ' + p.furnish + ' furnish',
+      '\uD83D\uDE97 ' + p.parking + ' park',
       '\uD83D\uDCDC ' + p.tenure,
       '',
       '\uD83D\uDCF8 Image: ' + imgUrl,
@@ -943,17 +878,9 @@
     return 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg);
   }
 
-  // ======================= LOCALSTORAGE (with Array.isArray validation) =======================
-
-  function getFavorites() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(STORAGE.FAVORITES) || '[]');
-      return Array.isArray(parsed) ? parsed : [];
-    } catch(e) { return []; }
-  }
-  function saveFavorites(f) {
-    try { localStorage.setItem(STORAGE.FAVORITES, JSON.stringify(f)); } catch(e) {}
-  }
+  // ======================= LOCALSTORAGE =======================
+  function getFavorites() { try { return JSON.parse(localStorage.getItem('feong_favorites') || '[]'); } catch(e) { return []; } }
+  function saveFavorites(f) { try { localStorage.setItem('feong_favorites', JSON.stringify(f)); } catch(e) {} }
   function toggleFavorite(id) {
     let f = getFavorites();
     if (f.includes(id)) f = f.filter(x => x !== id);
@@ -963,28 +890,23 @@
   }
   function isFavorite(id) { return getFavorites().includes(id); }
 
-  function getRecentViews() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(STORAGE.RECENT) || '[]');
-      return Array.isArray(parsed) ? parsed : [];
-    } catch(e) { return []; }
-  }
+  function getRecentViews() { try { return JSON.parse(localStorage.getItem('feong_recent') || '[]'); } catch(e) { return []; } }
   function addRecentView(id) {
     let r = getRecentViews();
     r = r.filter(x => x !== id);
     r.unshift(id);
     if (r.length > 10) r.pop();
-    try { localStorage.setItem(STORAGE.RECENT, JSON.stringify(r)); } catch(e) {}
+    try { localStorage.setItem('feong_recent', JSON.stringify(r)); } catch(e) {}
   }
 
   function saveFilters() {
     try {
-      localStorage.setItem(STORAGE.FILTERS, JSON.stringify({
-        type:     document.getElementById('type').value,
-        area:     document.getElementById('area').value,
+      localStorage.setItem('feong_filters', JSON.stringify({
+        type: document.getElementById('type').value,
+        area: document.getElementById('area').value,
         bedrooms: document.getElementById('bedrooms').value,
-        sort:     document.getElementById('sort').value,
-        search:   document.getElementById('search').value,
+        sort: document.getElementById('sort').value,
+        search: document.getElementById('search').value,
         priceMin: document.getElementById('priceMin').value,
         priceMax: document.getElementById('priceMax').value
       }));
@@ -992,13 +914,12 @@
   }
   function loadFilters() {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE.FILTERS) || '{}');
-      if (!saved || typeof saved !== 'object') return;
-      if (saved.type)     document.getElementById('type').value = saved.type;
-      if (saved.area)     document.getElementById('area').value = saved.area;
+      const saved = JSON.parse(localStorage.getItem('feong_filters') || '{}');
+      if (saved.type) document.getElementById('type').value = saved.type;
+      if (saved.area) document.getElementById('area').value = saved.area;
       if (saved.bedrooms) document.getElementById('bedrooms').value = saved.bedrooms;
       if (saved.sort && ['default','low','high'].includes(saved.sort)) document.getElementById('sort').value = saved.sort;
-      if (saved.search)   document.getElementById('search').value = saved.search;
+      if (saved.search) document.getElementById('search').value = saved.search;
       if (saved.priceMin) document.getElementById('priceMin').value = saved.priceMin;
       if (saved.priceMax) document.getElementById('priceMax').value = saved.priceMax;
     } catch(e) {}
@@ -1006,11 +927,13 @@
 
   // ======================= DATA =======================
   let allProperties = [];
-  let imgIndex      = {};
-  let currentPage   = 1;
-  let currentModalProperty     = null;
-  let currentModalImageIndex   = 0;
+  let imgIndex = {};
+  let currentPage = 1;
+  let currentModalProperty = null;
+  let currentModalImageIndex = 0;
 
+  // Column map (0-indexed): 0:Title 1:Area 2:LandArea 3:BuiltUp 4:Bedroom 5:Bathroom 6:Condition
+  // 7:Renovate 8:Furnish 9:Parking 10:Tenure 11:Type 12:Price 13:Exclusive 14:ImagesRaw
   function parseCSVRow(line, expected) {
     const result = [];
     let inQ = false, cur = '';
@@ -1031,26 +954,26 @@
     const props = [];
     for (let i = 1; i < lines.length; i++) {
       const c = parseCSVRow(lines[i], 15);
-      if (!c[COL.TITLE]) continue;        // skip rows with no title
-      const rawPrice = c[COL.PRICE] || '';
+      if (!c[0]) continue;
+      const rawPrice = c[12] || '';
       const prop = {
-        id:        i,
-        title:     c[COL.TITLE]     || '',
-        area:      c[COL.AREA]      || '',
-        landArea:  c[COL.LAND_AREA] || '',
-        builtUp:   c[COL.BUILT_UP]  || '',
-        bedroom:   c[COL.BEDROOM]   || '',
-        bathroom:  c[COL.BATHROOM]  || '',
-        condition: c[COL.CONDITION] || '',
-        renovate:  c[COL.RENOVATE]  || '',
-        furnish:   c[COL.FURNISH]   || '',
-        parking:   c[COL.PARKING]   || '',
-        tenure:    (c[COL.TENURE]   || '').toLowerCase(),
-        type:      (c[COL.TYPE]     || '').toLowerCase(),
-        price:     formatPrice(rawPrice),
-        priceNum:  getPriceNumber(rawPrice),
-        exclusive: (c[COL.EXCLUSIVE] || '').toLowerCase() === 'yes',
-        imagesRaw: c[COL.IMAGES]    || ''
+        id: i,
+        title: c[0] || '',
+        area: c[1] || '',
+        landArea: c[2] || '',
+        builtUp: c[3] || '',
+        bedroom: c[4] || '',
+        bathroom: c[5] || '',
+        condition: c[6] || '',
+        renovate: c[7] || '',
+        furnish: c[8] || '',
+        parking: c[9] || '',
+        tenure: (c[10] || '').toLowerCase(),
+        type: (c[11] || '').toLowerCase(),
+        price: formatPrice(rawPrice),
+        priceNum: getPriceNumber(rawPrice),
+        exclusive: (c[13] || '').toLowerCase() === 'yes',
+        imagesRaw: c[14] || ''
       };
       prop.imagesSmall = parseImages(prop.imagesRaw, 'small');
       prop.imagesLarge = parseImages(prop.imagesRaw, 'large');
@@ -1061,19 +984,19 @@
 
   function getSampleProperties() {
     const raw = [
-      { id:1, title:'The Maritime Suite',   area:'Gurney Drive',    landArea:'1250', builtUp:'2100', bedroom:'3', bathroom:'2', condition:'Excellent', renovate:'Fully',    furnish:'Partly', parking:'2', tenure:'freehold', type:'sale', priceRaw:'1250000', exclusive:true,  img:'https://placehold.co/800x500/0071e3/white?text=Maritime'   },
-      { id:2, title:'Quayside Residence',   area:'Tanjung Tokong',  landArea:'980',  builtUp:'1650', bedroom:'2', bathroom:'2', condition:'Good',      renovate:'Partly',   furnish:'Fully',  parking:'1', tenure:'freehold', type:'sale', priceRaw:'890000',  exclusive:false, img:'https://placehold.co/800x500/34c759/white?text=Quayside'   },
-      { id:3, title:'Penang World City',    area:'Bayan Lepas',     landArea:'1100', builtUp:'1350', bedroom:'3', bathroom:'2', condition:'Standard',  renovate:'Standard', furnish:'Empty',  parking:'2', tenure:'leasehold',type:'rent', priceRaw:'2800',    exclusive:false, img:'https://placehold.co/800x500/ff3b30/white?text=PWC'        },
-      { id:4, title:'Seri Tanjung Pinang',  area:'Tanjung Tokong',  landArea:'1500', builtUp:'2800', bedroom:'4', bathroom:'3', condition:'Luxury',    renovate:'Luxury',   furnish:'Fully',  parking:'2', tenure:'freehold', type:'sale', priceRaw:'2100000', exclusive:true,  img:'https://placehold.co/800x500/f5a623/white?text=STP'        },
-      { id:5, title:'The Light Waterfront', area:'Jelutong',        landArea:'1350', builtUp:'1950', bedroom:'3', bathroom:'2', condition:'Renovated', renovate:'New',      furnish:'Partly', parking:'2', tenure:'freehold', type:'sale', priceRaw:'1480000', exclusive:false, img:'https://placehold.co/800x500/5856d6/white?text=Light'      },
-      { id:6, title:'Summerton Bungalow',   area:'Batu Maung',      landArea:'3200', builtUp:'4500', bedroom:'5', bathroom:'4', condition:'Excellent', renovate:'Luxury',   furnish:'Fully',  parking:'4', tenure:'freehold', type:'sale', priceRaw:'3500000', exclusive:true,  img:'https://placehold.co/800x500/30d158/white?text=Summerton'  },
-      { id:7, title:'Botanica CT',          area:'Balik Pulau',     landArea:'1800', builtUp:'2300', bedroom:'4', bathroom:'3', condition:'Good',      renovate:'Partly',   furnish:'Empty',  parking:'2', tenure:'freehold', type:'sale', priceRaw:'980000',  exclusive:false, img:'https://placehold.co/800x500/64d2ff/white?text=Botanica'  },
-      { id:8, title:'One Foresta',          area:'Batu Maung',      landArea:'1200', builtUp:'1680', bedroom:'3', bathroom:'2', condition:'Good',      renovate:'Standard', furnish:'Partly', parking:'2', tenure:'freehold', type:'rent', priceRaw:'3200',    exclusive:false, img:'https://placehold.co/800x500/bf5af2/white?text=Foresta'   }
+      { id:1, title:"The Maritime Suite", area:"Gurney Drive", landArea:"1250", builtUp:"2100", bedroom:"3", bathroom:"2", condition:"Excellent", renovate:"Fully", furnish:"Partly", parking:"2", tenure:"freehold", type:"sale", priceRaw:"1250000", exclusive:true, img:"https://placehold.co/800x500/0071e3/white?text=Maritime" },
+      { id:2, title:"Quayside Residence", area:"Tanjung Tokong", landArea:"980", builtUp:"1650", bedroom:"2", bathroom:"2", condition:"Good", renovate:"Partly", furnish:"Fully", parking:"1", tenure:"freehold", type:"sale", priceRaw:"890000", exclusive:false, img:"https://placehold.co/800x500/34c759/white?text=Quayside" },
+      { id:3, title:"Penang World City", area:"Bayan Lepas", landArea:"1100", builtUp:"1350", bedroom:"3", bathroom:"2", condition:"Standard", renovate:"Standard", furnish:"Empty", parking:"2", tenure:"leasehold", type:"rent", priceRaw:"2800", exclusive:false, img:"https://placehold.co/800x500/ff3b30/white?text=PWC" },
+      { id:4, title:"Seri Tanjung Pinang", area:"Tanjung Tokong", landArea:"1500", builtUp:"2800", bedroom:"4", bathroom:"3", condition:"Luxury", renovate:"Luxury", furnish:"Fully", parking:"2", tenure:"freehold", type:"sale", priceRaw:"2100000", exclusive:true, img:"https://placehold.co/800x500/f5a623/white?text=STP" },
+      { id:5, title:"The Light Waterfront", area:"Jelutong", landArea:"1350", builtUp:"1950", bedroom:"3", bathroom:"2", condition:"Renovated", renovate:"New", furnish:"Partly", parking:"2", tenure:"freehold", type:"sale", priceRaw:"1480000", exclusive:false, img:"https://placehold.co/800x500/5856d6/white?text=Light" },
+      { id:6, title:"Summerton Bungalow", area:"Batu Maung", landArea:"3200", builtUp:"4500", bedroom:"5", bathroom:"4", condition:"Excellent", renovate:"Luxury", furnish:"Fully", parking:"4", tenure:"freehold", type:"sale", priceRaw:"3500000", exclusive:true, img:"https://placehold.co/800x500/30d158/white?text=Summerton" },
+      { id:7, title:"Botanica CT", area:"Balik Pulau", landArea:"1800", builtUp:"2300", bedroom:"4", bathroom:"3", condition:"Good", renovate:"Partly", furnish:"Empty", parking:"2", tenure:"freehold", type:"sale", priceRaw:"980000", exclusive:false, img:"https://placehold.co/800x500/64d2ff/white?text=Botanica" },
+      { id:8, title:"One Foresta", area:"Batu Maung", landArea:"1200", builtUp:"1680", bedroom:"3", bathroom:"2", condition:"Good", renovate:"Standard", furnish:"Partly", parking:"2", tenure:"freehold", type:"rent", priceRaw:"3200", exclusive:false, img:"https://placehold.co/800x500/bf5af2/white?text=Foresta" }
     ];
     return raw.map(p => ({
       ...p,
-      price:       formatPrice(p.priceRaw),
-      priceNum:    getPriceNumber(p.priceRaw),
+      price: formatPrice(p.priceRaw),
+      priceNum: getPriceNumber(p.priceRaw),
       imagesSmall: parseImages(p.img, 'small'),
       imagesLarge: parseImages(p.img, 'large')
     }));
@@ -1092,17 +1015,15 @@
 
   async function loadData() {
     showSkeleton();
-    const refreshBtn = document.getElementById('refreshBtn');
-    if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = '⏳ Loading…'; }
     let usedSample = false;
     try {
-      const csv   = await fetchWithRetry(SHEET_URL, 3);
+      const csv = await fetchWithRetry(SHEET_URL, 3);
       const props = buildFromCSV(csv);
       if (!props.length) throw new Error('Empty');
       allProperties = props;
     } catch(e) {
       allProperties = getSampleProperties();
-      usedSample    = true;
+      usedSample = true;
     }
     document.getElementById('dataNotice').classList.toggle('hidden', !usedSample);
     allProperties.forEach(p => { imgIndex[p.id] = 0; });
@@ -1112,7 +1033,6 @@
     renderExclusive();
     renderNormalPaged();
     checkScrollGradient();
-    if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = '🔄 Refresh'; }
   }
 
   function showSkeleton() {
@@ -1122,24 +1042,22 @@
 
   function populateAreaFilter() {
     const areas = [...new Set(allProperties.map(p => p.area).filter(Boolean))].sort();
-    const sel   = document.getElementById('area');
-    const cur   = sel.value;
-    sel.innerHTML = '<option value="all">All Areas</option>' +
-      areas.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
+    const sel = document.getElementById('area');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="all">All Areas</option>' + areas.map(a => '<option value="' + escapeHtml(a) + '">' + escapeHtml(a) + '</option>').join('');
     if (cur && areas.includes(cur)) sel.value = cur;
   }
 
   // ======================= FILTERING =======================
   function getFilteredProperties(exclusiveOnly) {
-    const typeVal   = document.getElementById('type').value;
-    const areaVal   = document.getElementById('area').value;
-    const bedsVal   = document.getElementById('bedrooms').value;
-    const sortVal   = document.getElementById('sort').value;
+    const typeVal = document.getElementById('type').value;
+    const areaVal = document.getElementById('area').value;
+    const bedsVal = document.getElementById('bedrooms').value;
+    const sortVal = document.getElementById('sort').value;
     const searchVal = document.getElementById('search').value.trim().toLowerCase();
-    const priceMin  = parseFloat(document.getElementById('priceMin').value) || 0;
-    // Empty string → no maximum; avoids 0 || Infinity trap
+    const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
     const priceMaxRaw = document.getElementById('priceMax').value.trim();
-    const priceMax    = priceMaxRaw === '' ? Infinity : parseFloat(priceMaxRaw);
+    const priceMax = priceMaxRaw === '' ? Infinity : parseFloat(priceMaxRaw);
 
     let list = allProperties.filter(p => {
       if (p.exclusive !== (exclusiveOnly === true)) return false;
@@ -1152,7 +1070,7 @@
       }
       if (searchVal) {
         const inTitle = p.title.toLowerCase().includes(searchVal);
-        const inArea  = p.area.toLowerCase().includes(searchVal);
+        const inArea = p.area.toLowerCase().includes(searchVal);
         if (!inTitle && !inArea) return false;
       }
       if (p.priceNum < priceMin) return false;
@@ -1160,80 +1078,68 @@
       return true;
     });
 
-    if (sortVal === 'low')  list.sort((a, b) => a.priceNum - b.priceNum);
-    else if (sortVal === 'high') list.sort((a, b) => b.priceNum - a.priceNum);
+    if (sortVal === 'low') list.sort((a,b) => a.priceNum - b.priceNum);
+    else if (sortVal === 'high') list.sort((a,b) => b.priceNum - a.priceNum);
     return list;
   }
 
   // ======================= CARD RENDERING =======================
-  // Uses template literals + esc() instead of string concatenation — readable and safe
   function renderCard(p) {
-    try {
-      const imgs    = p.imagesSmall;
-      const idx     = imgIndex[p.id] || 0;
-      const total   = imgs.length;
-      const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
-      const fav     = isFavorite(p.id) ? '❤️' : '🤍';
+    const imgs = p.imagesSmall;
+    const idx = imgIndex[p.id] || 0;
+    const total = imgs.length;
+    const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
+    const fav = isFavorite(p.id) ? '❤️' : '🤍';
 
-      const tags = [];
-      if (p.landArea)  tags.push(`🌿 Land: ${esc(p.landArea)} sqft`);
-      if (p.builtUp)   tags.push(`🏢 Built: ${esc(p.builtUp)} sqft`);
-      if (p.bedroom)   tags.push(`🛏 ${esc(p.bedroom)} bed`);
-      if (p.bathroom)  tags.push(`🚿 ${esc(p.bathroom)} bath`);
-      if (p.condition) tags.push(`🔧 ${esc(p.condition)}`);
-      if (p.renovate)  tags.push(`🛠 ${esc(p.renovate)} reno`);
-      if (p.furnish)   tags.push(`🪑 ${esc(p.furnish)} furnish`);
-      if (p.parking)   tags.push(`🚗 ${esc(p.parking)} park`);
-      if (p.tenure)    tags.push(`📜 ${esc(p.tenure)}`);
+    const tags = [];
+    if (p.landArea) tags.push('🌿 Land: ' + p.landArea + ' sqft');
+    if (p.builtUp) tags.push('🏢 Built: ' + p.builtUp + ' sqft');
+    if (p.bedroom) tags.push('🛏 ' + p.bedroom + ' bed');
+    if (p.bathroom) tags.push('🚿 ' + p.bathroom + ' bath');
+    if (p.condition) tags.push('🔧 ' + p.condition);
+    if (p.renovate) tags.push('🛠 ' + p.renovate + ' reno');
+    if (p.furnish) tags.push('🪑 ' + p.furnish + ' furnish');
+    if (p.parking) tags.push('🚗 ' + p.parking + ' park');
+    if (p.tenure) tags.push('📜 ' + p.tenure);
 
-      const navBtns = total > 1 ? `
-        <button class="nav prev" data-id="${p.id}" data-delta="-1" tabindex="0" aria-label="Previous image">‹</button>
-        <button class="nav next" data-id="${p.id}" data-delta="1"  tabindex="0" aria-label="Next image">›</button>` : '';
-
-      return `
-        <div class="card${p.exclusive ? ' gold-card' : ''}" data-id="${p.id}" tabindex="0" role="button" aria-label="${esc(p.title)}">
-          <div class="img-box" data-id="${p.id}">
-            ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
-            <div class="tag ${typeTag}">${typeTag.toUpperCase()}</div>
-            <img id="img${p.id}" src="${esc(imgs[idx])}" alt="${esc(p.title)}" loading="lazy">
-            ${navBtns}
-            <div class="image-counter">${idx + 1}/${total}</div>
-          </div>
-          <div class="content">
-            <h3>${esc(p.title)}</h3>
-            <div class="price">${esc(p.price)}</div>
-            <div class="info">📍 ${esc(p.area)}</div>
-            <div class="detail-tags">
-              ${tags.map(t => `<span class="detail-tag">${t}</span>`).join('')}
-            </div>
-          </div>
-          <div class="card-buttons">
-            <a class="btn" href="${esc(buildWALink(p))}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">WhatsApp</a>
-            <button class="btn-outline" data-action="detail" data-id="${p.id}">Details</button>
-            <button class="btn-fav" data-id="${p.id}" aria-label="Toggle favourite">${fav}</button>
-          </div>
-        </div>`;
-    } catch(err) {
-      // Error boundary: a broken property object won't crash the whole render
-      console.warn('renderCard error for property', p && p.id, err);
-      return '';
-    }
+    return '<div class="card' + (p.exclusive ? ' gold-card' : '') + '" data-id="' + p.id + '" tabindex="0" role="button" aria-label="' + escapeHtml(p.title) + '">'
+      + '<div class="img-box" data-id="' + p.id + '">'
+      + (p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : '')
+      + '<div class="tag ' + typeTag + '">' + typeTag.toUpperCase() + '</div>'
+      + '<img id="img' + p.id + '" src="' + escapeHtml(imgs[idx]) + '" alt="' + escapeHtml(p.title) + '" loading="lazy" onerror="this.src=\'https://placehold.co/600x400/f5f5f7/86868b?text=Error\'">'
+      + (total > 1 ? '<button class="nav prev" data-id="' + p.id + '" data-delta="-1" tabindex="0" aria-label="Previous image">‹</button><button class="nav next" data-id="' + p.id + '" data-delta="1" tabindex="0" aria-label="Next image">›</button>' : '')
+      + '<div class="image-counter">' + (idx+1) + '/' + total + '</div>'
+      + '</div>'
+      + '<div class="content">'
+      + '<h3>' + escapeHtml(p.title) + '</h3>'
+      + '<div class="price">' + escapeHtml(p.price) + '</div>'
+      + '<div class="info">📍 ' + escapeHtml(p.area) + '</div>'
+      + '<div class="detail-tags">' + tags.map(t => '<span class="detail-tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+      + '</div>'
+      + '<div class="card-buttons">'
+      + '<a class="btn" href="' + escapeHtml(buildWALink(p)) + '" target="_blank" rel="noopener noreferrer">WhatsApp</a>'
+      + '<button class="btn-outline" data-action="detail" data-id="' + p.id + '">Details</button>'
+      + '<button class="btn-fav" data-id="' + p.id + '" aria-label="Toggle favourite">' + fav + '</button>'
+      + '</div>'
+      + '</div>';
   }
 
   function renderExclusive() {
     const list = getFilteredProperties(true);
-    document.getElementById('exclusiveGrid').innerHTML = list.length
+    const grid = document.getElementById('exclusiveGrid');
+    grid.innerHTML = list.length
       ? list.map(renderCard).join('')
       : '<div class="no-results" style="width:280px;">No exclusive listings match.</div>';
   }
 
   function renderNormalPaged() {
-    const list       = getFilteredProperties(false);
+    const list = getFilteredProperties(false);
     const totalPages = Math.max(1, Math.ceil(list.length / ITEMS_PER_PAGE));
-    currentPage      = Math.min(Math.max(1, currentPage), totalPages);
-    const start      = (currentPage - 1) * ITEMS_PER_PAGE;
-    const page       = list.slice(start, start + ITEMS_PER_PAGE);
-    document.getElementById('grid').innerHTML = page.length
+    currentPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const page = list.slice(start, start + ITEMS_PER_PAGE);
+    const grid = document.getElementById('grid');
+    grid.innerHTML = page.length
       ? page.map(renderCard).join('')
       : '<div class="no-results">🏠 No properties match your criteria.<br>Try adjusting the filters.</div>';
     renderPagination(totalPages);
@@ -1249,7 +1155,7 @@
     if (imgEl) {
       imgEl.src = p.imagesSmall[idx];
       const counter = imgEl.closest('.img-box').querySelector('.image-counter');
-      if (counter) counter.textContent = (idx + 1) + '/' + p.imagesSmall.length;
+      if (counter) counter.textContent = (idx+1) + '/' + p.imagesSmall.length;
     }
   }
 
@@ -1259,11 +1165,13 @@
     const navBtn = e.target.closest('.nav');
     if (navBtn) {
       e.stopPropagation();
-      changeImage(parseInt(navBtn.dataset.id), parseInt(navBtn.dataset.delta));
+      const id = parseInt(navBtn.dataset.id);
+      const delta = parseInt(navBtn.dataset.delta);
+      changeImage(id, delta);
       return;
     }
 
-    // WhatsApp link — use a.btn selector so child elements inside <a> are also caught
+    // WhatsApp button (don't open modal)
     if (e.target.closest('a.btn')) return;
 
     // Details button
@@ -1278,25 +1186,21 @@
     const favBtn = e.target.closest('.btn-fav');
     if (favBtn) {
       e.stopPropagation();
-      const id       = parseInt(favBtn.dataset.id);
+      const id = parseInt(favBtn.dataset.id);
       const newState = toggleFavorite(id);
-      document.querySelectorAll(`.btn-fav[data-id="${id}"]`).forEach(b => {
-        b.textContent = newState ? '❤️' : '🤍';
-      });
+      document.querySelectorAll('.btn-fav[data-id="' + id + '"]').forEach(b => { b.textContent = newState ? '❤️' : '🤍'; });
       return;
     }
 
-    // Suppress synthetic click fired by browser after a touch swipe
+    // Whole card click → open detail (suppressed if a swipe just occurred)
     if (_cardSwipeHappened) { _cardSwipeHappened = false; return; }
-
-    // Whole card click → open detail
     const card = e.target.closest('.card');
     if (card && card.dataset.id) {
       openDetailModal(parseInt(card.dataset.id));
     }
   });
 
-  // Keyboard navigation
+  // Keyboard: Enter on card or nav buttons
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' || e.key === ' ') {
       const card = e.target.closest('.card');
@@ -1315,9 +1219,8 @@
       closeFavoritesModal();
       closeHistoryModal();
     }
-    const detailOpen = document.getElementById('detailModal').style.display === 'flex';
-    if (e.key === 'ArrowLeft'  && currentModalProperty && detailOpen) prevModalImage();
-    if (e.key === 'ArrowRight' && currentModalProperty && detailOpen) nextModalImage();
+    if (e.key === 'ArrowLeft' && currentModalProperty && document.getElementById('detailModal').style.display === 'flex') prevModalImage();
+    if (e.key === 'ArrowRight' && currentModalProperty && document.getElementById('detailModal').style.display === 'flex') nextModalImage();
   });
 
   // ======================= DETAIL MODAL =======================
@@ -1325,7 +1228,7 @@
     const p = allProperties.find(x => x.id === id);
     if (!p) return;
     addRecentView(id);
-    currentModalProperty   = p;
+    currentModalProperty = p;
     currentModalImageIndex = 0;
     updateModalContent();
     document.getElementById('detailModal').style.display = 'flex';
@@ -1335,31 +1238,30 @@
 
   function preloadAdjacent(p, idx) {
     const imgs = p.imagesLarge;
-    if (imgs[idx + 1]) new Image().src = imgs[idx + 1];
-    if (imgs[idx - 1]) new Image().src = imgs[idx - 1];
+    if (imgs[idx+1]) new Image().src = imgs[idx+1];
+    if (imgs[idx-1]) new Image().src = imgs[idx-1];
   }
 
   function updateModalContent() {
     if (!currentModalProperty) return;
-    const p    = currentModalProperty;
+    const p = currentModalProperty;
     const imgs = p.imagesLarge;
-    document.getElementById('modalImage').src              = imgs[currentModalImageIndex] || imgs[0];
-    document.getElementById('modalCounter').textContent    = (currentModalImageIndex + 1) + '/' + imgs.length;
-    document.getElementById('modalTitle').textContent      = p.title;
-    document.getElementById('modalPrice').textContent      = p.price;
-    document.getElementById('modalArea').textContent       = '📍 ' + p.area;
+    document.getElementById('modalImage').src = imgs[currentModalImageIndex] || imgs[0];
+    document.getElementById('modalCounter').textContent = (currentModalImageIndex+1) + '/' + imgs.length;
+    document.getElementById('modalTitle').textContent = p.title;
+    document.getElementById('modalPrice').textContent = p.price;
+    document.getElementById('modalArea').textContent = '📍 ' + p.area;
     const tags = [];
-    if (p.landArea)  tags.push(`🌿 Land Area: ${esc(p.landArea)} sqft`);
-    if (p.builtUp)   tags.push(`🏢 Built Up: ${esc(p.builtUp)} sqft`);
-    if (p.bedroom)   tags.push(`🛏 Bedroom: ${esc(p.bedroom)}`);
-    if (p.bathroom)  tags.push(`🚿 Bathroom: ${esc(p.bathroom)}`);
-    if (p.condition) tags.push(`🔧 Condition: ${esc(p.condition)}`);
-    if (p.renovate)  tags.push(`🛠 Renovate: ${esc(p.renovate)}`);
-    if (p.furnish)   tags.push(`🪑 Furnish: ${esc(p.furnish)}`);
-    if (p.parking)   tags.push(`🚗 Parking: ${esc(p.parking)}`);
-    if (p.tenure)    tags.push(`📜 Tenure: ${esc(p.tenure)}`);
-    document.getElementById('modalTags').innerHTML =
-      tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+    if (p.landArea) tags.push('🌿 Land Area: ' + p.landArea + ' sqft');
+    if (p.builtUp) tags.push('🏢 Built Up: ' + p.builtUp + ' sqft');
+    if (p.bedroom) tags.push('🛏 Bedroom: ' + p.bedroom);
+    if (p.bathroom) tags.push('🚿 Bathroom: ' + p.bathroom);
+    if (p.condition) tags.push('🔧 Condition: ' + p.condition);
+    if (p.renovate) tags.push('🛠 Renovate: ' + p.renovate);
+    if (p.furnish) tags.push('🪑 Furnish: ' + p.furnish);
+    if (p.parking) tags.push('🚗 Parking: ' + p.parking);
+    if (p.tenure) tags.push('📜 Tenure: ' + p.tenure);
+    document.getElementById('modalTags').innerHTML = tags.map(t => '<span class="modal-tag">' + escapeHtml(t) + '</span>').join('');
     document.getElementById('modalWALink').href = buildWALink(p);
     document.getElementById('modalPrev').style.display = imgs.length > 1 ? '' : 'none';
     document.getElementById('modalNext').style.display = imgs.length > 1 ? '' : 'none';
@@ -1372,7 +1274,8 @@
   }
   function nextModalImage() {
     if (!currentModalProperty) return;
-    currentModalImageIndex = (currentModalImageIndex + 1) % currentModalProperty.imagesLarge.length;
+    const len = currentModalProperty.imagesLarge.length;
+    currentModalImageIndex = (currentModalImageIndex + 1) % len;
     updateModalContent();
   }
   function prevModalImage() {
@@ -1382,55 +1285,48 @@
     updateModalContent();
   }
 
-  // Touch swipe for modal image
+  // Touch swipe for modal
   (function() {
     let startX = null;
-    const box  = document.getElementById('modalImgBox');
-    box.addEventListener('touchstart', function(e) { startX = e.changedTouches[0].screenX; }, { passive: true });
+    const box = document.getElementById('modalImgBox');
+    box.addEventListener('touchstart', function(e) { startX = e.changedTouches[0].screenX; }, {passive:true});
     box.addEventListener('touchend', function(e) {
       if (startX === null) return;
       const dx = e.changedTouches[0].screenX - startX;
       if (dx < -40) nextModalImage();
       else if (dx > 40) prevModalImage();
       startX = null;
-    }, { passive: true });
+    }, {passive:true});
   })();
 
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('modalPrev').addEventListener('click', prevModalImage);
   document.getElementById('modalNext').addEventListener('click', nextModalImage);
   window.addEventListener('click', function(e) {
-    if (e.target === document.getElementById('detailModal'))    closeModal();
+    if (e.target === document.getElementById('detailModal')) closeModal();
     if (e.target === document.getElementById('favoritesModal')) closeFavoritesModal();
-    if (e.target === document.getElementById('historyModal'))   closeHistoryModal();
+    if (e.target === document.getElementById('historyModal')) closeHistoryModal();
   });
 
   // ======================= FAVOURITES MODAL =======================
   function showFavoritesModal() {
     const ids = getFavorites();
-    const el  = document.getElementById('favoritesList');
+    const el = document.getElementById('favoritesList');
     if (!ids.length) {
       el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">No favourites yet. Tap ❤️ on any listing.</div>';
     } else {
       el.innerHTML = ids.map(id => {
         const p = allProperties.find(x => x.id === id);
         if (!p) return '';
-        return `
-          <div class="favorite-item" data-id="${id}">
-            <img src="${esc(p.imagesSmall[0])}" alt="${esc(p.title)}" loading="lazy">
-            <div class="fav-info">
-              <div class="title">${esc(p.title)}</div>
-              <div class="price">${esc(p.price)}</div>
-              <div class="area">📍 ${esc(p.area)}</div>
-            </div>
-            <button class="remove-fav" data-id="${id}" aria-label="Remove favourite">🗑️</button>
-          </div>`;
+        return '<div class="favorite-item" data-id="' + id + '">'
+          + '<img src="' + escapeHtml(p.imagesSmall[0]) + '" alt="' + escapeHtml(p.title) + '" loading="lazy">'
+          + '<div class="fav-info"><div class="title">' + escapeHtml(p.title) + '</div><div class="price">' + escapeHtml(p.price) + '</div><div class="area">📍 ' + escapeHtml(p.area) + '</div></div>'
+          + '<button class="remove-fav" data-id="' + id + '" aria-label="Remove favourite">🗑️</button>'
+          + '</div>';
       }).join('');
-
       el.querySelectorAll('.favorite-item').forEach(function(item) {
         item.addEventListener('click', function(e) {
           if (e.target.closest('.remove-fav')) return;
-          // Close first so overflow lock is set last by openDetailModal
           closeFavoritesModal();
           openDetailModal(parseInt(item.dataset.id));
         });
@@ -1440,7 +1336,7 @@
           e.stopPropagation();
           toggleFavorite(parseInt(btn.dataset.id));
           showFavoritesModal();
-          document.querySelectorAll(`.btn-fav[data-id="${btn.dataset.id}"]`).forEach(b => { b.textContent = '🤍'; });
+          document.querySelectorAll('.btn-fav[data-id="' + btn.dataset.id + '"]').forEach(function(b) { b.textContent = '🤍'; });
         });
       });
     }
@@ -1455,27 +1351,20 @@
   // ======================= HISTORY MODAL =======================
   function showHistoryModal() {
     const ids = getRecentViews();
-    const el  = document.getElementById('historyList');
+    const el = document.getElementById('historyList');
     if (!ids.length) {
       el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">No recently viewed properties.</div>';
     } else {
       el.innerHTML = ids.map(id => {
         const p = allProperties.find(x => x.id === id);
         if (!p) return '';
-        return `
-          <div class="history-item" data-id="${id}">
-            <img src="${esc(p.imagesSmall[0])}" alt="${esc(p.title)}" loading="lazy">
-            <div class="fav-info">
-              <div class="title">${esc(p.title)}</div>
-              <div class="price">${esc(p.price)}</div>
-              <div class="area">📍 ${esc(p.area)}</div>
-            </div>
-          </div>`;
+        return '<div class="history-item" data-id="' + id + '">'
+          + '<img src="' + escapeHtml(p.imagesSmall[0]) + '" alt="' + escapeHtml(p.title) + '" loading="lazy">'
+          + '<div class="fav-info"><div class="title">' + escapeHtml(p.title) + '</div><div class="price">' + escapeHtml(p.price) + '</div><div class="area">📍 ' + escapeHtml(p.area) + '</div></div>'
+          + '</div>';
       }).join('');
-
       el.querySelectorAll('.history-item').forEach(function(item) {
         item.addEventListener('click', function() {
-          // Close first so overflow lock is set last by openDetailModal
           closeHistoryModal();
           openDetailModal(parseInt(item.dataset.id));
         });
@@ -1493,16 +1382,16 @@
   function renderPagination(totalPages) {
     const el = document.getElementById('pagination');
     if (totalPages <= 1) { el.innerHTML = ''; return; }
-    let h = `<button class="prev-page"${currentPage === 1 ? ' disabled' : ''}>‹ Previous</button>`;
+    let h = '<button class="prev-page"' + (currentPage === 1 ? ' disabled' : '') + '>‹ Previous</button>';
     h += '<div class="page-numbers">';
-    const s   = Math.max(1, currentPage - 2);
+    const s = Math.max(1, currentPage - 2);
     const end = Math.min(totalPages, currentPage + 2);
     if (s > 1) { h += '<span data-page="1">1</span>'; if (s > 2) h += '<span>…</span>'; }
-    for (let i = s; i <= end; i++) h += `<span data-page="${i}"${i === currentPage ? ' class="active"' : ''}>${i}</span>`;
-    if (end < totalPages) { if (end < totalPages - 1) h += '<span>…</span>'; h += `<span data-page="${totalPages}">${totalPages}</span>`; }
+    for (let i = s; i <= end; i++) h += '<span data-page="' + i + '"' + (i === currentPage ? ' class="active"' : '') + '>' + i + '</span>';
+    if (end < totalPages) { if (end < totalPages - 1) h += '<span>…</span>'; h += '<span data-page="' + totalPages + '">' + totalPages + '</span>'; }
     h += '</div>';
-    h += `<button class="next-page"${currentPage === totalPages ? ' disabled' : ''}>Next ›</button>`;
-    h += `<div class="page-jump"><label for="pageJump" style="font-size:12px;color:var(--text-muted)">Go to</label> <input type="number" id="pageJump" min="1" max="${totalPages}" placeholder="${currentPage}" aria-label="Jump to page"> <button id="jumpBtn">Go</button></div>`;
+    h += '<button class="next-page"' + (currentPage === totalPages ? ' disabled' : '') + '>Next ›</button>';
+    h += '<div class="page-jump"><label for="pageJump" style="font-size:12px;color:var(--text-muted)">Go to</label> <input type="number" id="pageJump" min="1" max="' + totalPages + '" placeholder="' + currentPage + '" aria-label="Jump to page"> <button id="jumpBtn">Go</button></div>';
     el.innerHTML = h;
 
     el.querySelectorAll('.page-numbers span[data-page]').forEach(function(sp) {
@@ -1541,34 +1430,33 @@
     };
     update();
     if (!gradientBound) {
-      sc.addEventListener('scroll', update, { passive: true });
+      sc.addEventListener('scroll', update, {passive:true});
       window.addEventListener('resize', update);
       gradientBound = true;
     }
   }
 
   // ======================= TOUCH SWIPE ON CARDS =======================
-  // _cardSwipeHappened flag prevents browser's synthetic click from opening modal after swipe
   var _cardSwipeHappened = false;
   (function() {
     const container = document.getElementById('normalContainer');
-    const excl      = document.getElementById('exclusiveGrid');
+    const excl = document.getElementById('exclusiveGrid');
     function addSwipe(el) {
       el.addEventListener('touchstart', function(e) {
         const ib = e.target.closest('.img-box');
         if (ib) ib._tx = e.changedTouches[0].screenX;
-      }, { passive: true });
+      }, {passive:true});
       el.addEventListener('touchend', function(e) {
-        const ib   = e.target.closest('.img-box');
+        const ib = e.target.closest('.img-box');
         if (!ib || ib._tx === undefined) return;
-        const dx   = e.changedTouches[0].screenX - ib._tx;
+        const dx = e.changedTouches[0].screenX - ib._tx;
         const card = ib.closest('.card');
         if (card && card.dataset.id) {
-          if (dx < -30) { changeImage(parseInt(card.dataset.id),  1); _cardSwipeHappened = true; }
-          if (dx >  30) { changeImage(parseInt(card.dataset.id), -1); _cardSwipeHappened = true; }
+          if (dx < -30) { changeImage(parseInt(card.dataset.id), 1); _cardSwipeHappened = true; }
+          if (dx > 30)  { changeImage(parseInt(card.dataset.id), -1); _cardSwipeHappened = true; }
         }
         delete ib._tx;
-      }, { passive: true });
+      }, {passive:true});
     }
     addSwipe(container);
     addSwipe(excl);
@@ -1592,23 +1480,18 @@
   });
 
   document.getElementById('clearFilters').addEventListener('click', function() {
-    document.getElementById('type').value     = 'all';
-    document.getElementById('area').value     = 'all';
+    document.getElementById('type').value = 'all';
+    document.getElementById('area').value = 'all';
     document.getElementById('bedrooms').value = 'all';
-    document.getElementById('sort').value     = 'default';
-    document.getElementById('search').value   = '';
+    document.getElementById('sort').value = 'default';
+    document.getElementById('search').value = '';
     document.getElementById('priceMin').value = '';
     document.getElementById('priceMax').value = '';
-    try { localStorage.removeItem(STORAGE.FILTERS); } catch(e) {}
+    try { localStorage.removeItem('feong_filters'); } catch(e) {}
     currentPage = 1;
     renderExclusive();
     renderNormalPaged();
     checkScrollGradient();
-  });
-
-  // Refresh button — re-fetches live data from Google Sheets
-  document.getElementById('refreshBtn').addEventListener('click', function() {
-    loadData();
   });
 
   // ======================= FAVOURITES / HISTORY ICONS =======================
@@ -1623,7 +1506,7 @@
 
   // ======================= BACK TO TOP =======================
   const btt = document.getElementById('backToTop');
-  window.addEventListener('scroll', function() { btt.classList.toggle('show', window.scrollY > 300); }, { passive: true });
+  window.addEventListener('scroll', function() { btt.classList.toggle('show', window.scrollY > 300); }, {passive:true});
   btt.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
   btt.addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
