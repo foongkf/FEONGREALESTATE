@@ -3,26 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes"/>
-  <title>Feong Real Estate — Penang | 更新字段 Land Area, Built Up, Condition</title>
+  <title>Feong Real Estate — Penang Property Listing</title>
   <style>
-    /* ---------- 与之前相同的样式，仅微调 ---------- */
     :root {
       --card-min-height: 380px;
       --card-min-height-mobile: 360px;
       --tag-bg: #f5f5f7;
-      --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 16px 28px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.05);
+      --shadow-md: 0 16px 28px rgba(0,0,0,0.1);
       --border-light: #e8e8ed;
       --text-dark: #1d1d1f;
       --text-muted: #6e6e73;
       --brand-blue: #0071e3;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -33,38 +27,27 @@
       overflow-x: hidden;
     }
 
-    /* 城市幻灯片背景 (不变) */
-    body::before {
-      content: '';
+    /* Smooth cross-fading background slideshow */
+    .bg-slide {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       z-index: -2;
       background-size: cover;
       background-position: center;
-      animation: bgSlide 25s infinite;
       filter: grayscale(15%) brightness(1.05);
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
     }
-    @keyframes bgSlide {
-      0%   { background-image: url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80'); }
-      25%  { background-image: url('https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80'); }
-      50%  { background-image: url('https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1200&q=80'); }
-      75%  { background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1200&q=80'); }
-      100% { background-image: url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80'); }
-    }
+    .bg-slide.active { opacity: 1; }
     body::after {
       content: '';
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.4);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.4);
       z-index: -1;
     }
 
+    /* Skeleton */
     .skeleton-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -76,10 +59,7 @@
       height: 380px;
       animation: pulse 1.2s infinite ease-in-out;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 0.9; }
-    }
+    @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 0.9; } }
 
     .container {
       max-width: 1400px;
@@ -89,10 +69,10 @@
       z-index: 1;
     }
 
+    /* Top bar */
     .top-bar {
       position: fixed;
-      top: 24px;
-      right: 28px;
+      top: 24px; right: 28px;
       z-index: 1000;
       display: flex;
       gap: 12px;
@@ -102,64 +82,56 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255,255,255,0.9);
       backdrop-filter: blur(20px);
       padding: 8px 18px;
       border-radius: 40px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-      border: 0.5px solid rgba(0, 0, 0, 0.05);
-      transition: all 0.2s ease;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      border: 0.5px solid rgba(0,0,0,0.05);
       cursor: default;
+      transition: all 0.2s ease;
     }
-    .floating-brand:hover {
-      background: white;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-    }
+    .floating-brand:hover { background: white; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
     .logo { font-size: 22px; opacity: 0.8; }
-    .brand-text .name {
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: -0.2px;
-      color: var(--text-dark);
-    }
-    .brand-text .sub {
-      font-size: 10px;
-      color: var(--text-muted);
-    }
+    .brand-text .name { font-size: 13px; font-weight: 500; letter-spacing: -0.2px; color: var(--text-dark); }
+    .brand-text .sub { font-size: 10px; color: var(--text-muted); }
     .icon-btn {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255,255,255,0.9);
       backdrop-filter: blur(20px);
-      border: 0.5px solid rgba(0, 0, 0, 0.05);
+      border: 0.5px solid rgba(0,0,0,0.05);
       border-radius: 40px;
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
     }
-    .icon-btn:hover {
-      background: white;
-      transform: scale(0.96);
-    }
+    .icon-btn:hover { background: white; transform: scale(0.96); }
 
+    /* Filters */
     .filters {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 32px;
-      margin-top: 0;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255,255,255,0.85);
       backdrop-filter: blur(16px);
-      padding: 16px 24px;
-      border-radius: 60px;
-      border: 0.5px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      padding: 14px 20px;
+      border-radius: 24px;
+      border: 0.5px solid rgba(0,0,0,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
-    select, input {
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      width: 100%;
+      align-items: center;
+    }
+    select, input[type="text"], input[type="number"], input[type="search"] {
       background: #ffffff;
       border: 1px solid #d2d2d7;
       border-radius: 40px;
@@ -176,28 +148,74 @@
       background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%2386868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
       background-repeat: no-repeat;
       background-position: right 14px center;
+      background-color: #ffffff;
       padding-right: 36px;
-    }
-    input {
-      flex: 1;
-      min-width: 180px;
     }
     select:focus, input:focus {
       border-color: var(--brand-blue);
       box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
     }
-
-    .exclusive-section {
-      margin-bottom: 48px;
-      position: relative;
+    .search-input { flex: 1; min-width: 160px; }
+    .price-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid #d2d2d7;
+      border-radius: 40px;
+      padding: 6px 14px;
+      font-size: 13px;
     }
+    .price-range input {
+      border: none;
+      border-radius: 0;
+      padding: 2px 4px;
+      width: 90px;
+      font-size: 12px;
+      box-shadow: none;
+    }
+    .price-range input:focus { box-shadow: none; border-color: transparent; }
+    .price-range span { color: var(--text-muted); font-size: 12px; }
+    .filter-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .clear-btn {
+      background: #ff3b30;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .clear-btn:hover { background: #e0352b; }
+
+    /* Data source notice */
+    .data-notice {
+      background: rgba(255, 149, 0, 0.1);
+      border: 1px solid rgba(255, 149, 0, 0.3);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #b25000;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .data-notice.hidden { display: none; }
+
+    /* Exclusive section */
+    .exclusive-section { margin-bottom: 48px; position: relative; }
     .exclusive-title {
       font-size: 13px;
       font-weight: 500;
       letter-spacing: 0.3px;
       text-transform: uppercase;
       color: var(--text-dark);
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255,255,255,0.7);
       backdrop-filter: blur(8px);
       display: inline-block;
       padding: 6px 16px;
@@ -214,22 +232,12 @@
       padding-bottom: 12px;
       scroll-behavior: smooth;
     }
-    .horizontal-scroll::-webkit-scrollbar {
-      height: 6px;
-    }
-    .horizontal-scroll::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.1);
-      border-radius: 10px;
-    }
-    .horizontal-scroll::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
+    .horizontal-scroll::-webkit-scrollbar { height: 6px; }
+    .horizontal-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    .horizontal-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 10px; }
     .scroll-gradient {
       position: absolute;
-      right: 0;
-      top: 30px;
-      bottom: 12px;
+      right: 0; top: 30px; bottom: 12px;
       width: 60px;
       background: linear-gradient(to right, transparent, rgba(255,255,255,0.8));
       pointer-events: none;
@@ -242,12 +250,9 @@
       white-space: normal;
       align-items: stretch;
     }
-    .exclusive-grid .card {
-      width: 280px;
-      flex-shrink: 0;
-      min-height: var(--card-min-height);
-    }
+    .exclusive-grid .card { width: 280px; flex-shrink: 0; min-height: var(--card-min-height); }
 
+    /* Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -263,6 +268,7 @@
       font-size: 15px;
     }
 
+    /* Card */
     .card {
       background: #ffffff;
       border-radius: 18px;
@@ -274,15 +280,15 @@
       flex-direction: column;
       height: 100%;
       position: relative;
+      cursor: pointer;
     }
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .card:focus-visible {
+      outline: 2px solid var(--brand-blue);
+      outline-offset: 2px;
     }
-    .gold-card {
-      background: #fffef7;
-      border-left: 3px solid #f5a623;
-    }
+    .gold-card { background: #fffef7; border-left: 3px solid #f5a623; }
+
     .img-box {
       position: relative;
       height: 160px;
@@ -291,55 +297,45 @@
       flex-shrink: 0;
     }
     .img-box img {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: cover;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.2s ease;
     }
-    .card:hover .img-box img {
-      transform: scale(1.02);
-    }
+    .card:hover .img-box img { transform: scale(1.02); }
     .badge {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 10px; left: 10px;
       background: rgba(0,0,0,0.75);
       backdrop-filter: blur(4px);
       color: #fff;
-      font-size: 9px;
-      font-weight: 500;
+      font-size: 9px; font-weight: 500;
       padding: 3px 8px;
       border-radius: 20px;
       z-index: 2;
     }
     .tag {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 10px; right: 10px;
       padding: 3px 10px;
       border-radius: 20px;
-      font-size: 9px;
-      font-weight: 600;
+      font-size: 9px; font-weight: 600;
       backdrop-filter: blur(4px);
       background: rgba(0,0,0,0.75);
       color: white;
       z-index: 2;
     }
-    .tag.sale { background: rgba(230, 60, 60, 0.9); }
-    .tag.rent { background: rgba(0, 113, 227, 0.9); }
+    .tag.sale { background: rgba(230,60,60,0.9); }
+    .tag.rent { background: rgba(0,113,227,0.9); }
 
     .nav {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 50%; transform: translateY(-50%);
       background: rgba(255,255,255,0.9);
       backdrop-filter: blur(8px);
       border: none;
-      width: 26px;
-      height: 26px;
+      width: 26px; height: 26px;
       border-radius: 30px;
-      font-size: 18px;
-      font-weight: 400;
+      font-size: 18px; font-weight: 400;
       color: var(--text-dark);
       cursor: pointer;
       display: flex;
@@ -350,12 +346,12 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .nav:hover { background: white; }
+    .nav:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
     .prev { left: 8px; }
     .next { right: 8px; }
     .image-counter {
       position: absolute;
-      bottom: 8px;
-      right: 8px;
+      bottom: 8px; right: 8px;
       background: rgba(0,0,0,0.6);
       backdrop-filter: blur(4px);
       color: white;
@@ -370,54 +366,46 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
     .content h3 {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 15px; font-weight: 600;
       letter-spacing: -0.2px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       color: var(--text-dark);
-      white-space: normal;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .price {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-dark);
-      margin: 6px 0 8px;
-    }
-    .info {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
+    .price { font-size: 17px; font-weight: 600; color: var(--text-dark); margin: 4px 0 6px; }
+    .info { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
     .detail-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin: 8px 0;
+      gap: 5px;
+      margin: 6px 0 10px;
+      overflow: hidden;
+      max-height: 68px;
     }
     .detail-tag {
       background: var(--tag-bg);
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 20px;
-      font-size: 10px;
-      font-weight: 500;
+      font-size: 10px; font-weight: 500;
       color: var(--text-dark);
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      letter-spacing: -0.2px;
+      gap: 3px;
+      letter-spacing: -0.1px;
+      white-space: nowrap;
     }
 
     .card-buttons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-top: auto;
-      padding: 0 14px 14px 14px;
+      padding: 0 12px 12px 12px;
       align-items: center;
     }
     .btn, .btn-outline {
@@ -426,39 +414,24 @@
       padding: 8px 0;
       border-radius: 12px;
       font-weight: 500;
-      font-size: 13px;
+      font-size: 12px;
       text-decoration: none;
       transition: all 0.2s;
       cursor: pointer;
       border: none;
       font-family: inherit;
-      min-width: 0;
     }
-    .btn {
-      background: var(--text-dark);
-      color: white;
-    }
-    .btn:hover {
-      background: #000;
-      transform: scale(0.97);
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #d2d2d7;
-      color: var(--text-dark);
-    }
-    .btn-outline:hover {
-      background: #f5f5f7;
-      border-color: var(--text-dark);
-    }
+    .btn { background: var(--text-dark); color: white; }
+    .btn:hover { background: #000; transform: scale(0.97); }
+    .btn-outline { background: transparent; border: 1px solid #d2d2d7; color: var(--text-dark); }
+    .btn-outline:hover { background: #f5f5f7; border-color: var(--text-dark); }
     .btn-fav {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       border-radius: 50%;
       background: transparent;
       border: 1px solid #d2d2d7;
       color: #ff3b30;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -467,11 +440,9 @@
       flex-shrink: 0;
       padding: 0;
     }
-    .btn-fav:hover {
-      background: #f5f5f7;
-      transform: scale(0.96);
-    }
+    .btn-fav:hover { background: #f5f5f7; transform: scale(0.96); }
 
+    /* Pagination */
     .pagination {
       display: flex;
       justify-content: center;
@@ -486,26 +457,15 @@
       border: 0.5px solid rgba(0,0,0,0.05);
       padding: 8px 16px;
       border-radius: 40px;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 13px; font-weight: 500;
       color: var(--text-dark);
       cursor: pointer;
       transition: all 0.2s;
       font-family: inherit;
     }
-    .pagination button:hover:not(:disabled) {
-      background: white;
-      transform: scale(0.96);
-    }
-    .pagination button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .page-numbers {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .pagination button:hover:not(:disabled) { background: white; transform: scale(0.96); }
+    .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-numbers { display: flex; gap: 8px; flex-wrap: wrap; }
     .page-numbers span {
       background: rgba(255,255,255,0.8);
       backdrop-filter: blur(8px);
@@ -516,25 +476,10 @@
       transition: 0.1s;
       border: 0.5px solid rgba(0,0,0,0.05);
     }
-    .page-numbers span.active {
-      background: var(--text-dark);
-      color: white;
-      border: none;
-    }
-    .page-numbers span:hover:not(.active) {
-      background: white;
-    }
-    .page-jump {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .page-jump input {
-      width: 60px;
-      text-align: center;
-      padding: 6px;
-      border-radius: 30px;
-    }
+    .page-numbers span.active { background: var(--text-dark); color: white; border: none; }
+    .page-numbers span:hover:not(.active) { background: white; }
+    .page-jump { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+    .page-jump input { width: 60px; text-align: center; padding: 6px; border-radius: 30px; }
 
     footer {
       text-align: center;
@@ -547,13 +492,12 @@
       font-size: 12px;
     }
 
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.8);
       backdrop-filter: blur(8px);
       z-index: 2000;
@@ -571,29 +515,16 @@
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
       animation: modalFadeIn 0.2s ease;
     }
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .modal-img-box {
-      position: relative;
-      height: 320px;
-      background: #f5f5f7;
-    }
-    .modal-img-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .modal-img-box { position: relative; height: 320px; background: #f5f5f7; user-select: none; }
+    .modal-img-box img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease; }
     .modal-nav {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 50%; transform: translateY(-50%);
       background: rgba(255,255,255,0.85);
       backdrop-filter: blur(8px);
       border: none;
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border-radius: 40px;
       font-size: 24px;
       cursor: pointer;
@@ -603,15 +534,13 @@
       justify-content: center;
       transition: 0.2s;
     }
-    .modal-nav:hover {
-      background: white;
-    }
+    .modal-nav:hover { background: white; }
+    .modal-nav:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
     .modal-prev { left: 16px; }
     .modal-next { right: 16px; }
     .modal-counter {
       position: absolute;
-      bottom: 16px;
-      right: 16px;
+      bottom: 16px; right: 16px;
       background: rgba(0,0,0,0.6);
       backdrop-filter: blur(4px);
       color: white;
@@ -622,15 +551,13 @@
     }
     .modal-close {
       position: absolute;
-      top: 16px;
-      right: 16px;
+      top: 16px; right: 16px;
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(8px);
       border: none;
       color: white;
       font-size: 20px;
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border-radius: 40px;
       cursor: pointer;
       display: flex;
@@ -639,44 +566,13 @@
       z-index: 10;
       transition: 0.2s;
     }
-    .modal-close:hover {
-      background: rgba(0,0,0,0.8);
-    }
-    .modal-details {
-      padding: 24px;
-    }
-    .modal-details h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .modal-price {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin: 12px 0 8px;
-    }
-    .modal-area {
-      font-size: 16px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .modal-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 16px 0;
-    }
-    .modal-tag {
-      background: #f5f5f7;
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 500;
-    }
+    .modal-close:hover { background: rgba(0,0,0,0.8); }
+    .modal-details { padding: 24px; }
+    .modal-details h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .modal-price { font-size: 26px; font-weight: 700; color: var(--text-dark); margin: 10px 0 6px; }
+    .modal-area { font-size: 15px; color: var(--text-muted); margin-bottom: 14px; }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    .modal-tag { background: #f5f5f7; padding: 6px 14px; border-radius: 30px; font-size: 13px; font-weight: 500; }
     .modal-wa-btn {
       display: block;
       background: #25D366;
@@ -689,11 +585,9 @@
       margin-top: 20px;
       transition: 0.2s;
     }
-    .modal-wa-btn:hover {
-      background: #1ebe5d;
-      transform: scale(0.98);
-    }
+    .modal-wa-btn:hover { background: #1ebe5d; transform: scale(0.98); }
 
+    /* Small modals */
     .small-modal-content {
       max-width: 500px;
       background: white;
@@ -701,24 +595,17 @@
       padding: 20px;
       max-height: 80vh;
       overflow-y: auto;
+      width: 100%;
     }
     .small-modal-content h3 {
-      font-size: 20px;
-      font-weight: 600;
+      font-size: 18px; font-weight: 600;
       margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .small-modal-content .close-small {
-      cursor: pointer;
-      font-size: 24px;
-    }
-    .favorite-list, .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .small-modal-content .close-small { cursor: pointer; font-size: 22px; }
+    .favorite-list, .history-list { display: flex; flex-direction: column; gap: 12px; }
     .favorite-item, .history-item {
       display: flex;
       gap: 12px;
@@ -729,44 +616,22 @@
       cursor: pointer;
       transition: 0.1s;
     }
-    .favorite-item:hover, .history-item:hover {
-      background: #e8e8ed;
-    }
-    .favorite-item img, .history-item img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-    .favorite-item .info, .history-item .info {
-      flex: 1;
-    }
-    .favorite-item .title, .history-item .title {
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .favorite-item .price, .history-item .price {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .remove-fav {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: #ff3b30;
-      padding: 4px;
-    }
+    .favorite-item:hover, .history-item:hover { background: #e8e8ed; }
+    .favorite-item img, .history-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; }
+    .fav-info { flex: 1; }
+    .fav-info .title { font-weight: 600; font-size: 13px; }
+    .fav-info .price { font-size: 12px; color: var(--text-muted); }
+    .fav-info .area { font-size: 11px; color: var(--text-muted); }
+    .remove-fav { background: none; border: none; font-size: 16px; cursor: pointer; color: #ff3b30; padding: 4px; }
 
+    /* Back to top */
     .back-to-top {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 48px;
-      height: 48px;
-      background: rgba(255, 255, 255, 0.9);
+      bottom: 24px; right: 24px;
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,0.9);
       backdrop-filter: blur(12px);
-      border: 0.5px solid rgba(0, 0, 0, 0.1);
+      border: 0.5px solid rgba(0,0,0,0.1);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -774,38 +639,54 @@
       font-size: 24px;
       cursor: pointer;
       z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
       opacity: 0;
       visibility: hidden;
     }
-    .back-to-top.show {
-      opacity: 1;
-      visibility: visible;
-    }
-    .back-to-top:hover {
-      background: white;
-      transform: scale(1.05);
+    .back-to-top.show { opacity: 1; visibility: visible; }
+    .back-to-top:hover { background: white; transform: scale(1.05); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .floating-brand .brand-text .sub { display: none; }
     }
     @media (max-width: 768px) {
-      .container { padding: 1.2rem 1rem; }
-      .filters { margin-top: 60px; margin-bottom: 24px; padding: 12px 18px; }
-      .exclusive-grid .card { width: 260px; min-height: var(--card-min-height-mobile); }
-      .grid { gap: 14px; }
+      .container { padding: 1rem 0.75rem; }
+      .filters { margin-top: 68px; margin-bottom: 20px; padding: 12px 14px; border-radius: 18px; gap: 8px; }
+      .filter-row { gap: 8px; }
+      .search-input { min-width: 120px; }
+      .price-range input { width: 70px; }
+      .exclusive-grid .card { width: 250px; min-height: var(--card-min-height-mobile); }
+      .grid { gap: 12px; }
       .pagination button, .page-numbers span { padding: 6px 12px; font-size: 12px; }
       .detail-tag { font-size: 9px; padding: 3px 8px; }
-      .modal-img-box { height: 250px; }
-      .modal-details h2 { font-size: 20px; }
-      .modal-price { font-size: 24px; }
-      .top-bar { top: 16px; right: 16px; }
-      .icon-btn { width: 40px; height: 40px; font-size: 18px; }
-      .btn-fav { width: 28px; height: 28px; font-size: 14px; }
-      .card-buttons { gap: 8px; }
-      .btn, .btn-outline { padding: 6px 0; font-size: 12px; }
+      .modal-img-box { height: 240px; }
+      .modal-details h2 { font-size: 18px; }
+      .modal-price { font-size: 22px; }
+      .top-bar { top: 14px; right: 14px; gap: 8px; }
+      .icon-btn { width: 38px; height: 38px; font-size: 17px; }
+      .btn-fav { width: 28px; height: 28px; font-size: 13px; }
+      .card-buttons { gap: 6px; padding: 0 10px 10px; }
+      .btn, .btn-outline { padding: 7px 0; font-size: 11px; }
+      .floating-brand { padding: 6px 12px; gap: 8px; }
+      .logo { font-size: 18px; }
+      .brand-text .name { font-size: 11px; }
+    }
+    @media (max-width: 480px) {
+      .floating-brand { display: none; }
+      .top-bar { right: 10px; top: 10px; }
+      .filters { margin-top: 56px; }
     }
   </style>
 </head>
 <body>
+
+<!-- Smooth crossfade background slides -->
+<div class="bg-slide" id="bg0" style="background-image:url('https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80')"></div>
+<div class="bg-slide" id="bg1" style="background-image:url('https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80')"></div>
+<div class="bg-slide" id="bg2" style="background-image:url('https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1200&q=80')"></div>
+<div class="bg-slide" id="bg3" style="background-image:url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1200&q=80')"></div>
 
 <div class="top-bar">
   <div class="floating-brand">
@@ -815,24 +696,46 @@
       <div class="sub">Penang Property Listing</div>
     </div>
   </div>
-  <div class="icon-btn" id="favoritesIcon" aria-label="Favorites">❤️</div>
-  <div class="icon-btn" id="historyIcon" aria-label="Recently viewed">🕒</div>
+  <div class="icon-btn" id="favoritesIcon" role="button" tabindex="0" aria-label="Favorites">❤️</div>
+  <div class="icon-btn" id="historyIcon" role="button" tabindex="0" aria-label="Recently viewed">🕒</div>
 </div>
 
 <div class="container">
   <div class="filters">
-    <select id="type" aria-label="Property type">
-      <option value="all">All</option>
-      <option value="sale">For Sale</option>
-      <option value="rent">For Rent</option>
-    </select>
-    <select id="area" aria-label="Area"><option value="all">Area</option></select>
-    <select id="sort" aria-label="Sort by">
-      <option value="default">Default</option>
-      <option value="low">Price Low → High</option>
-      <option value="high">Price High → Low</option>
-    </select>
-    <input id="search" placeholder="Search by property name..." aria-label="Search"/>
+    <div class="filter-row">
+      <select id="type" aria-label="Property type">
+        <option value="all">All Types</option>
+        <option value="sale">For Sale</option>
+        <option value="rent">For Rent</option>
+      </select>
+      <select id="area" aria-label="Area"><option value="all">All Areas</option></select>
+      <select id="bedrooms" aria-label="Bedrooms">
+        <option value="all">Any Beds</option>
+        <option value="1">1 Bed</option>
+        <option value="2">2 Beds</option>
+        <option value="3">3 Beds</option>
+        <option value="4">4+ Beds</option>
+      </select>
+      <select id="sort" aria-label="Sort by">
+        <option value="default">Default</option>
+        <option value="low">Price Low → High</option>
+        <option value="high">Price High → Low</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <input type="search" id="search" class="search-input" placeholder="Search by name or area..." aria-label="Search"/>
+      <div class="price-range" role="group" aria-label="Price range">
+        <span>RM</span>
+        <input type="number" id="priceMin" placeholder="Min" min="0" step="10000" aria-label="Minimum price"/>
+        <span>–</span>
+        <input type="number" id="priceMax" placeholder="Max" min="0" step="10000" aria-label="Maximum price"/>
+      </div>
+      <button class="clear-btn" id="clearFilters">Clear Filters</button>
+    </div>
+  </div>
+
+  <div id="dataNotice" class="data-notice hidden">
+    ⚠️ Could not load live data — showing sample listings instead.
   </div>
 
   <div class="exclusive-section">
@@ -840,7 +743,7 @@
     <div class="horizontal-scroll" id="exclusiveScroll">
       <div class="exclusive-grid" id="exclusiveGrid"></div>
     </div>
-    <div class="scroll-gradient" id="scrollGradient" style="display: none;"></div>
+    <div class="scroll-gradient" id="scrollGradient" style="display:none;"></div>
   </div>
 
   <div id="normalContainer">
@@ -848,14 +751,14 @@
     <div class="pagination" id="pagination"></div>
   </div>
 </div>
+
 <footer>FEONG: 014-7405020 | REN 61687 | Today Properties</footer>
+<div class="back-to-top" id="backToTop" role="button" tabindex="0" aria-label="Back to top">↑</div>
 
-<div class="back-to-top" id="backToTop" aria-label="Back to top">↑</div>
-
-<!-- 详情模态框 -->
-<div id="detailModal" class="modal">
+<!-- Detail Modal -->
+<div id="detailModal" class="modal" role="dialog" aria-modal="true" aria-label="Property details">
   <div class="modal-content">
-    <div class="modal-img-box">
+    <div class="modal-img-box" id="modalImgBox">
       <img id="modalImage" src="" alt="Property image">
       <button class="modal-nav modal-prev" id="modalPrev" aria-label="Previous image">‹</button>
       <button class="modal-nav modal-next" id="modalNext" aria-label="Next image">›</button>
@@ -867,236 +770,257 @@
       <div class="modal-price" id="modalPrice"></div>
       <div class="modal-area" id="modalArea"></div>
       <div class="modal-tags" id="modalTags"></div>
-      <a href="#" id="modalWALink" class="modal-wa-btn" target="_blank">📲 Contact via WhatsApp</a>
+      <a href="#" id="modalWALink" class="modal-wa-btn" target="_blank" rel="noopener noreferrer">📲 Contact via WhatsApp</a>
     </div>
   </div>
 </div>
 
-<!-- 收藏夹模态框 -->
-<div id="favoritesModal" class="modal">
+<!-- Favorites Modal -->
+<div id="favoritesModal" class="modal" role="dialog" aria-modal="true" aria-label="Favourites">
   <div class="small-modal-content">
-    <h3>❤️ Favorites <span class="close-small" id="closeFavorites" aria-label="Close">✕</span></h3>
+    <h3>❤️ Favourites <span class="close-small" id="closeFavorites" role="button" tabindex="0" aria-label="Close">✕</span></h3>
     <div id="favoritesList" class="favorite-list"></div>
   </div>
 </div>
 
-<!-- 最近浏览模态框 -->
-<div id="historyModal" class="modal">
+<!-- History Modal -->
+<div id="historyModal" class="modal" role="dialog" aria-modal="true" aria-label="Recently Viewed">
   <div class="small-modal-content">
-    <h3>🕒 Recently Viewed <span class="close-small" id="closeHistory" aria-label="Close">✕</span></h3>
+    <h3>🕒 Recently Viewed <span class="close-small" id="closeHistory" role="button" tabindex="0" aria-label="Close">✕</span></h3>
     <div id="historyList" class="history-list"></div>
   </div>
 </div>
 
 <script>
-  // ======================= 工具函数 =======================
+  // ======================= CONFIG =======================
+  const WA_NUMBER = '60147405020';
+  const ITEMS_PER_PAGE = 12;
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
+
+  // ======================= BACKGROUND SLIDESHOW =======================
+  (function() {
+    const slides = document.querySelectorAll('.bg-slide');
+    let current = 0;
+    slides[current].classList.add('active');
+    setInterval(function() {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 6000);
+  })();
+
+  // ======================= UTILS =======================
   function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
+    return String(str).replace(/[&<>"']/g, function(m) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
     });
   }
 
-  function formatPrice(priceRaw) {
-    if (!priceRaw) return '';
-    let numStr = priceRaw.toString().replace(/[^0-9]/g, '');
-    if (numStr === '') return '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return priceRaw;
-    let formatted = num.toLocaleString('en-US');
-    return `RM ${formatted}`;
+  function formatPrice(raw) {
+    if (!raw) return '';
+    const numStr = raw.toString().replace(/[^0-9]/g, '');
+    if (!numStr) return '';
+    const num = parseInt(numStr, 10);
+    if (isNaN(num)) return raw;
+    return 'RM ' + num.toLocaleString('en-US');
   }
 
-  function getPriceNumber(priceStr) {
-    if (!priceStr) return 0;
-    const num = parseFloat(priceStr.toString().replace(/[^0-9]/g, ''));
-    return isNaN(num) ? 0 : num;
+  function getPriceNumber(str) {
+    if (!str) return 0;
+    const n = parseFloat(str.toString().replace(/[^0-9]/g, ''));
+    return isNaN(n) ? 0 : n;
   }
 
-  function formatImgUrl(url, size = 'small') {
+  function formatImgUrl(url, size) {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      if (match && match[1]) {
-        const sz = size === 'small' ? 'w400' : 'w1200';
-        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=${sz}`;
-      }
-      const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (idMatch) {
-        const sz = size === 'small' ? 'w400' : 'w1200';
-        return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=${sz}`;
-      }
+      const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      const id = (m && m[1]) || (m2 && m2[1]);
+      if (id) return 'https://drive.google.com/thumbnail?id=' + id + '&sz=' + (size === 'large' ? 'w1200' : 'w400');
     }
     return url;
   }
 
-  function parseImages(raw, size = 'small') {
+  function parseImages(raw, size) {
     if (!raw) return ['https://placehold.co/600x400/f5f5f7/86868b?text=No+Image'];
-    return raw.split('|').map(s => s.trim()).filter(Boolean).map(url => formatImgUrl(url, size));
+    const imgs = raw.split('|').map(s => s.trim()).filter(Boolean).map(u => formatImgUrl(u, size));
+    return imgs.length ? imgs : ['https://placehold.co/600x400/f5f5f7/86868b?text=No+Image'];
   }
 
-  function buildWALink(property) {
-    const imageUrl = property.imagesSmall && property.imagesSmall[0] ? property.imagesSmall[0] : '';
-    const msg = `Hi, I’m interested in this property:\n🏠 ${property.title}\n📍 ${property.area}\n💰 ${property.price}\n📐 Land Area: ${property.landArea} sqft\n🏢 Built Up: ${property.builtUp} sqft\n🛏 ${property.bedroom} bed\n🚿 ${property.bathroom} bath\n🔧 Condition: ${property.condition}\n🛠 ${property.renovate} reno\n🪑 ${property.furnish} furnish\n🚗 ${property.parking} park\n📜 ${property.tenure}\n\n📸 Image: ${imageUrl}\n\nPlease give me more details.`;
-    return `https://wa.me/60147405020?text=${encodeURIComponent(msg)}`;
+  function buildWALink(p) {
+    const imgUrl = p.imagesSmall && p.imagesSmall[0] ? p.imagesSmall[0] : '';
+    const msg = [
+      'Hi, I\'m interested in this property:',
+      '\uD83C\uDFE0 ' + p.title,
+      '\uD83D\uDCCD ' + p.area,
+      '\uD83D\uDCB0 ' + p.price,
+      '\uD83C\uDF3F Land Area: ' + (p.landArea || '-') + ' sqft',
+      '\uD83C\uDFE2 Built Up: ' + (p.builtUp || '-') + ' sqft',
+      '\uD83D\uDECF ' + p.bedroom + ' bed',
+      '\uD83D\uDEBF ' + p.bathroom + ' bath',
+      '\uD83D\uDD27 Condition: ' + p.condition,
+      '\uD83D\uDEE0 ' + p.renovate + ' reno',
+      '\uD83E\uDE91 ' + p.furnish + ' furnish',
+      '\uD83D\uDE97 ' + p.parking + ' park',
+      '\uD83D\uDCDC ' + p.tenure,
+      '',
+      '\uD83D\uDCF8 Image: ' + imgUrl,
+      '',
+      'Please give me more details.'
+    ].join('\n');
+    return 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg);
   }
 
-  // ======================= localStorage 操作 =======================
-  function getFavorites() { return JSON.parse(localStorage.getItem('favorites') || '[]'); }
-  function saveFavorites(favorites) { localStorage.setItem('favorites', JSON.stringify(favorites)); }
-  function toggleFavorite(propertyId) {
-    let favs = getFavorites();
-    if (favs.includes(propertyId)) favs = favs.filter(id => id !== propertyId);
-    else favs.push(propertyId);
-    saveFavorites(favs);
-    return favs.includes(propertyId);
+  // ======================= LOCALSTORAGE =======================
+  function getFavorites() { try { return JSON.parse(localStorage.getItem('feong_favorites') || '[]'); } catch(e) { return []; } }
+  function saveFavorites(f) { try { localStorage.setItem('feong_favorites', JSON.stringify(f)); } catch(e) {} }
+  function toggleFavorite(id) {
+    let f = getFavorites();
+    if (f.includes(id)) f = f.filter(x => x !== id);
+    else f.push(id);
+    saveFavorites(f);
+    return f.includes(id);
   }
-  function isFavorite(propertyId) { return getFavorites().includes(propertyId); }
+  function isFavorite(id) { return getFavorites().includes(id); }
 
-  function getRecentViews() { return JSON.parse(localStorage.getItem('recentViews') || '[]'); }
-  function addRecentView(propertyId) {
-    let recents = getRecentViews();
-    recents = recents.filter(id => id !== propertyId);
-    recents.unshift(propertyId);
-    if (recents.length > 10) recents.pop();
-    localStorage.setItem('recentViews', JSON.stringify(recents));
+  function getRecentViews() { try { return JSON.parse(localStorage.getItem('feong_recent') || '[]'); } catch(e) { return []; } }
+  function addRecentView(id) {
+    let r = getRecentViews();
+    r = r.filter(x => x !== id);
+    r.unshift(id);
+    if (r.length > 10) r.pop();
+    try { localStorage.setItem('feong_recent', JSON.stringify(r)); } catch(e) {}
   }
 
   function saveFilters() {
-    const filters = {
-      type: document.getElementById('type').value,
-      area: document.getElementById('area').value,
-      sort: document.getElementById('sort').value,
-      search: document.getElementById('search').value
-    };
-    localStorage.setItem('propertyFilters', JSON.stringify(filters));
+    try {
+      localStorage.setItem('feong_filters', JSON.stringify({
+        type: document.getElementById('type').value,
+        area: document.getElementById('area').value,
+        bedrooms: document.getElementById('bedrooms').value,
+        sort: document.getElementById('sort').value,
+        search: document.getElementById('search').value,
+        priceMin: document.getElementById('priceMin').value,
+        priceMax: document.getElementById('priceMax').value
+      }));
+    } catch(e) {}
   }
   function loadFilters() {
-    const saved = localStorage.getItem('propertyFilters');
-    if (saved) {
-      const filters = JSON.parse(saved);
-      if (filters.type) document.getElementById('type').value = filters.type;
-      if (filters.area) document.getElementById('area').value = filters.area;
-      if (filters.sort && ['default','low','high'].includes(filters.sort)) document.getElementById('sort').value = filters.sort;
-      else if (filters.sort) document.getElementById('sort').value = 'default';
-      if (filters.search) document.getElementById('search').value = filters.search;
-    }
+    try {
+      const saved = JSON.parse(localStorage.getItem('feong_filters') || '{}');
+      if (saved.type) document.getElementById('type').value = saved.type;
+      if (saved.area) document.getElementById('area').value = saved.area;
+      if (saved.bedrooms) document.getElementById('bedrooms').value = saved.bedrooms;
+      if (saved.sort && ['default','low','high'].includes(saved.sort)) document.getElementById('sort').value = saved.sort;
+      if (saved.search) document.getElementById('search').value = saved.search;
+      if (saved.priceMin) document.getElementById('priceMin').value = saved.priceMin;
+      if (saved.priceMax) document.getElementById('priceMax').value = saved.priceMax;
+    } catch(e) {}
   }
 
-  // ======================= 数据加载与解析（适配新列结构） =======================
+  // ======================= DATA =======================
   let allProperties = [];
   let imgIndex = {};
   let currentPage = 1;
-  const ITEMS_PER_PAGE = 12;
   let currentModalProperty = null;
   let currentModalImageIndex = 0;
 
-  // 新的列映射：共15列（索引0~14）
-  // 0:Title, 1:Area, 2:LandArea, 3:BuiltUp, 4:Bedroom, 5:Bathroom, 6:Condition, 7:Renovate,
-  // 8:Furnish, 9:Parking, 10:Tenure, 11:Type, 12:Price, 13:Exclusive, 14:ImagesRaw
-  function parseCSVRow(line, expectedCols = 15) {
+  // Column map (0-indexed): 0:Title 1:Area 2:LandArea 3:BuiltUp 4:Bedroom 5:Bathroom 6:Condition
+  // 7:Renovate 8:Furnish 9:Parking 10:Tenure 11:Type 12:Price 13:Exclusive 14:ImagesRaw
+  function parseCSVRow(line, expected) {
     const result = [];
-    let inQuote = false;
-    let current = '';
+    let inQ = false, cur = '';
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
-      if (ch === '"') inQuote = !inQuote;
-      else if (ch === ',' && !inQuote) {
-        result.push(current.trim());
-        current = '';
-      } else current += ch;
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+      else cur += ch;
     }
-    result.push(current.trim());
-    // 如果列数不足，补空字符串
-    while(result.length < expectedCols) result.push('');
+    result.push(cur.trim());
+    while (result.length < expected) result.push('');
     return result;
   }
 
-  function buildPropertiesFromCSV(csvText) {
+  function buildFromCSV(csvText) {
     const lines = csvText.split(/\r?\n/).filter(l => l.trim());
     if (lines.length < 2) return [];
-    const properties = [];
+    const props = [];
     for (let i = 1; i < lines.length; i++) {
-      const cols = parseCSVRow(lines[i], 15);
-      if (cols.length < 15 || !cols[0]) continue;
-
-      const rawPrice = cols[12] || '';
-      const formattedPrice = formatPrice(rawPrice);
-      const priceNum = getPriceNumber(rawPrice);
-      const exclusiveFlag = (cols[13] || '').toLowerCase() === 'yes';
-
+      const c = parseCSVRow(lines[i], 15);
+      if (!c[0]) continue;
+      const rawPrice = c[12] || '';
       const prop = {
         id: i,
-        title: escapeHtml(cols[0] || ''),
-        area: escapeHtml(cols[1] || ''),
-        landArea: escapeHtml(cols[2] || ''),      // 原size改为land area
-        builtUp: escapeHtml(cols[3] || ''),       // 新增
-        bedroom: escapeHtml(cols[4] || ''),
-        bathroom: escapeHtml(cols[5] || ''),
-        condition: escapeHtml(cols[6] || ''),     // 新增
-        renovate: escapeHtml(cols[7] || ''),
-        furnish: escapeHtml(cols[8] || ''),
-        parking: escapeHtml(cols[9] || ''),
-        tenure: escapeHtml(cols[10] || '').toLowerCase(),
-        type: (cols[11] || '').toLowerCase(),
-        price: formattedPrice,
-        priceNum: priceNum,
-        exclusive: exclusiveFlag,
-        imagesRaw: cols[14] || ''
+        title: c[0] || '',
+        area: c[1] || '',
+        landArea: c[2] || '',
+        builtUp: c[3] || '',
+        bedroom: c[4] || '',
+        bathroom: c[5] || '',
+        condition: c[6] || '',
+        renovate: c[7] || '',
+        furnish: c[8] || '',
+        parking: c[9] || '',
+        tenure: (c[10] || '').toLowerCase(),
+        type: (c[11] || '').toLowerCase(),
+        price: formatPrice(rawPrice),
+        priceNum: getPriceNumber(rawPrice),
+        exclusive: (c[13] || '').toLowerCase() === 'yes',
+        imagesRaw: c[14] || ''
       };
       prop.imagesSmall = parseImages(prop.imagesRaw, 'small');
       prop.imagesLarge = parseImages(prop.imagesRaw, 'large');
-      properties.push(prop);
+      props.push(prop);
     }
-    return properties;
+    return props;
   }
 
-  // 示例数据（用于演示新字段）
   function getSampleProperties() {
-    return [
-      { id: 1, title: "The Maritime Suite", area: "Gurney Drive", landArea: "1250", builtUp: "2100", bedroom: "3", bathroom: "2", condition: "Excellent", renovate: "Fully", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1250000", exclusive: true, imagesRaw: "https://placehold.co/800x500/0071e3/white?text=Maritime|https://placehold.co/800x500/f5a623/white?text=Maritime+2" },
-      { id: 2, title: "Quayside Residence", area: "Tanjung Tokong", landArea: "980", builtUp: "1650", bedroom: "2", bathroom: "2", condition: "Good", renovate: "Partly", furnish: "Fully", parking: "1", tenure: "freehold", type: "sale", priceRaw: "890000", exclusive: false, imagesRaw: "https://placehold.co/800x500/34c759/white?text=Quayside" },
-      { id: 3, title: "Penang World City", area: "Bayan Lepas", landArea: "1100", builtUp: "1350", bedroom: "3", bathroom: "2", condition: "Standard", renovate: "Standard", furnish: "Empty", parking: "2", tenure: "leasehold", type: "rent", priceRaw: "2800", exclusive: false, imagesRaw: "https://placehold.co/800x500/ff3b30/white?text=PWC" },
-      { id: 4, title: "Seri Tanjung Pinang", area: "Tanjung Tokong", landArea: "1500", builtUp: "2800", bedroom: "4", bathroom: "3", condition: "Luxury", renovate: "Luxury", furnish: "Fully", parking: "2", tenure: "freehold", type: "sale", priceRaw: "2100000", exclusive: true, imagesRaw: "https://placehold.co/800x500/f5a623/white?text=STP" },
-      { id: 5, title: "The Light Waterfront", area: "Jelutong", landArea: "1350", builtUp: "1950", bedroom: "3", bathroom: "2", condition: "Renovated", renovate: "New", furnish: "Partly", parking: "2", tenure: "freehold", type: "sale", priceRaw: "1480000", exclusive: false, imagesRaw: "https://placehold.co/800x500/5856d6/white?text=Light" }
-    ].map(p => {
-      const formattedPrice = formatPrice(p.priceRaw);
-      return {
-        ...p,
-        price: formattedPrice,
-        priceNum: getPriceNumber(p.priceRaw),
-        imagesSmall: parseImages(p.imagesRaw, 'small'),
-        imagesLarge: parseImages(p.imagesRaw, 'large')
-      };
-    });
+    const raw = [
+      { id:1, title:"The Maritime Suite", area:"Gurney Drive", landArea:"1250", builtUp:"2100", bedroom:"3", bathroom:"2", condition:"Excellent", renovate:"Fully", furnish:"Partly", parking:"2", tenure:"freehold", type:"sale", priceRaw:"1250000", exclusive:true, img:"https://placehold.co/800x500/0071e3/white?text=Maritime" },
+      { id:2, title:"Quayside Residence", area:"Tanjung Tokong", landArea:"980", builtUp:"1650", bedroom:"2", bathroom:"2", condition:"Good", renovate:"Partly", furnish:"Fully", parking:"1", tenure:"freehold", type:"sale", priceRaw:"890000", exclusive:false, img:"https://placehold.co/800x500/34c759/white?text=Quayside" },
+      { id:3, title:"Penang World City", area:"Bayan Lepas", landArea:"1100", builtUp:"1350", bedroom:"3", bathroom:"2", condition:"Standard", renovate:"Standard", furnish:"Empty", parking:"2", tenure:"leasehold", type:"rent", priceRaw:"2800", exclusive:false, img:"https://placehold.co/800x500/ff3b30/white?text=PWC" },
+      { id:4, title:"Seri Tanjung Pinang", area:"Tanjung Tokong", landArea:"1500", builtUp:"2800", bedroom:"4", bathroom:"3", condition:"Luxury", renovate:"Luxury", furnish:"Fully", parking:"2", tenure:"freehold", type:"sale", priceRaw:"2100000", exclusive:true, img:"https://placehold.co/800x500/f5a623/white?text=STP" },
+      { id:5, title:"The Light Waterfront", area:"Jelutong", landArea:"1350", builtUp:"1950", bedroom:"3", bathroom:"2", condition:"Renovated", renovate:"New", furnish:"Partly", parking:"2", tenure:"freehold", type:"sale", priceRaw:"1480000", exclusive:false, img:"https://placehold.co/800x500/5856d6/white?text=Light" },
+      { id:6, title:"Summerton Bungalow", area:"Batu Maung", landArea:"3200", builtUp:"4500", bedroom:"5", bathroom:"4", condition:"Excellent", renovate:"Luxury", furnish:"Fully", parking:"4", tenure:"freehold", type:"sale", priceRaw:"3500000", exclusive:true, img:"https://placehold.co/800x500/30d158/white?text=Summerton" },
+      { id:7, title:"Botanica CT", area:"Balik Pulau", landArea:"1800", builtUp:"2300", bedroom:"4", bathroom:"3", condition:"Good", renovate:"Partly", furnish:"Empty", parking:"2", tenure:"freehold", type:"sale", priceRaw:"980000", exclusive:false, img:"https://placehold.co/800x500/64d2ff/white?text=Botanica" },
+      { id:8, title:"One Foresta", area:"Batu Maung", landArea:"1200", builtUp:"1680", bedroom:"3", bathroom:"2", condition:"Good", renovate:"Standard", furnish:"Partly", parking:"2", tenure:"freehold", type:"rent", priceRaw:"3200", exclusive:false, img:"https://placehold.co/800x500/bf5af2/white?text=Foresta" }
+    ];
+    return raw.map(p => ({
+      ...p,
+      price: formatPrice(p.priceRaw),
+      priceNum: getPriceNumber(p.priceRaw),
+      imagesSmall: parseImages(p.img, 'small'),
+      imagesLarge: parseImages(p.img, 'large')
+    }));
   }
 
-  async function fetchWithRetry(url, retries = 3) {
+  async function fetchWithRetry(url, retries) {
     for (let i = 0; i < retries; i++) {
       try {
-        const resp = await fetch(url);
-        if (resp.ok) return await resp.text();
+        const r = await fetch(url);
+        if (r.ok) return await r.text();
       } catch(e) {}
-      if (i < retries - 1) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+      if (i < retries - 1) await new Promise(res => setTimeout(res, 1000 * (i + 1)));
     }
-    throw new Error('Failed to load data');
+    throw new Error('Failed to fetch');
   }
 
   async function loadData() {
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwWRAXHV6rHGwMwJRt3u0DZ9n3SXfWbbmbJcRjzcFfTEjAGMapqPer8ajYk7lOKNCCSzbJWwuMylS1/pub?output=csv";
     showSkeleton();
+    let usedSample = false;
     try {
-      const csvText = await fetchWithRetry(SHEET_URL);
-      const properties = buildPropertiesFromCSV(csvText);
-      if (properties.length === 0) throw new Error("No valid rows");
-      allProperties = properties;
-    } catch (err) {
-      console.warn("Using sample data with new fields", err);
+      const csv = await fetchWithRetry(SHEET_URL, 3);
+      const props = buildFromCSV(csv);
+      if (!props.length) throw new Error('Empty');
+      allProperties = props;
+    } catch(e) {
       allProperties = getSampleProperties();
+      usedSample = true;
     }
+    document.getElementById('dataNotice').classList.toggle('hidden', !usedSample);
     allProperties.forEach(p => { imgIndex[p.id] = 0; });
     populateAreaFilter();
     loadFilters();
@@ -1107,172 +1031,234 @@
   }
 
   function showSkeleton() {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = '<div class="skeleton-grid">' + Array(6).fill('<div class="skeleton-card"></div>').join('') + '</div>';
+    document.getElementById('grid').innerHTML =
+      '<div class="skeleton-grid">' + Array(6).fill('<div class="skeleton-card"></div>').join('') + '</div>';
   }
 
   function populateAreaFilter() {
-    const areas = [...new Set(allProperties.map(p => p.area).filter(a => a))];
-    const areaSelect = document.getElementById('area');
-    areaSelect.innerHTML = '<option value="all">Area</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+    const areas = [...new Set(allProperties.map(p => p.area).filter(Boolean))].sort();
+    const sel = document.getElementById('area');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="all">All Areas</option>' + areas.map(a => '<option value="' + escapeHtml(a) + '">' + escapeHtml(a) + '</option>').join('');
+    if (cur && areas.includes(cur)) sel.value = cur;
   }
 
-  function getFilteredProperties(includeExclusive) {
+  // ======================= FILTERING =======================
+  function getFilteredProperties(exclusiveOnly) {
     const typeVal = document.getElementById('type').value;
     const areaVal = document.getElementById('area').value;
-    const searchVal = document.getElementById('search').value.trim().toLowerCase();
+    const bedsVal = document.getElementById('bedrooms').value;
     const sortVal = document.getElementById('sort').value;
+    const searchVal = document.getElementById('search').value.trim().toLowerCase();
+    const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
+    const priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
 
-    let filtered = allProperties.filter(p => {
+    let list = allProperties.filter(p => {
+      if (p.exclusive !== (exclusiveOnly === true)) return false;
       if (typeVal !== 'all' && !p.type.includes(typeVal)) return false;
       if (areaVal !== 'all' && p.area !== areaVal) return false;
-      if (searchVal && !p.title.toLowerCase().includes(searchVal)) return false;
-      if (includeExclusive) return p.exclusive === true;
-      else return p.exclusive === false;
+      if (bedsVal !== 'all') {
+        const beds = parseInt(p.bedroom) || 0;
+        if (bedsVal === '4') { if (beds < 4) return false; }
+        else if (beds !== parseInt(bedsVal)) return false;
+      }
+      if (searchVal) {
+        const inTitle = p.title.toLowerCase().includes(searchVal);
+        const inArea = p.area.toLowerCase().includes(searchVal);
+        if (!inTitle && !inArea) return false;
+      }
+      if (p.priceNum < priceMin) return false;
+      if (priceMax !== Infinity && p.priceNum > priceMax) return false;
+      return true;
     });
-    if (sortVal === 'low') filtered.sort((a,b) => a.priceNum - b.priceNum);
-    else if (sortVal === 'high') filtered.sort((a,b) => b.priceNum - a.priceNum);
-    return filtered;
+
+    if (sortVal === 'low') list.sort((a,b) => a.priceNum - b.priceNum);
+    else if (sortVal === 'high') list.sort((a,b) => b.priceNum - a.priceNum);
+    return list;
   }
 
-  // 渲染卡片 - 展示新字段
-  function renderCard(p, isGold) {
-    const images = p.imagesSmall;
-    const currentIdx = imgIndex[p.id] || 0;
-    const currentImg = images[currentIdx] || images[0];
-    const totalImgs = images.length;
-    const showNav = totalImgs > 1;
+  // ======================= CARD RENDERING =======================
+  function renderCard(p) {
+    const imgs = p.imagesSmall;
+    const idx = imgIndex[p.id] || 0;
+    const total = imgs.length;
     const typeTag = p.type.includes('rent') ? 'rent' : 'sale';
-    const tagLabel = typeTag === 'rent' ? 'RENT' : 'SALE';
     const fav = isFavorite(p.id) ? '❤️' : '🤍';
 
     const tags = [];
-    if (p.landArea) tags.push(`🌿 Land: ${p.landArea} sqft`);
-    if (p.builtUp) tags.push(`🏢 Built: ${p.builtUp} sqft`);
-    if (p.bedroom) tags.push(`🛏 ${p.bedroom} bed`);
-    if (p.bathroom) tags.push(`🚿 ${p.bathroom} bath`);
-    if (p.condition) tags.push(`🔧 ${p.condition}`);
-    if (p.renovate) tags.push(`🛠 ${p.renovate} reno`);
-    if (p.furnish) tags.push(`🪑 ${p.furnish} furnish`);
-    if (p.parking) tags.push(`🚗 ${p.parking} park`);
-    if (p.tenure) tags.push(`📜 ${p.tenure}`);
-    const tagsHtml = tags.map(t => `<span class="detail-tag">${t}</span>`).join('');
+    if (p.landArea) tags.push('🌿 Land: ' + p.landArea + ' sqft');
+    if (p.builtUp) tags.push('🏢 Built: ' + p.builtUp + ' sqft');
+    if (p.bedroom) tags.push('🛏 ' + p.bedroom + ' bed');
+    if (p.bathroom) tags.push('🚿 ' + p.bathroom + ' bath');
+    if (p.condition) tags.push('🔧 ' + p.condition);
+    if (p.renovate) tags.push('🛠 ' + p.renovate + ' reno');
+    if (p.furnish) tags.push('🪑 ' + p.furnish + ' furnish');
+    if (p.parking) tags.push('🚗 ' + p.parking + ' park');
+    if (p.tenure) tags.push('📜 ' + p.tenure);
 
-    return `
-      <div class="card ${p.exclusive ? 'gold-card' : ''}" data-id="${p.id}">
-        <div class="img-box" data-id="${p.id}">
-          ${p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : ''}
-          <div class="tag ${typeTag}">${tagLabel}</div>
-          <img id="img${p.id}" src="${currentImg}" alt="${p.title}" loading="lazy" onerror="this.src='https://placehold.co/600x400/f5f5f7/86868b?text=Error'">
-          ${showNav ? `<button class="nav prev" onclick="event.stopPropagation(); changeImage(${p.id}, -1)">‹</button>
-                        <button class="nav next" onclick="event.stopPropagation(); changeImage(${p.id}, 1)">›</button>` : ''}
-          <div class="image-counter">${currentIdx+1}/${totalImgs}</div>
-        </div>
-        <div class="content">
-          <h3>${p.title}</h3>
-          <div class="price">${p.price}</div>
-          <div class="info">📍 ${p.area}</div>
-          <div class="detail-tags">${tagsHtml}</div>
-        </div>
-        <div class="card-buttons">
-          <a class="btn" href="${buildWALink(p)}" target="_blank" onclick="event.stopPropagation();">WhatsApp</a>
-          <button class="btn-outline" onclick="event.stopPropagation(); openDetailModal(${p.id})">View Details</button>
-          <button class="btn-fav" data-id="${p.id}" onclick="event.stopPropagation(); toggleFavoriteCard(${p.id})">${fav}</button>
-        </div>
-      </div>
-    `;
+    return '<div class="card' + (p.exclusive ? ' gold-card' : '') + '" data-id="' + p.id + '" tabindex="0" role="button" aria-label="' + escapeHtml(p.title) + '">'
+      + '<div class="img-box" data-id="' + p.id + '">'
+      + (p.exclusive ? '<div class="badge">⭐ EXCLUSIVE</div>' : '')
+      + '<div class="tag ' + typeTag + '">' + typeTag.toUpperCase() + '</div>'
+      + '<img id="img' + p.id + '" src="' + escapeHtml(imgs[idx]) + '" alt="' + escapeHtml(p.title) + '" loading="lazy" onerror="this.src=\'https://placehold.co/600x400/f5f5f7/86868b?text=Error\'">'
+      + (total > 1 ? '<button class="nav prev" data-id="' + p.id + '" data-delta="-1" tabindex="0" aria-label="Previous image">‹</button><button class="nav next" data-id="' + p.id + '" data-delta="1" tabindex="0" aria-label="Next image">›</button>' : '')
+      + '<div class="image-counter">' + (idx+1) + '/' + total + '</div>'
+      + '</div>'
+      + '<div class="content">'
+      + '<h3>' + escapeHtml(p.title) + '</h3>'
+      + '<div class="price">' + escapeHtml(p.price) + '</div>'
+      + '<div class="info">📍 ' + escapeHtml(p.area) + '</div>'
+      + '<div class="detail-tags">' + tags.map(t => '<span class="detail-tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+      + '</div>'
+      + '<div class="card-buttons">'
+      + '<a class="btn" href="' + escapeHtml(buildWALink(p)) + '" target="_blank" rel="noopener noreferrer">WhatsApp</a>'
+      + '<button class="btn-outline" data-action="detail" data-id="' + p.id + '">Details</button>'
+      + '<button class="btn-fav" data-id="' + p.id + '" aria-label="Toggle favourite">' + fav + '</button>'
+      + '</div>'
+      + '</div>';
   }
 
   function renderExclusive() {
-    const exclusiveProps = getFilteredProperties(true);
-    const container = document.getElementById('exclusiveGrid');
-    if (exclusiveProps.length === 0) {
-      container.innerHTML = '<div class="no-results" style="width: 100%; text-align: center;">No exclusive listings found</div>';
-    } else {
-      container.innerHTML = exclusiveProps.map(p => renderCard(p, true)).join('');
-    }
-    document.querySelectorAll('.card img').forEach(img => img.setAttribute('loading', 'lazy'));
+    const list = getFilteredProperties(true);
+    const grid = document.getElementById('exclusiveGrid');
+    grid.innerHTML = list.length
+      ? list.map(renderCard).join('')
+      : '<div class="no-results" style="width:280px;">No exclusive listings match.</div>';
   }
 
   function renderNormalPaged() {
-    const normalProps = getFilteredProperties(false);
-    const totalPages = Math.ceil(normalProps.length / ITEMS_PER_PAGE);
-    if (totalPages > 0 && currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
+    const list = getFilteredProperties(false);
+    const totalPages = Math.max(1, Math.ceil(list.length / ITEMS_PER_PAGE));
+    currentPage = Math.min(Math.max(1, currentPage), totalPages);
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageItems = normalProps.slice(start, start + ITEMS_PER_PAGE);
+    const page = list.slice(start, start + ITEMS_PER_PAGE);
     const grid = document.getElementById('grid');
-    if (pageItems.length === 0 && normalProps.length === 0) {
-      grid.innerHTML = '<div class="no-results">🏠 No properties match your criteria.<br>Try adjusting filters.</div>';
-    } else {
-      grid.innerHTML = pageItems.map(p => renderCard(p, false)).join('');
+    grid.innerHTML = page.length
+      ? page.map(renderCard).join('')
+      : '<div class="no-results">🏠 No properties match your criteria.<br>Try adjusting the filters.</div>';
+    renderPagination(totalPages);
+  }
+
+  // ======================= IMAGE NAVIGATION =======================
+  function changeImage(propId, delta) {
+    const p = allProperties.find(x => x.id === propId);
+    if (!p) return;
+    let idx = ((imgIndex[propId] || 0) + delta + p.imagesSmall.length) % p.imagesSmall.length;
+    imgIndex[propId] = idx;
+    const imgEl = document.getElementById('img' + propId);
+    if (imgEl) {
+      imgEl.src = p.imagesSmall[idx];
+      const counter = imgEl.closest('.img-box').querySelector('.image-counter');
+      if (counter) counter.textContent = (idx+1) + '/' + p.imagesSmall.length;
     }
-    renderPaginationControls(totalPages);
-    document.querySelectorAll('.card img').forEach(img => img.setAttribute('loading', 'lazy'));
   }
 
-  window.changeImage = function(propId, delta) {
-    const prop = allProperties.find(p => p.id === propId);
-    if (!prop || !prop.imagesSmall.length) return;
-    let newIdx = (imgIndex[propId] || 0) + delta;
-    if (newIdx < 0) newIdx = prop.imagesSmall.length - 1;
-    if (newIdx >= prop.imagesSmall.length) newIdx = 0;
-    imgIndex[propId] = newIdx;
-    const imgElem = document.getElementById(`img${propId}`);
-    if (imgElem) imgElem.src = prop.imagesSmall[newIdx];
-    const counterDiv = imgElem?.parentElement?.querySelector('.image-counter');
-    if (counterDiv) counterDiv.innerText = `${newIdx+1}/${prop.imagesSmall.length}`;
-  };
+  // ======================= EVENT DELEGATION =======================
+  document.addEventListener('click', function(e) {
+    // Nav buttons (card image prev/next)
+    const navBtn = e.target.closest('.nav');
+    if (navBtn) {
+      e.stopPropagation();
+      const id = parseInt(navBtn.dataset.id);
+      const delta = parseInt(navBtn.dataset.delta);
+      changeImage(id, delta);
+      return;
+    }
 
-  function toggleFavoriteCard(propertyId) {
-    const newState = toggleFavorite(propertyId);
-    const btn = document.querySelector(`.btn-fav[data-id="${propertyId}"]`);
-    if (btn) btn.innerText = newState ? '❤️' : '🤍';
-  }
+    // WhatsApp button (don't open modal)
+    if (e.target.closest('.btn') && e.target.tagName === 'A') return;
 
-  function openDetailModal(propertyId) {
-    const prop = allProperties.find(p => p.id === propertyId);
-    if (!prop) return;
-    addRecentView(propertyId);
-    currentModalProperty = prop;
+    // Details button
+    const detailBtn = e.target.closest('[data-action="detail"]');
+    if (detailBtn) {
+      e.stopPropagation();
+      openDetailModal(parseInt(detailBtn.dataset.id));
+      return;
+    }
+
+    // Favourite button
+    const favBtn = e.target.closest('.btn-fav');
+    if (favBtn) {
+      e.stopPropagation();
+      const id = parseInt(favBtn.dataset.id);
+      const newState = toggleFavorite(id);
+      document.querySelectorAll('.btn-fav[data-id="' + id + '"]').forEach(b => { b.textContent = newState ? '❤️' : '🤍'; });
+      return;
+    }
+
+    // Whole card click → open detail
+    const card = e.target.closest('.card');
+    if (card && card.dataset.id) {
+      openDetailModal(parseInt(card.dataset.id));
+    }
+  });
+
+  // Keyboard: Enter on card or nav buttons
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const card = e.target.closest('.card');
+      if (card && card.dataset.id && e.target === card) {
+        e.preventDefault();
+        openDetailModal(parseInt(card.dataset.id));
+      }
+      const navBtn = e.target.closest('.nav');
+      if (navBtn) {
+        e.preventDefault();
+        changeImage(parseInt(navBtn.dataset.id), parseInt(navBtn.dataset.delta));
+      }
+    }
+    if (e.key === 'Escape') {
+      closeModal();
+      closeFavoritesModal();
+      closeHistoryModal();
+    }
+    if (e.key === 'ArrowLeft' && currentModalProperty && document.getElementById('detailModal').style.display === 'flex') prevModalImage();
+    if (e.key === 'ArrowRight' && currentModalProperty && document.getElementById('detailModal').style.display === 'flex') nextModalImage();
+  });
+
+  // ======================= DETAIL MODAL =======================
+  function openDetailModal(id) {
+    const p = allProperties.find(x => x.id === id);
+    if (!p) return;
+    addRecentView(id);
+    currentModalProperty = p;
     currentModalImageIndex = 0;
     updateModalContent();
     document.getElementById('detailModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    preloadAdjacentImages(prop, 0);
+    preloadAdjacent(p, 0);
   }
 
-  function preloadAdjacentImages(prop, currentIdx) {
-    const images = prop.imagesLarge;
-    if (images[currentIdx + 1]) new Image().src = images[currentIdx + 1];
-    if (images[currentIdx - 1]) new Image().src = images[currentIdx - 1];
+  function preloadAdjacent(p, idx) {
+    const imgs = p.imagesLarge;
+    if (imgs[idx+1]) new Image().src = imgs[idx+1];
+    if (imgs[idx-1]) new Image().src = imgs[idx-1];
   }
 
   function updateModalContent() {
     if (!currentModalProperty) return;
-    const images = currentModalProperty.imagesLarge;
-    const currentImg = images[currentModalImageIndex] || images[0];
-    document.getElementById('modalImage').src = currentImg;
-    document.getElementById('modalCounter').innerText = `${currentModalImageIndex+1}/${images.length}`;
-    document.getElementById('modalTitle').innerText = currentModalProperty.title;
-    document.getElementById('modalPrice').innerText = currentModalProperty.price;
-    document.getElementById('modalArea').innerHTML = `📍 ${currentModalProperty.area}`;
-
+    const p = currentModalProperty;
+    const imgs = p.imagesLarge;
+    document.getElementById('modalImage').src = imgs[currentModalImageIndex] || imgs[0];
+    document.getElementById('modalCounter').textContent = (currentModalImageIndex+1) + '/' + imgs.length;
+    document.getElementById('modalTitle').textContent = p.title;
+    document.getElementById('modalPrice').textContent = p.price;
+    document.getElementById('modalArea').textContent = '📍 ' + p.area;
     const tags = [];
-    if (currentModalProperty.landArea) tags.push(`🌿 Land Area: ${currentModalProperty.landArea} sqft`);
-    if (currentModalProperty.builtUp) tags.push(`🏢 Built Up: ${currentModalProperty.builtUp} sqft`);
-    if (currentModalProperty.bedroom) tags.push(`🛏 Bedroom: ${currentModalProperty.bedroom}`);
-    if (currentModalProperty.bathroom) tags.push(`🚿 Bathroom: ${currentModalProperty.bathroom}`);
-    if (currentModalProperty.condition) tags.push(`🔧 Condition: ${currentModalProperty.condition}`);
-    if (currentModalProperty.renovate) tags.push(`🛠 Renovate: ${currentModalProperty.renovate}`);
-    if (currentModalProperty.furnish) tags.push(`🪑 Furnish: ${currentModalProperty.furnish}`);
-    if (currentModalProperty.parking) tags.push(`🚗 Parking: ${currentModalProperty.parking}`);
-    if (currentModalProperty.tenure) tags.push(`📜 Tenure: ${currentModalProperty.tenure}`);
-    document.getElementById('modalTags').innerHTML = tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
-
-    const waLink = buildWALink(currentModalProperty);
-    document.getElementById('modalWALink').href = waLink;
-    preloadAdjacentImages(currentModalProperty, currentModalImageIndex);
+    if (p.landArea) tags.push('🌿 Land Area: ' + p.landArea + ' sqft');
+    if (p.builtUp) tags.push('🏢 Built Up: ' + p.builtUp + ' sqft');
+    if (p.bedroom) tags.push('🛏 Bedroom: ' + p.bedroom);
+    if (p.bathroom) tags.push('🚿 Bathroom: ' + p.bathroom);
+    if (p.condition) tags.push('🔧 Condition: ' + p.condition);
+    if (p.renovate) tags.push('🛠 Renovate: ' + p.renovate);
+    if (p.furnish) tags.push('🪑 Furnish: ' + p.furnish);
+    if (p.parking) tags.push('🚗 Parking: ' + p.parking);
+    if (p.tenure) tags.push('📜 Tenure: ' + p.tenure);
+    document.getElementById('modalTags').innerHTML = tags.map(t => '<span class="modal-tag">' + escapeHtml(t) + '</span>').join('');
+    document.getElementById('modalWALink').href = buildWALink(p);
+    document.getElementById('modalPrev').style.display = imgs.length > 1 ? '' : 'none';
+    document.getElementById('modalNext').style.display = imgs.length > 1 ? '' : 'none';
+    preloadAdjacent(p, currentModalImageIndex);
   }
 
   function closeModal() {
@@ -1281,110 +1267,69 @@
   }
   function nextModalImage() {
     if (!currentModalProperty) return;
-    if (currentModalImageIndex + 1 < currentModalProperty.imagesLarge.length) {
-      currentModalImageIndex++;
-      updateModalContent();
-    }
+    const len = currentModalProperty.imagesLarge.length;
+    currentModalImageIndex = (currentModalImageIndex + 1) % len;
+    updateModalContent();
   }
   function prevModalImage() {
     if (!currentModalProperty) return;
-    if (currentModalImageIndex - 1 >= 0) {
-      currentModalImageIndex--;
-      updateModalContent();
-    }
+    const len = currentModalProperty.imagesLarge.length;
+    currentModalImageIndex = (currentModalImageIndex - 1 + len) % len;
+    updateModalContent();
   }
 
-  function renderPaginationControls(totalPages) {
-    const paginationDiv = document.getElementById('pagination');
-    if (totalPages <= 1) {
-      paginationDiv.innerHTML = '';
-      return;
-    }
-    let html = `<button class="prev-page" ${currentPage === 1 ? 'disabled' : ''}>‹ Previous</button>`;
-    html += `<div class="page-numbers">`;
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, currentPage + 2);
-    if (startPage > 1) {
-      html += `<span data-page="1">1</span>`;
-      if (startPage > 2) html += `<span>...</span>`;
-    }
-    for (let i = startPage; i <= endPage; i++) {
-      html += `<span data-page="${i}" class="${i === currentPage ? 'active' : ''}">${i}</span>`;
-    }
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) html += `<span>...</span>`;
-      html += `<span data-page="${totalPages}">${totalPages}</span>`;
-    }
-    html += `</div><button class="next-page" ${currentPage === totalPages ? 'disabled' : ''}>Next ›</button>`;
-    html += `<div class="page-jump">Go to <input type="number" id="pageJump" min="1" max="${totalPages}" placeholder="${currentPage}"> <button id="jumpBtn">Go</button></div>`;
-    paginationDiv.innerHTML = html;
+  // Touch swipe for modal
+  (function() {
+    let startX = null;
+    const box = document.getElementById('modalImgBox');
+    box.addEventListener('touchstart', function(e) { startX = e.changedTouches[0].screenX; }, {passive:true});
+    box.addEventListener('touchend', function(e) {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].screenX - startX;
+      if (dx < -40) nextModalImage();
+      else if (dx > 40) prevModalImage();
+      startX = null;
+    }, {passive:true});
+  })();
 
-    paginationDiv.querySelectorAll('.page-numbers span[data-page]').forEach(span => {
-      span.addEventListener('click', () => {
-        const page = parseInt(span.dataset.page);
-        if (!isNaN(page) && page !== currentPage) {
-          currentPage = page;
-          renderNormalPaged();
-          document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-    const prevBtn = paginationDiv.querySelector('.prev-page');
-    const nextBtn = paginationDiv.querySelector('.next-page');
-    if (prevBtn && !prevBtn.disabled) prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderNormalPaged(); document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
-    if (nextBtn && !nextBtn.disabled) nextBtn.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderNormalPaged(); document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
-    const jumpInput = document.getElementById('pageJump');
-    const jumpBtn = document.getElementById('jumpBtn');
-    if (jumpBtn) {
-      jumpBtn.addEventListener('click', () => {
-        let page = parseInt(jumpInput.value);
-        if (isNaN(page)) page = currentPage;
-        page = Math.min(totalPages, Math.max(1, page));
-        if (page !== currentPage) {
-          currentPage = page;
-          renderNormalPaged();
-          document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    }
-  }
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalPrev').addEventListener('click', prevModalImage);
+  document.getElementById('modalNext').addEventListener('click', nextModalImage);
+  window.addEventListener('click', function(e) {
+    if (e.target === document.getElementById('detailModal')) closeModal();
+    if (e.target === document.getElementById('favoritesModal')) closeFavoritesModal();
+    if (e.target === document.getElementById('historyModal')) closeHistoryModal();
+  });
 
+  // ======================= FAVOURITES MODAL =======================
   function showFavoritesModal() {
-    const favIds = getFavorites();
-    const container = document.getElementById('favoritesList');
-    if (favIds.length === 0) {
-      container.innerHTML = '<div style="text-align:center; padding:20px;">No favorites yet.</div>';
+    const ids = getFavorites();
+    const el = document.getElementById('favoritesList');
+    if (!ids.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">No favourites yet. Tap ❤️ on any listing.</div>';
     } else {
-      const items = favIds.map(id => {
-        const prop = allProperties.find(p => p.id === id);
-        if (!prop) return '';
-        return `
-          <div class="favorite-item" data-id="${id}">
-            <img src="${prop.imagesSmall[0]}" alt="${prop.title}" loading="lazy">
-            <div class="info">
-              <div class="title">${prop.title}</div>
-              <div class="price">${prop.price}</div>
-              <div class="info">📍 ${prop.area}</div>
-            </div>
-            <button class="remove-fav" data-id="${id}">🗑️</button>
-          </div>
-        `;
+      el.innerHTML = ids.map(id => {
+        const p = allProperties.find(x => x.id === id);
+        if (!p) return '';
+        return '<div class="favorite-item" data-id="' + id + '">'
+          + '<img src="' + escapeHtml(p.imagesSmall[0]) + '" alt="' + escapeHtml(p.title) + '" loading="lazy">'
+          + '<div class="fav-info"><div class="title">' + escapeHtml(p.title) + '</div><div class="price">' + escapeHtml(p.price) + '</div><div class="area">📍 ' + escapeHtml(p.area) + '</div></div>'
+          + '<button class="remove-fav" data-id="' + id + '" aria-label="Remove favourite">🗑️</button>'
+          + '</div>';
       }).join('');
-      container.innerHTML = items;
-      container.querySelectorAll('.favorite-item').forEach(item => {
-        const id = parseInt(item.dataset.id);
-        item.addEventListener('click', (e) => {
-          if (e.target.classList.contains('remove-fav')) return;
-          openDetailModal(id);
+      el.querySelectorAll('.favorite-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+          if (e.target.closest('.remove-fav')) return;
+          openDetailModal(parseInt(item.dataset.id));
           closeFavoritesModal();
         });
       });
-      container.querySelectorAll('.remove-fav').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+      el.querySelectorAll('.remove-fav').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
           e.stopPropagation();
-          const id = parseInt(btn.dataset.id);
-          toggleFavorite(id);
+          toggleFavorite(parseInt(btn.dataset.id));
           showFavoritesModal();
+          document.querySelectorAll('.btn-fav[data-id="' + btn.dataset.id + '"]').forEach(function(b) { b.textContent = '🤍'; });
         });
       });
     }
@@ -1395,31 +1340,25 @@
     document.getElementById('favoritesModal').style.display = 'none';
     document.body.style.overflow = '';
   }
+
+  // ======================= HISTORY MODAL =======================
   function showHistoryModal() {
-    const recentIds = getRecentViews();
-    const container = document.getElementById('historyList');
-    if (recentIds.length === 0) {
-      container.innerHTML = '<div style="text-align:center; padding:20px;">No recently viewed properties.</div>';
+    const ids = getRecentViews();
+    const el = document.getElementById('historyList');
+    if (!ids.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">No recently viewed properties.</div>';
     } else {
-      const items = recentIds.map(id => {
-        const prop = allProperties.find(p => p.id === id);
-        if (!prop) return '';
-        return `
-          <div class="history-item" data-id="${id}">
-            <img src="${prop.imagesSmall[0]}" alt="${prop.title}" loading="lazy">
-            <div class="info">
-              <div class="title">${prop.title}</div>
-              <div class="price">${prop.price}</div>
-              <div class="info">📍 ${prop.area}</div>
-            </div>
-          </div>
-        `;
+      el.innerHTML = ids.map(id => {
+        const p = allProperties.find(x => x.id === id);
+        if (!p) return '';
+        return '<div class="history-item" data-id="' + id + '">'
+          + '<img src="' + escapeHtml(p.imagesSmall[0]) + '" alt="' + escapeHtml(p.title) + '" loading="lazy">'
+          + '<div class="fav-info"><div class="title">' + escapeHtml(p.title) + '</div><div class="price">' + escapeHtml(p.price) + '</div><div class="area">📍 ' + escapeHtml(p.area) + '</div></div>'
+          + '</div>';
       }).join('');
-      container.innerHTML = items;
-      container.querySelectorAll('.history-item').forEach(item => {
-        const id = parseInt(item.dataset.id);
-        item.addEventListener('click', () => {
-          openDetailModal(id);
+      el.querySelectorAll('.history-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          openDetailModal(parseInt(item.dataset.id));
           closeHistoryModal();
         });
       });
@@ -1432,92 +1371,139 @@
     document.body.style.overflow = '';
   }
 
-  function initTouchSwipe() {
-    const container = document.querySelector('.container');
-    container.addEventListener('touchstart', (e) => {
-      const imgBox = e.target.closest('.img-box');
-      if (!imgBox) return;
-      imgBox._touchStartX = e.changedTouches[0].screenX;
+  // ======================= PAGINATION =======================
+  function renderPagination(totalPages) {
+    const el = document.getElementById('pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    let h = '<button class="prev-page"' + (currentPage === 1 ? ' disabled' : '') + '>‹ Previous</button>';
+    h += '<div class="page-numbers">';
+    const s = Math.max(1, currentPage - 2);
+    const end = Math.min(totalPages, currentPage + 2);
+    if (s > 1) { h += '<span data-page="1">1</span>'; if (s > 2) h += '<span>…</span>'; }
+    for (let i = s; i <= end; i++) h += '<span data-page="' + i + '"' + (i === currentPage ? ' class="active"' : '') + '>' + i + '</span>';
+    if (end < totalPages) { if (end < totalPages - 1) h += '<span>…</span>'; h += '<span data-page="' + totalPages + '">' + totalPages + '</span>'; }
+    h += '</div>';
+    h += '<button class="next-page"' + (currentPage === totalPages ? ' disabled' : '') + '>Next ›</button>';
+    h += '<div class="page-jump"><label for="pageJump" style="font-size:12px;color:var(--text-muted)">Go to</label> <input type="number" id="pageJump" min="1" max="' + totalPages + '" placeholder="' + currentPage + '" aria-label="Jump to page"> <button id="jumpBtn">Go</button></div>';
+    el.innerHTML = h;
+
+    el.querySelectorAll('.page-numbers span[data-page]').forEach(function(sp) {
+      sp.addEventListener('click', function() {
+        const pg = parseInt(sp.dataset.page);
+        if (!isNaN(pg) && pg !== currentPage) { currentPage = pg; renderNormalPaged(); scrollToGrid(); }
+      });
     });
-    container.addEventListener('touchend', (e) => {
-      const imgBox = e.target.closest('.img-box');
-      if (!imgBox || imgBox._touchStartX === undefined) return;
-      const delta = e.changedTouches[0].screenX - imgBox._touchStartX;
-      const card = imgBox.closest('.card');
-      if (card?.dataset.id) {
-        if (delta < -30) changeImage(parseInt(card.dataset.id), 1);
-        if (delta > 30) changeImage(parseInt(card.dataset.id), -1);
-      }
-      delete imgBox._touchStartX;
+    const prev = el.querySelector('.prev-page');
+    const next = el.querySelector('.next-page');
+    if (prev && !prev.disabled) prev.addEventListener('click', function() { if (currentPage > 1) { currentPage--; renderNormalPaged(); scrollToGrid(); } });
+    if (next && !next.disabled) next.addEventListener('click', function() { currentPage++; renderNormalPaged(); scrollToGrid(); });
+    const jumpBtn = document.getElementById('jumpBtn');
+    if (jumpBtn) jumpBtn.addEventListener('click', function() {
+      let pg = parseInt(document.getElementById('pageJump').value);
+      if (isNaN(pg)) return;
+      pg = Math.min(totalPages, Math.max(1, pg));
+      if (pg !== currentPage) { currentPage = pg; renderNormalPaged(); scrollToGrid(); }
     });
   }
 
-  let scrollGradientBound = false;
+  function scrollToGrid() {
+    document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ======================= SCROLL GRADIENT =======================
+  let gradientBound = false;
   function checkScrollGradient() {
-    const scrollDiv = document.getElementById('exclusiveScroll');
-    const gradient = document.getElementById('scrollGradient');
-    if (!scrollDiv || !gradient) return;
-    const updateGradient = () => {
-      const hasScroll = scrollDiv.scrollWidth > scrollDiv.clientWidth;
-      gradient.style.display = hasScroll ? 'block' : 'none';
-      if (hasScroll && scrollDiv.scrollLeft + scrollDiv.clientWidth >= scrollDiv.scrollWidth - 5) {
-        gradient.style.opacity = '0';
-      } else {
-        gradient.style.opacity = '1';
-      }
+    const sc = document.getElementById('exclusiveScroll');
+    const gr = document.getElementById('scrollGradient');
+    if (!sc || !gr) return;
+    const update = function() {
+      const has = sc.scrollWidth > sc.clientWidth;
+      gr.style.display = has ? 'block' : 'none';
+      gr.style.opacity = (has && sc.scrollLeft + sc.clientWidth < sc.scrollWidth - 5) ? '1' : '0';
     };
-    updateGradient();
-    if (!scrollGradientBound) {
-      scrollDiv.addEventListener('scroll', updateGradient);
-      window.addEventListener('resize', updateGradient);
-      scrollGradientBound = true;
+    update();
+    if (!gradientBound) {
+      sc.addEventListener('scroll', update, {passive:true});
+      window.addEventListener('resize', update);
+      gradientBound = true;
     }
   }
 
-  function debounce(fn, delay) {
-    let timer;
-    return function(...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => fn.apply(this, args), delay);
-    };
+  // ======================= TOUCH SWIPE ON CARDS =======================
+  (function() {
+    const container = document.getElementById('normalContainer');
+    const excl = document.getElementById('exclusiveGrid');
+    function addSwipe(el) {
+      el.addEventListener('touchstart', function(e) {
+        const ib = e.target.closest('.img-box');
+        if (ib) ib._tx = e.changedTouches[0].screenX;
+      }, {passive:true});
+      el.addEventListener('touchend', function(e) {
+        const ib = e.target.closest('.img-box');
+        if (!ib || ib._tx === undefined) return;
+        const dx = e.changedTouches[0].screenX - ib._tx;
+        const card = ib.closest('.card');
+        if (card && card.dataset.id) {
+          if (dx < -30) changeImage(parseInt(card.dataset.id), 1);
+          if (dx > 30) changeImage(parseInt(card.dataset.id), -1);
+        }
+        delete ib._tx;
+      }, {passive:true});
+    }
+    addSwipe(container);
+    addSwipe(excl);
+  })();
+
+  // ======================= FILTER EVENTS =======================
+  function debounce(fn, ms) {
+    let t;
+    return function() { clearTimeout(t); t = setTimeout(fn, ms); };
   }
-  const debouncedFilter = debounce(() => {
+  const doFilter = debounce(function() {
     currentPage = 1;
     saveFilters();
     renderExclusive();
     renderNormalPaged();
     checkScrollGradient();
   }, 300);
-  function onFilterChange() { debouncedFilter(); }
 
-  // Back to Top
-  const backToTopBtn = document.getElementById('backToTop');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) backToTopBtn.classList.add('show');
-    else backToTopBtn.classList.remove('show');
-  });
-  backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-  // 事件绑定
-  document.querySelectorAll('#type, #area, #sort, #search').forEach(el => el.addEventListener('input', onFilterChange));
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('modalPrev').addEventListener('click', prevModalImage);
-  document.getElementById('modalNext').addEventListener('click', nextModalImage);
-  window.addEventListener('click', (e) => { if (e.target === document.getElementById('detailModal')) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-  document.getElementById('favoritesIcon').addEventListener('click', showFavoritesModal);
-  document.getElementById('historyIcon').addEventListener('click', showHistoryModal);
-  document.getElementById('closeFavorites').addEventListener('click', closeFavoritesModal);
-  document.getElementById('closeHistory').addEventListener('click', closeHistoryModal);
-  window.addEventListener('click', (e) => {
-    if (e.target === document.getElementById('favoritesModal')) closeFavoritesModal();
-    if (e.target === document.getElementById('historyModal')) closeHistoryModal();
+  ['type','area','bedrooms','sort','search','priceMin','priceMax'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', doFilter);
   });
 
-  loadData().then(() => {
-    initTouchSwipe();
+  document.getElementById('clearFilters').addEventListener('click', function() {
+    document.getElementById('type').value = 'all';
+    document.getElementById('area').value = 'all';
+    document.getElementById('bedrooms').value = 'all';
+    document.getElementById('sort').value = 'default';
+    document.getElementById('search').value = '';
+    document.getElementById('priceMin').value = '';
+    document.getElementById('priceMax').value = '';
+    try { localStorage.removeItem('feong_filters'); } catch(e) {}
+    currentPage = 1;
+    renderExclusive();
+    renderNormalPaged();
     checkScrollGradient();
   });
+
+  // ======================= FAVOURITES / HISTORY ICONS =======================
+  document.getElementById('favoritesIcon').addEventListener('click', showFavoritesModal);
+  document.getElementById('historyIcon').addEventListener('click', showHistoryModal);
+  document.getElementById('favoritesIcon').addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') showFavoritesModal(); });
+  document.getElementById('historyIcon').addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') showHistoryModal(); });
+  document.getElementById('closeFavorites').addEventListener('click', closeFavoritesModal);
+  document.getElementById('closeHistory').addEventListener('click', closeHistoryModal);
+  document.getElementById('closeFavorites').addEventListener('keydown', function(e) { if (e.key==='Enter') closeFavoritesModal(); });
+  document.getElementById('closeHistory').addEventListener('keydown', function(e) { if (e.key==='Enter') closeHistoryModal(); });
+
+  // ======================= BACK TO TOP =======================
+  const btt = document.getElementById('backToTop');
+  window.addEventListener('scroll', function() { btt.classList.toggle('show', window.scrollY > 300); }, {passive:true});
+  btt.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  btt.addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+  // ======================= INIT =======================
+  loadData().then(function() { checkScrollGradient(); });
 </script>
 </body>
 </html>
